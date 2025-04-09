@@ -1,50 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-function Header() {
-    const [headerData, setHeaderData] = useState({ title: "", navLink: [], logo: "" });
-    const [localTime, setLocalTime] = useState("");
-    
+const Header = () => {
+  const [headerData, setHeaderData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetch('http://localhost:8888/vansun/wp-json/wp/v2/pages?slug=header-data')
+      .then((res) => res.json())
+      .then((data) => {
+        setHeaderData(data.acf); 
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching header data:', error);
+        setLoading(false);
+      });
+  }, []);
 
-    useEffect(() => {
-        fetch('/data/headerData.json') 
-            .then(response => response.json())
-            .then(data => setHeaderData(data))
-            .catch(error => console.error("Error fetching data:", error));
-    }, []);
+  if (loading) return <p>Loading header...</p>;
+  if (!headerData) return <p>No header data found.</p>;
 
-    useEffect (() => {
-        const updateTime = () => {
-            const now = new Date().toLocaleTimeString("en-US", { 
-                timeZone:"America/Vancouver",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true
-            });
-            setLocalTime(now);
-            };
-            
-            updateTime();
-            const interval = setInterval(updateTime, 1000);
-
-            return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <header>
-            {headerData.logo && (
-               <img src={'/data/' + headerData.logo} alt="logo" />
-
-            )}
-            <nav>
-                {headerData.navLink.map((link, index) => (
-                    <a key={index} href={link.link}>
-                        {link.name}
-                    </a>
-                ))}
-            </nav>
-        </header>
-    );
-}
+  return (
+    <header>
+      <img
+        src={headerData.logo?.url}
+        alt={headerData.logo?.alt || 'Logo'}
+        style={{ width: '150px' }}
+      />
+      <h1>{headerData.header_title}</h1>
+      <p>{headerData.header_subtitle}</p>
+    </header>
+  );
+};
 
 export default Header;
