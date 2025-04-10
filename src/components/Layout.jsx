@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import Header from './Header';
-import { useLocation } from 'react-router-dom';
+import Footer from './Footer';
+
 
 
 function Layout({ children }) {
@@ -13,6 +14,8 @@ function Layout({ children }) {
             <Header />
             
             <main>{children}</main> 
+
+            <Footer />
         </>
     );
 }
