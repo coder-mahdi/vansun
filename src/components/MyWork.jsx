@@ -44,6 +44,7 @@ const MyWork = () => {
 
   return (
     <section className="my-work">
+      <h2 className='mywork-title'>My Work</h2>
       {myWorkData.map((item, index) => (
         <div key={index} className="my-work-item">
           {item.imageUrl && (
