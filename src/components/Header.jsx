@@ -51,7 +51,6 @@ const Header = () => {
         />
       )}
       <nav>
-        {/* نمایش لینک‌های سرویس, بوک, ابوت */}
         {headerData.navigate.service_ && (
           <a
             href={headerData.navigate.service_.url}
