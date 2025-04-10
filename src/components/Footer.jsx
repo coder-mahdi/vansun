@@ -11,12 +11,10 @@ const Footer = () => {
         if (data.length > 0 && data[0].acf && data[0].acf.Footer) {
           const footer = data[0].acf.Footer;
       
-          // تبدیل header_links به آرایه فلت شده
           const headerLinks = footer.header_links && footer.header_links.length > 0
             ? Object.values(footer.header_links[0])
             : [];
       
-          // social_media هم یک آرایه شامل یک آبجکت هست
           const socialMedia = footer.social_media && footer.social_media.length > 0
             ? footer.social_media[0]
             : {};
