@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPageBySlug } from '../utils/api';
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 import Layout from '../layout/Layout';
-
 
 const API_BASE = 'http://localhost:8888/vansun/wp-json/wp/v2';
 
@@ -17,11 +16,12 @@ const BookNow = () => {
         const data = await Promise.all(
           page.acf['book-now'].map(async (item) => {
             const imageUrl = await fetchImageUrl(item['book-now-image']);
+            const productId = item['booking-link']; // فرض: آیدی محصول ووکامرس
             return {
               title: item.title,
               price: item.price,
               imageUrl: imageUrl,
-              link: '/home', // لینک به صفحه Home (می‌توانید این را بر اساس نیاز خود تغییر دهید)
+              productId: productId,
             };
           })
         );
@@ -32,7 +32,6 @@ const BookNow = () => {
     getBookNowData();
   }, []);
 
-  // بارگذاری تصویر با استفاده از شناسه
   const fetchImageUrl = async (imageId) => {
     try {
       const res = await fetch(`${API_BASE}/media/${imageId}`);
@@ -48,28 +47,29 @@ const BookNow = () => {
   if (bookNowData.length === 0) return <p>No book now data found.</p>;
 
   return (
-    <Layout> 
-
-    <section className="book-now">
-      {bookNowData.map((item, index) => (
+    <Layout>
+      <section className="book-now">
+        {bookNowData.map((item, index) => (
           <div key={index} className="book-now-item">
-          {item.imageUrl && (
+            {item.imageUrl && (
               <img
-              src={item.imageUrl}
-              alt={`Book now ${index + 1}`}
-              className="book-now-image"
+                src={item.imageUrl}
+                alt={`Book now ${index + 1}`}
+                className="book-now-image"
               />
             )}
-          <h2>{item.title}</h2>
-          <p>{item.price}</p>
-          {/* لینک به صفحه Home */}
-          <Link to={item.link} className="book-now-button">
-            Book Now
-          </Link>
-        </div>
-      ))}
-    </section>
-      </Layout>
+            <h2>{item.title}</h2>
+            <p>{item.price}</p>
+            <Link
+              to={`/booking/${item.productId}`}
+              className="book-now-button"
+            >
+              Book Now
+            </Link>
+          </div>
+        ))}
+      </section>
+    </Layout>
   );
 };
 
