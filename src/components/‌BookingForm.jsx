@@ -1,12 +1,27 @@
-// src/components/BookingForm.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const BookingForm = ({ onSubmit }) => {
+const BookingForm = ({ availability, onSubmit }) => {
   const [date, setDate] = useState('');
+  const [availableTimes, setAvailableTimes] = useState([]);
   const [time, setTime] = useState('');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+
+  useEffect(() => {
+    if (!date) return;
+
+    const selectedDay = new Date(date).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+
+    const filteredTimes = availability
+      .filter((slot) => slot.date === selectedDay)
+      .map((slot) => slot.start_time);
+
+    setAvailableTimes(filteredTimes);
+    setTime(''); // reset time when date changes
+  }, [date, availability]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -36,7 +51,12 @@ const BookingForm = ({ onSubmit }) => {
 
       <div>
         <label>Time:</label>
-        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full border p-2 rounded" />
+        <select value={time} onChange={(e) => setTime(e.target.value)} className="w-full border p-2 rounded">
+          <option value="">Select time</option>
+          {availableTimes.map((t, index) => (
+            <option key={index} value={t}>{t}</option>
+          ))}
+        </select>
       </div>
 
       <div>
