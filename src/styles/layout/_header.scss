@@ -1,9 +1,131 @@
 header {
   background-color: $color-header-bg;
   color: $color-light;
-  padding: 1rem 0;
+  position: relative;
+  z-index: 1000;
 
-  a {
-    color: $color-light;
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .logo {
+    img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+    position: relative;
+    
+    span {
+      display: block;
+      width: 25px;
+      height: 3px;
+      background-color: $color-light;
+      margin: 5px 0;
+      transition: all 0.3s ease;
+    }
+
+    &.active {
+      span {
+        &:nth-child(1) {
+          transform: rotate(45deg) translate(5px, 5px);
+        }
+        &:nth-child(2) {
+          opacity: 0;
+        }
+        &:nth-child(3) {
+          transform: rotate(-45deg) translate(5px, -5px);
+        }
+      }
+    }
+  }
+
+  nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+
+      .book-now-link {
+        margin: 0 auto;
+      }
+
+      a {
+        color: $color-light;
+        text-decoration: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .logo {
+      img {
+        height: 40px;
+      }
+    }
+
+    .hamburger {
+      display: block;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: $color-header-bg;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+
+      &.active {
+        transform: translateX(0);
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 2rem;
+
+        .book-now-link {
+          margin: 0;
+        }
+
+        a {
+          font-size: 1.5rem;
+        }
+      }
+    }
   }
 } 

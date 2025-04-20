@@ -43,7 +43,7 @@ const MyWork = () => {
   if (!myWorkData.length) return <p>No work data found.</p>;
 
   return (
-    <section className="my-work">
+    <section id="my-work" className="my-work">
       <h2 className='mywork-title'>My Work</h2>
       {myWorkData.map((item, index) => (
         <div key={index} className="my-work-item">

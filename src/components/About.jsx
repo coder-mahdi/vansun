@@ -40,7 +40,7 @@ const About = () => {
   if (!aboutData) return <p>No about data found.</p>;
 
   return (
-    <section className="about">
+    <section id="about" className="about">
         <h2>About</h2>
 
       {aboutData.imageUrl && (
