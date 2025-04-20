@@ -1,0 +1,11 @@
+// Main Colors
+$color-primary: rgb(61, 44, 0);      // Dark brown for dark backgrounds
+$color-primary-hex: #3d2c00;
+$color-light: rgb(250, 255, 238);    // Light cream for light backgrounds and text
+$color-light-hex: #faffee;
+
+// Color Usage
+$color-header-bg: $color-primary;
+$color-footer-bg: $color-primary;
+$color-text-light: $color-light;     // For text on dark backgrounds
+$color-bg-light: $color-light;       // For light backgrounds 

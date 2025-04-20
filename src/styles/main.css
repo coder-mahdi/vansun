@@ -17,4 +17,16 @@ h2 {
   font-size: 36px;
 }
 
+header {
+  background-color: rgb(61, 44, 0);
+  color: rgb(250, 255, 238);
+  padding: 1rem 0;
+}
+
+footer {
+  background-color: rgb(61, 44, 0);
+  color: rgb(250, 255, 238);
+  padding: 2rem 0;
+}
+
 /*# sourceMappingURL=main.css.map */
