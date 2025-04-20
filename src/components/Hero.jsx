@@ -34,8 +34,8 @@ const Hero = () => {
         {heroImage && heroImage.source_url && (
           <img src={heroImage.source_url} alt={heroImage.alt_text} />
         )}
-          <h2>{title}</h2>
-        <h3>{subtitle}</h3>
+          <h1>{title}</h1>
+        <h2>{subtitle}</h2>
       </div>
     </section>
   );

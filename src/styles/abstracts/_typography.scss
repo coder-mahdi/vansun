@@ -1,0 +1,51 @@
+// Typography Variables
+
+// Font Families
+$font-primary: 'Lato', sans-serif;
+$font-heading: 'Playfair Display', serif;
+
+// Font Sizes
+$font-size-base: 16px;
+$font-size-h1: 48px;
+$font-size-h2: 36px;
+$font-size-button: 14px;
+
+// Font Weights
+$font-weight-regular: 400;
+$font-weight-bold: 700;
+
+// Line Heights
+$line-height-base: 1.5;
+$line-height-heading: 1.2;
+$line-height-tight: 1.25;
+$line-height-loose: 1.75;
+
+// Letter Spacing
+$letter-spacing-base: 0.5px;
+$letter-spacing-wide: 1px;
+$letter-spacing-tight: -0.5px;
+
+// Text Transforms
+$text-transform-uppercase: uppercase;
+$text-transform-capitalize: capitalize;
+$text-transform-lowercase: lowercase;
+$text-transform-none: none; 
+
+// Base styles
+html {
+  font-size: $font-size-base;
+  font-family: $font-primary;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-heading;
+  font-weight: $font-weight-bold;
+}
+
+h1 {
+  font-size: $font-size-h1;
+}
+
+h2 {
+  font-size: $font-size-h2;
+} 
