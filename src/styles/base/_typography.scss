@@ -6,7 +6,7 @@ $font-heading: 'Playfair Display', serif;
 
 // Font Sizes
 $font-size-base: 16px;
-$font-size-h1: 48px;
+$font-size-h1: 64px;
 $font-size-h2: 36px;
 $font-size-button: 14px;
 
@@ -44,6 +44,9 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: $font-size-h1;
+  letter-spacing: -0.03em;
+  font-weight: bold;
+  line-height: 0.9;
 }
 
 h2 {

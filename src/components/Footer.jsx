@@ -36,7 +36,7 @@ const Footer = () => {
 
   return (
     <footer>
-    <h2>{footerData.title}</h2>
+    <h1>{footerData.title}</h1>
   
     <nav>
       <ul>
