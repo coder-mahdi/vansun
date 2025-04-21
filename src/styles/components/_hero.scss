@@ -2,10 +2,14 @@
   position: relative;
   width: 100%;
   overflow: hidden;
+  background-color: $color-light;
+  margin-bottom: 4rem;
 
   .hero-content {
     position: relative;
     z-index: 1;
+    text-align: center;
+    padding-bottom: 4rem;
   }
 
   .slider-container {
@@ -45,10 +49,26 @@
     animation-play-state: paused;
   }
 
-  h1, h2 {
+  h1 {
+    position: relative;
+    z-index: 1;
+    color: $color-primary;
+    text-shadow: none;
+    font-size: 10rem;
+    width: 100%;
+    margin: 0 auto 1rem;
+    line-height: 1.1;
+    letter-spacing: 0.1em;
+    font-stretch: expanded;
+    text-transform: uppercase;
+    padding-top: 2rem;
+  }
+
+  h2 {
     position: relative;
     z-index: 2;
-    color: #fff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: $color-primary;
+    text-shadow: none;
+    margin-bottom: 2rem;
   }
 }
