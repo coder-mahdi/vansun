@@ -11,7 +11,6 @@ const About = () => {
     const getAboutData = async () => {
       const page = await fetchPageBySlug('about-data');
       if (page && page.acf && page.acf.about) {
-        // بارگذاری تصویر از ID
         const aboutImageUrl = await fetchImageUrl(page.acf.about['about-image']);
         setAboutData({
           title: page.acf.about.title,
@@ -24,7 +23,6 @@ const About = () => {
     getAboutData();
   }, []);
 
-  // بارگذاری تصویر با استفاده از شناسه
   const fetchImageUrl = async (imageId) => {
     try {
       const res = await fetch(`${API_BASE}/media/${imageId}`);
@@ -40,9 +38,8 @@ const About = () => {
   if (!aboutData) return <p>No about data found.</p>;
 
   return (
-    <section id="about" className="about">
-        <h2>About</h2>
-
+    <section id="about" className="about-container">
+      <div className="about-image"> 
       {aboutData.imageUrl && (
         <img
           src={aboutData.imageUrl}
@@ -50,6 +47,7 @@ const About = () => {
           className="about-image"
         />
       )}
+      </div>
       <div className="about-text">
         <h3>{aboutData.title}</h3>
         <p>{aboutData.description}</p>
