@@ -1,0 +1,121 @@
+.my-work {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+
+  h2 {
+    color: var(--brown-color);
+    font-weight: 300;
+    font-size: 1.5rem;
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(223, 218, 196);
+    line-height: 1;
+  }
+
+  .my-work-items-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0;
+
+    @media (min-width: 1024px) {
+      flex-direction: row;
+    }
+
+    @media (max-width: 1023px) {
+      flex-direction: column;
+    }
+  }
+
+  .my-work-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    flex: 1;
+    min-width: 100%;
+
+    @media (min-width: 1024px) {
+      min-width: 15.333%;
+    }
+
+    @media (min-width: 768px) {
+        min-width: 5.333%;
+      }
+
+    &:nth-child(1) {
+      background-color: rgba(190, 183, 144, 1);
+    }
+
+    &:nth-child(2) {
+      background-color: rgba(250, 255, 238, 1);
+    }
+
+    &:nth-child(3) {
+      background-color: rgba(61, 44, 0, 1);
+      color: rgba(250, 255, 238, 1);
+    }
+
+    .my-work-image {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      color: var(--brown-color);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .button-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .btn-book {
+        color: var(--brown-color);
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &::after {
+          content: '';
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border: 2px solid var(--brown-color);
+          border-radius: 50%;
+          animation: blink 1.5s infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: var(--brown-color);
+  }
+  100% {
+    background-color: transparent;
+  }
+}

@@ -45,19 +45,21 @@ const MyWork = () => {
   return (
     <section id="my-work" className="my-work">
       <h2 className='mywork-title'>My Work</h2>
-      {myWorkData.map((item, index) => (
-        <div key={index} className="my-work-item">
-          {item.imageUrl && (
-            <img src={item.imageUrl} alt={`Work ${index + 1}`} className="my-work-image" />
-          )}
-          <h3>{item.title}</h3>
-          <p>{item.description}</p>
-          <div className="button-group">
-            <a href="/book" className="btn-book">Book Now</a>
-            <a href="/gallery" className="btn-gallery">Gallery</a>
+      <div className="my-work-items-container">
+        {myWorkData.map((item, index) => (
+          <div key={index} className="my-work-item">
+            <h3>{item.title}</h3>
+            {item.imageUrl && (
+              <img src={item.imageUrl} alt={`Work ${index + 1}`} className="my-work-image" />
+            )}
+            <p>{item.description}</p>
+            <div className="button-group">
+              <a href="/book" className="btn-book">Book Now</a>
+              <a href="/gallery" className="btn-gallery">Gallery</a>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
   );
 };

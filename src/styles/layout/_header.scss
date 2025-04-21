@@ -31,6 +31,8 @@ header {
     cursor: pointer;
     padding: 0;
     z-index: 1001;
+    width: 30px;
+    height: 30px;
     position: relative;
     
     span {
@@ -38,21 +40,35 @@ header {
       width: 25px;
       height: 3px;
       background-color: $color-light;
-      margin: 5px 0;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       transition: all 0.3s ease;
     }
 
+    span:nth-child(1) {
+      top: 5px;
+    }
+
+    span:nth-child(2) {
+      top: 13px;
+    }
+
+    span:nth-child(3) {
+      top: 21px;
+    }
+
     &.active {
-      span {
-        &:nth-child(1) {
-          transform: rotate(45deg) translate(5px, 5px);
-        }
-        &:nth-child(2) {
-          opacity: 0;
-        }
-        &:nth-child(3) {
-          transform: rotate(-45deg) translate(5px, -5px);
-        }
+      span:nth-child(1) {
+        transform: translateX(-50%) rotate(45deg);
+        top: 13px;
+      }
+      span:nth-child(2) {
+        opacity: 0;
+      }
+      span:nth-child(3) {
+        transform: translateX(-50%) rotate(-45deg);
+        top: 13px;
       }
     }
   }
