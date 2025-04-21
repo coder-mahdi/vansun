@@ -37,7 +37,13 @@ const Footer = () => {
   return (
     <footer>
     <h1>{footerData.title}</h1>
-  
+
+
+    <div className="footer-content">
+
+
+    <div className="left-side">
+
     <nav>
       <ul>
         {footerData.header_links.map((link, index) => (
@@ -49,7 +55,13 @@ const Footer = () => {
         ))}
       </ul>
     </nav>
+
+      <div className="address">
+        {footerData.address}
+      </div>
   
+      </div>
+
     <div className="social-media">
       <ul>
         {footerData.social_media.instagram && (
@@ -70,6 +82,8 @@ const Footer = () => {
         Send Email
       </button>
     </div>
+    
+        </div>
   </footer>
   )  
 };

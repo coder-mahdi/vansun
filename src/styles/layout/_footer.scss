@@ -2,4 +2,66 @@ footer {
   background-color: $color-footer-bg;
   color: $color-text-light;
   padding: 2rem 0;
+
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0 auto;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
+  .left-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      gap: 1rem;
+
+      li {
+        margin: 0;
+      }
+    }
+  }
+
+  .social-media {
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      gap: 4rem;
+
+      li {
+        margin: 0;
+      }
+    }
+  }
+
+  .email-btn {
+    button {
+      background: none;
+      border: 1px solid $color-text-light;
+      color: $color-text-light;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: $color-text-light;
+        color: $color-footer-bg;
+      }
+    }
+  }
 } 
