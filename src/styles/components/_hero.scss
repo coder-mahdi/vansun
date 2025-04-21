@@ -3,7 +3,12 @@
   width: 100%;
   overflow: hidden;
   background-color: $color-light;
+  transition: filter 0.3s ease;
 
+  // Add blur effect when scrolling
+  &.blurred {
+    filter: blur(5px);
+  }
 
   .hero-content {
     position: relative;

@@ -5,6 +5,7 @@ import { fetchPageBySlug } from '../utils/api';
 const Hero = () => {
   const [heroData, setHeroData] = useState(null);
   const [heroImages, setHeroImages] = useState([]);
+  const [isBlurred, setIsBlurred] = useState(false);
 
   useEffect(() => {
     const fetchHeroData = async () => {
@@ -26,6 +27,30 @@ const Hero = () => {
     fetchHeroData();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      
+      // Start blurring after scrolling 100px
+      if (scrollPosition > 100) {
+        setIsBlurred(true);
+      } else {
+        setIsBlurred(false);
+      }
+    };
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll);
+    
+    // Initial check
+    handleScroll();
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   if (!heroData || heroImages.length === 0) {
     return <div>Loading...</div>;
   }
@@ -33,7 +58,7 @@ const Hero = () => {
   const { title, subtitle } = heroData;
 
   return (
-    <section className="hero">
+    <section className={`hero ${isBlurred ? 'blurred' : ''}`}>
       <div className="hero-content">
         <div className="slider-container">
           <div className="slider-track">

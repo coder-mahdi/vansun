@@ -3,7 +3,7 @@ header {
   color: $color-light;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 9999;
 
   .header-container {
     position: sticky;
