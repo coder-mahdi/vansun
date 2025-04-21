@@ -1,0 +1,54 @@
+.hero {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .slider-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slider-track {
+    display: flex;
+    animation: scroll 20s linear infinite;
+    width: fit-content;
+  }
+
+  .slider-item {
+    flex: 0 0 auto;
+    width: 300px;
+
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .slider-track:hover {
+    animation-play-state: paused;
+  }
+
+  h1, h2 {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}
