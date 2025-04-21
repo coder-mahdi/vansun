@@ -1,15 +1,17 @@
 header {
   background-color: $color-header-bg;
   color: $color-light;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 1000;
 
   .header-container {
+    position: sticky;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    max-width: 1200px;
+    padding-left: 3rem;
+    padding-right: 3rem;
     margin: 0 auto;
     position: relative;
   }
