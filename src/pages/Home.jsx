@@ -10,12 +10,15 @@ function Home() {
     return (
         <Layout> 
             <div className="main-content">
+                <div>
+
             <Hero />
+            <Middlehero />
+            
+                </div>
             <MyWork />
             <Middlehero />
             <About />
-         
-                {/* محتوای دیگر صفحه Home که می‌خواهید اضافه کنید */}
             </div>
         </Layout>
     );

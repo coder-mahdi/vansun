@@ -1,0 +1,77 @@
+.middle-hero {
+  width: 100%;
+  position: fixed;
+  top: calc(54px + 85vh); // Position below Hero (header height + Hero height)
+  left: 0;
+  height: 65vh; // Smaller than Hero
+  z-index: 1; // Lower than About (which should be z-index: 2)
+  background-color: $color-light;
+  overflow: hidden;
+  
+  .middle-hero-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .middle-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  .middle-hero-loading {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $color-light;
+    color: $color-primary;
+    font-size: $font-size-base;
+  }
+  
+  // Responsive styles
+  @media (max-width: 1023px) {
+    top: calc(54px + 82vh);
+    height: 60vh;
+  }
+  
+  @media (max-width: 900px) {
+    top: calc(54px + 80vh);
+    height: 55vh;
+  }
+  
+  @media (max-width: 780px) {
+    top: calc(54px + 78vh);
+    height: 50vh;
+  }
+  
+  @media (max-width: 767px) {
+    top: calc(54px + 75vh);
+    height: 45vh;
+  }
+  
+  @media (max-width: 650px) {
+    top: calc(54px + 73vh);
+    height: 40vh;
+  }
+  
+  @media (max-width: 600px) {
+    top: calc(54px + 70vh);
+    height: 35vh;
+  }
+  
+  @media (max-width: 583px) {
+    top: calc(54px + 68vh);
+    height: 30vh;
+  }
+  
+  @media (max-width: 480px) {
+    top: calc(54px + 65vh);
+    height: 25vh;
+  }
+} 
