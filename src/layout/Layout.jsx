@@ -11,11 +11,14 @@ function Layout({ children }) {
 
     return (
         <>
+        <div className="site-main">
+
             <Header />
             
             <main>{children}</main> 
 
             <Footer />
+        </div>
         </>
     );
 }

@@ -3,6 +3,7 @@ import Layout from '../layout/Layout';
 import Hero from '../components/Hero';
 import MyWork from '../components/MyWork';
 import About from '../components/About';
+import Middlehero from '../components/middlehero';
 
 
 function Home() {
@@ -11,6 +12,7 @@ function Home() {
             <div className="main-content">
             <Hero />
             <MyWork />
+            <Middlehero />
             <About />
          
                 {/* محتوای دیگر صفحه Home که می‌خواهید اضافه کنید */}

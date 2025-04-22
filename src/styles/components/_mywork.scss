@@ -4,6 +4,10 @@
   align-items: center;
   padding: 0;
   width: 100%;
+  position: relative;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.9);
+  margin-top: 85vh; // Match Hero height for large screens
 
   h2 {
     color: var(--brown-color);
@@ -105,6 +109,39 @@
         }
       }
     }
+  }
+
+  // Responsive styles
+  @media (max-width: 1023px) {
+    margin-top: 82vh; // Match Hero height for large tablets
+  }
+
+  @media (max-width: 900px) {
+    margin-top: 80vh; // Match Hero height for small tablets
+  }
+
+  @media (max-width: 780px) {
+    margin-top: 78vh; // Match Hero height for medium tablets
+  }
+
+  @media (max-width: 767px) {
+    margin-top: 75vh; // Match Hero height for large mobile
+  }
+
+  @media (max-width: 650px) {
+    margin-top: 73vh; // Match Hero height for medium-large mobile
+  }
+
+  @media (max-width: 600px) {
+    margin-top: 70vh; // Match Hero height for medium mobile
+  }
+
+  @media (max-width: 583px) {
+    margin-top: 68vh; // Match Hero height for small-medium mobile
+  }
+
+  @media (max-width: 480px) {
+    margin-top: 65vh; // Match Hero height for small mobile
   }
 }
 
