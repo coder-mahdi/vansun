@@ -10,12 +10,10 @@ function Home() {
     return (
         <Layout> 
             <div className="main-content">
-                <div>
+
 
             <Hero />
-            <Middlehero />
-            
-                </div>
+       
             <MyWork />
             <Middlehero />
             <About />

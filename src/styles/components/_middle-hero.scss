@@ -1,9 +1,9 @@
 .middle-hero {
   width: 100%;
-  position: fixed;
-  top: calc(54px + 85vh); // Position below Hero (header height + Hero height)
+  position: sticky;
+  top: 0;
   left: 0;
-  height: 65vh; // Smaller than Hero
+  height: 100vh; // Smaller than Hero
   z-index: 1; // Lower than About (which should be z-index: 2)
   background-color: $color-light;
   overflow: hidden;
