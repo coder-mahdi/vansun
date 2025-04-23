@@ -127,84 +127,88 @@ const BookingPage = () => {
   return (
     <Layout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Book {product?.title}</h1>
+        <h1 className="text-2xl font-bold mb-4">Book Your {product?.title}</h1>
 
         {isBooked ? (
           <p className="text-green-600 font-medium">Your appointment was successfully booked!</p>
         ) : (
-          <form onSubmit={handleBooking} className="booking-form space-y-4 max-w-md mx-auto mt-6">
-            <div>
-              <label>Full Name:</label>
-              <input 
-                type="text" 
-                value={fullName} 
-                onChange={(e) => setFullName(e.target.value)} 
-                placeholder="Enter your full name" 
-                className="w-full border p-2 rounded" 
-                required
-              />
+          <form onSubmit={handleBooking} className="booking-form">
+            {/* Personal Info Row */}
+            <div className="personal-info-row">
+              <div>
+                <label>Full Name:</label>
+                <input 
+                  type="text" 
+                  value={fullName} 
+                  onChange={(e) => setFullName(e.target.value)} 
+                  placeholder="Enter your full name" 
+                  required
+                />
+              </div>
+
+              <div>
+                <label>Email:</label>
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="Enter your email" 
+                  required
+                />
+              </div>
+
+              <div>
+                <label>Phone:</label>
+                <input 
+                  type="tel" 
+                  value={phone} 
+                  onChange={(e) => setPhone(e.target.value)} 
+                  placeholder="Enter your phone number" 
+                  required
+                />
+              </div>
             </div>
 
-            <div>
-              <label>Email:</label>
-              <input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="Enter your email" 
-                className="w-full border p-2 rounded" 
-                required
-              />
+            {/* Date and Time Row */}
+            <div className="date-time-row">
+              <div>
+                <label>Date:</label>
+                <select 
+                  value={date} 
+                  onChange={(e) => setDate(e.target.value)} 
+                  required
+                >
+                  <option value="">Select a date</option>
+                  {availability?.available_dates.map((dateObj) => (
+                    <option key={dateObj.date} value={dateObj.date}>
+                      {dateObj.date} ({dateObj.day})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label>Time:</label>
+                <select 
+                  value={time} 
+                  onChange={(e) => setTime(e.target.value)} 
+                  required
+                  disabled={!date || availableTimeSlots.length === 0}
+                >
+                  <option value="">Select a time</option>
+                  {availableTimeSlots.map((slot) => (
+                    <option key={slot.time} value={slot.time}>
+                      {slot.time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label>Phone:</label>
-              <input 
-                type="tel" 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)} 
-                placeholder="Enter your phone number" 
-                className="w-full border p-2 rounded" 
-                required
-              />
+            {/* Submit Button Row */}
+            <div className="submit-row">
+              <button type="submit">Book Appointment</button>
             </div>
-
-            <div>
-              <label>Date:</label>
-              <select 
-                value={date} 
-                onChange={(e) => setDate(e.target.value)} 
-                className="w-full border p-2 rounded" 
-                required
-              >
-                <option value="">Select a date</option>
-                {availability?.available_dates.map((dateObj) => (
-                  <option key={dateObj.date} value={dateObj.date}>
-                    {dateObj.date} ({dateObj.day})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Time:</label>
-              <select 
-                value={time} 
-                onChange={(e) => setTime(e.target.value)} 
-                className="w-full border p-2 rounded" 
-                required
-                disabled={!date || availableTimeSlots.length === 0}
-              >
-                <option value="">Select a time</option>
-                {availableTimeSlots.map((slot) => (
-                  <option key={slot.time} value={slot.time}>
-                    {slot.time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button type="submit" className="bg-black text-white px-4 py-2 rounded">Book Appointment</button>
           </form>
         )}
       </div>

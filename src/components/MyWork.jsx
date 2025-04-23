@@ -54,7 +54,7 @@ const MyWork = () => {
             )}
             <p>{item.description}</p>
             <div className="button-group">
-              <a href="/book" className="btn-book">Book Now</a>
+              <a href="/booknow" className="btn-book">Book Now</a>
               <a href="/gallery" className="btn-gallery">Gallery</a>
             </div>
           </div>

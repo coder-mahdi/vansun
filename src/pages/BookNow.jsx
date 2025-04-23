@@ -16,7 +16,7 @@ const BookNow = () => {
         const data = await Promise.all(
           page.acf['book-now'].map(async (item) => {
             const imageUrl = await fetchImageUrl(item['book-now-image']);
-            const productId = item['booking-link']; // فرض: آیدی محصول ووکامرس
+            const productId = item['booking-link']; 
             return {
               title: item.title,
               price: item.price,
@@ -49,13 +49,17 @@ const BookNow = () => {
   return (
     <Layout>
       <section className="book-now">
+        <h1>Services</h1>
+
+        <div className="booknow-items-container">
+
         {bookNowData.map((item, index) => (
           <div key={index} className="book-now-item">
             {item.imageUrl && (
               <img
-                src={item.imageUrl}
-                alt={`Book now ${index + 1}`}
-                className="book-now-image"
+              src={item.imageUrl}
+              alt={`Book now ${index + 1}`}
+              className="book-now-image"
               />
             )}
             <h2>{item.title}</h2>
@@ -63,11 +67,12 @@ const BookNow = () => {
             <Link
               to={`/booking/${item.productId}`}
               className="book-now-button"
-            >
+              >
               Book Now
             </Link>
           </div>
         ))}
+        </div>
       </section>
     </Layout>
   );

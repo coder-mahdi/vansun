@@ -3,7 +3,6 @@
   top: 0;
   left: 0;
   width: 100%;
-  // height: 100vh; 
   overflow: hidden;
   background-color: $color-light;
   transition: filter 0.3s ease;
@@ -148,7 +147,7 @@
 
   // Medium-large mobile styles
   @media screen and (max-width: 650px) {
-    height: 73vh; // Medium-large mobile size
+    height:60vh; // Medium-large mobile size
   }
 
   // Medium mobile styles
@@ -158,11 +157,11 @@
 
   // Small-medium mobile styles
   @media screen and (max-width: 583px) {
-    height: 68vh; // Small-medium mobile size
+    height: 60vh; 
   }
 
   // Small mobile styles
   @media screen and (max-width: 480px) {
-    height: 65vh; // Smallest on small mobile
+    height: 55vh; 
   }
 }
