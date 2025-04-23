@@ -7,7 +7,9 @@
   position: relative;
   z-index: 2;
   background-color: rgba(255, 255, 255, 0.9);
-  margin-top: 85vh; 
+  height: 100vh;
+  margin-bottom: -33vh;
+
   h2 {
     color: var(--brown-color);
     font-weight: 300;
@@ -15,9 +17,14 @@
     text-align: center;
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 20px;
     background-color: rgb(223, 218, 196);
     line-height: 1;
+
+    @media (max-width: 480px) {
+      font-size: 1.2rem;
+      padding: 15px;
+    }
   }
 
   .my-work-items-container {
@@ -42,14 +49,29 @@
     padding: 2rem;
     flex: 1;
     min-width: 100%;
+    height: 98vh;
+    justify-content: space-between;
 
     @media (min-width: 1024px) {
-      min-width: 15.333%;
+      min-width: 33.333%;
+      height: 98vh;
     }
 
-    @media (min-width: 768px) {
-        min-width: 5.333%;
-      }
+    @media (max-width: 1023px) {
+      height: auto;
+      min-height: 80vh;
+      padding: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      min-height: 70vh;
+      padding: 1.2rem;
+    }
+
+    @media (max-width: 480px) {
+      min-height: 60vh;
+      padding: 1rem;
+    }
 
     &:nth-child(1) {
       background-color: rgba(190, 183, 144, 1);
@@ -68,26 +90,85 @@
       width: 200px;
       height: 200px;
       object-fit: cover;
-      border-radius: 8px;
       margin-bottom: 1.5rem;
+
+      @media (max-width: 1023px) {
+        width: 180px;
+        height: 180px;
+        margin-bottom: 1.2rem;
+      }
+
+      @media (max-width: 768px) {
+        width: 160px;
+        height: 160px;
+        margin-bottom: 1rem;
+      }
+
+      @media (max-width: 480px) {
+        width: 140px;
+        height: 140px;
+        margin-bottom: 0.8rem;
+      }
     }
 
     h3 {
       color: var(--brown-color);
-      margin-bottom: 1rem;
+      margin-top: 3rem;
+      margin-bottom: -5rem;
       text-align: center;
+      font-weight: 400;
+      font-size: 4rem;
+
+      @media (max-width: 1023px) {
+        font-size: 3.5rem;
+        margin-top: 2.5rem;
+        margin-bottom: -4rem;
+      }
+
+      @media (max-width: 768px) {
+        font-size: 3rem;
+        margin-top: 2rem;
+        margin-bottom: -3.5rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 2.5rem;
+        margin-top: 1.5rem;
+        margin-bottom: -3rem;
+      }
     }
 
     p {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0;
       line-height: 1.6;
+      font-size: 1rem;
+
+      @media (max-width: 768px) {
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+      }
     }
 
     .button-group {
       display: flex;
       align-items: center;
       gap: 1rem;
+      margin-top: -3rem;
+      margin-bottom: 1rem;
+
+      @media (max-width: 768px) {
+        margin-top: -2.5rem;
+        gap: 0.8rem;
+      }
+
+      @media (max-width: 480px) {
+        margin-top: -2rem;
+        gap: 0.6rem;
+      }
 
       .btn-book {
         color: var(--brown-color);
@@ -96,6 +177,15 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 1rem;
+
+        @media (max-width: 768px) {
+          font-size: 0.95rem;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 0.9rem;
+        }
 
         &::after {
           content: '';
@@ -110,37 +200,42 @@
     }
   }
 
-  // Responsive styles
+  // Responsive styles for section positioning
   @media (max-width: 1023px) {
-    margin-top: 82vh; // Match Hero height for large tablets
+    margin-top: 82vh;
+    
   }
 
   @media (max-width: 900px) {
-    margin-top: 80vh; // Match Hero height for small tablets
+    margin-top: 0;
+    height: 128vh;
+    margin-bottom: 44vh;
   }
 
   @media (max-width: 780px) {
-    margin-top: 78vh; // Match Hero height for medium tablets
+    // margin-top: 78vh;
   }
 
   @media (max-width: 767px) {
-    margin-top: 75vh; // Match Hero height for large mobile
+    // margin-top: 75vh;
   }
 
   @media (max-width: 650px) {
-    margin-top: 73vh; // Match Hero height for medium-large mobile
+    // margin-top: 73vh;
   }
 
   @media (max-width: 600px) {
-    margin-top: 70vh; // Match Hero height for medium mobile
+    // margin-top: 70vh;
   }
 
   @media (max-width: 583px) {
-    margin-top: 68vh; // Match Hero height for small-medium mobile
+    // margin-top: 68vh;
   }
 
   @media (max-width: 480px) {
-    margin-top: 65vh; // Match Hero height for small mobile
+    margin-top: 0;
+    height: 128vh;
+    margin-bottom: 44vh;
   }
 }
 

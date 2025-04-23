@@ -13,9 +13,10 @@ function Home() {
 
 
             <Hero />
-       
+
             <MyWork />
             <Middlehero />
+          
             <About />
             </div>
         </Layout>

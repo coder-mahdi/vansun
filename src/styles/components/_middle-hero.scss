@@ -1,26 +1,18 @@
 .middle-hero {
-  width: 100%;
   position: sticky;
+  height: 100vh;
+  width: 100%;
   top: 0;
   left: 0;
-  height: 100vh; // Smaller than Hero
-  z-index: 1; // Lower than About (which should be z-index: 2)
+  z-index: 1;
   background-color: $color-light;
   overflow: hidden;
-  
-  .middle-hero-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
   
   .middle-hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center top;
   }
   
   .middle-hero-loading {
@@ -41,37 +33,49 @@
   }
   
   @media (max-width: 900px) {
-    top: calc(54px + 80vh);
+    top: 0vh;
     height: 55vh;
   }
   
   @media (max-width: 780px) {
-    top: calc(54px + 78vh);
+    // top: calc(54px + 78vh);
     height: 50vh;
   }
   
   @media (max-width: 767px) {
-    top: calc(54px + 75vh);
+   
     height: 45vh;
   }
   
   @media (max-width: 650px) {
-    top: calc(54px + 73vh);
+  
     height: 40vh;
   }
   
   @media (max-width: 600px) {
-    top: calc(54px + 70vh);
+
     height: 35vh;
   }
   
   @media (max-width: 583px) {
-    top: calc(54px + 68vh);
     height: 30vh;
   }
   
   @media (max-width: 480px) {
-    top: calc(54px + 65vh);
-    height: 25vh;
+    top: 0;
+    height: 30vh;
   }
 } 
+
+// .middle-hero-container {
+//   position: sticky;
+//   top: 0;
+//   height: 100vh;
+//   background: #222;
+//   z-index: 1;
+//   width: 100%;
+//   height: 100vh;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// }

@@ -78,15 +78,18 @@ const MiddleHero = () => {
 
   console.log('Rendering image with URL:', middleHeroData.imageUrl);
   return (
-    <section className="middle-hero">
-      <div className="middle-hero-container">
+    <div className="middle-hero-container">
+
+    <div className="middle-hero">
+      
         <img 
           src={middleHeroData.imageUrl} 
           alt="Middle Hero" 
           className="middle-hero-image"
-        />
-      </div>
-    </section>
+          />
+
+    </div>
+          </div>
   );
 };
 
