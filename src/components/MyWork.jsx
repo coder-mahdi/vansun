@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPageBySlug } from '../utils/api';
+import { Link } from 'react-router-dom';
 
 const API_BASE = 'http://localhost:8888/vansun/wp-json/wp/v2';
 
@@ -10,13 +11,16 @@ const MyWork = () => {
   useEffect(() => {
     const getMyWorkData = async () => {
       const page = await fetchPageBySlug('mywork-data');
+      console.log('MyWork Data:', page.acf.mywork);
       if (page && page.acf && page.acf.mywork) {
         const myworkItems = await Promise.all(
           page.acf.mywork.map(async (item) => {
+            console.log('Single Item:', item);
             const imageUrl = await fetchImageUrl(item['mywork-image']);
             return {
               ...item,
               imageUrl,
+              gallery: item.gallery || [],
             };
           })
         );
@@ -56,8 +60,7 @@ const MyWork = () => {
             <p>{item.description}</p>
             <div className="button-group">
               <a href="/booknow" className="btn-book">Book Now</a>
-              <a href={`/gallery/${index}`} className="btn-gallery">Gallery</a>
-
+              <Link to={`/gallery/${index}`} className="btn-gallery">Gallery</Link>
             </div>
           </div>
         ))}
