@@ -62,7 +62,7 @@ const GalleryPage = () => {
 
   return (
     <Layout>
-      <section className="gallery-page">
+      <section className="gallery-page dark-mode">
         <h2>{workTitle} - Gallery</h2>
         <div className="gallery-grid">
           {galleryImages && galleryImages.length > 0 ? (

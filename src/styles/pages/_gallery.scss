@@ -1,0 +1,68 @@
+// متغیرهای رنگ
+$light-bg: rgb(250, 255, 238);
+$brown: rgb(61, 44, 0);
+
+// استایل‌های صفحه گالری
+.gallery-page {
+  background-color: $light-bg;
+  min-height: 100vh;
+  padding: 2rem;
+  transition: background-color 0.3s ease;
+
+  h2 {
+    color: $brown;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
+  }
+
+  .gallery-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    justify-content: center;
+    
+    .gallery-image {
+      width: 100%;
+      aspect-ratio: 3/4; // نسبت عمودی برای تصاویر
+      object-fit: cover;
+      border: 1px solid $brown;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      
+      // سایز موبایل
+      max-width: 250px;
+      
+      // سایز تبلت
+      @media (min-width: 768px) {
+        max-width: 300px;
+      }
+      
+      // سایز دسکتاپ
+      @media (min-width: 1024px) {
+        max-width: 350px;
+      }
+      
+      // سایز بزرگ
+      @media (min-width: 1440px) {
+        max-width: 400px;
+      }
+      
+      // افکت هاور
+      &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        filter: brightness(1.1);
+      }
+      
+      // افکت تاچ
+      &:active {
+        transform: scale(0.98);
+        filter: brightness(1.2);
+      }
+    }
+  }
+}
