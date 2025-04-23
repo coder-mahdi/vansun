@@ -42,6 +42,7 @@ const MyWork = () => {
   if (loading) return <p>Loading my work...</p>;
   if (!myWorkData.length) return <p>No work data found.</p>;
 
+
   return (
     <section id="my-work" className="my-work">
       <h2 className='mywork-title'>My Work</h2>
@@ -55,7 +56,8 @@ const MyWork = () => {
             <p>{item.description}</p>
             <div className="button-group">
               <a href="/booknow" className="btn-book">Book Now</a>
-              <a href="/gallery" className="btn-gallery">Gallery</a>
+              <a href={`/gallery/${index}`} className="btn-gallery">Gallery</a>
+
             </div>
           </div>
         ))}
