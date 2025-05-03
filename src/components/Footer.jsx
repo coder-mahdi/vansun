@@ -5,7 +5,7 @@ const Footer = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8888/vansun/wp-json/wp/v2/pages?slug=footer-data')
+    fetch('http://vansunstudio.com/cms/wp-json/wp/v2/pages?slug=footer-data')
       .then((res) => res.json())
       .then((data) => {
         if (data.length > 0 && data[0].acf && data[0].acf.Footer) {
