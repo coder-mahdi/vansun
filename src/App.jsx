@@ -10,9 +10,7 @@ import './styles/main.scss';
 function App() {
 
   return (
-
-    <Router basename="/">
-
+    <Router>
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
@@ -21,9 +19,7 @@ function App() {
         <Route path="/booking/:productId" element={<BookingPage />} />
         <Route path="/gallery/:id" element={<Gallery />} />
       </Routes>
-
     </Router>
- 
   )
 }
 
