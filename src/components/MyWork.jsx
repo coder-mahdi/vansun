@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchPageBySlug } from '../utils/api';
 import { Link } from 'react-router-dom';
 
-const API_BASE = 'http://localhost:8888/vansun/wp-json/wp/v2';
+const API_BASE = 'http://vansunstudio.com/cms/wp-json/wp/v2';
 
 const MyWork = () => {
   const [myWorkData, setMyWorkData] = useState([]);
