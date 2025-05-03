@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchPageBySlug, API_BASE } from '../utils/api';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logo, setLogo] = useState(null);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -28,6 +30,32 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const fetchNavigationData = async () => {
+      try {
+        const pageData = await fetchPageBySlug('header-data');
+        console.log('Header Data:', pageData);
+        console.log('ACF Data:', pageData?.acf);
+        console.log('Navigate Data:', pageData?.acf?.navigate);
+        console.log('Logo ID:', pageData?.acf?.navigate?.logo);
+        
+        if (pageData && pageData.acf && pageData.acf.navigate && pageData.acf.navigate.logo) {
+          const logoId = pageData.acf.navigate.logo;
+          const logoData = await fetch(`${API_BASE}/wp/v2/media?include=${logoId}`);
+          const logoJson = await logoData.json();
+          console.log('Logo Response:', logoJson);
+          if (logoJson && logoJson.length > 0) {
+            setLogo(logoJson[0].source_url);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching logo:', error);
+      }
+    };
+
+    fetchNavigationData();
+  }, []);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -46,7 +74,11 @@ const Header = () => {
         {/* Logo */}
         <div className="logo">
           <Link to="/">
-            <img src="/logo/logo.png" alt="Vansun Logo" />
+            {logo ? (
+              <img src={logo} alt="Vansun Logo" />
+            ) : (
+              <div>Loading...</div>
+            )}
           </Link>
         </div>
 
