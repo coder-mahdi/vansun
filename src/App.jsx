@@ -12,9 +12,9 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<ComingSoon />} />
         <Route path="/home" element={<Home />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
-        <Route path="/" element={<ComingSoon />} />
         <Route path="/BookNow" element={<BookNow />} />
         <Route path="/booking/:productId" element={<BookingPage />} />
         <Route path="/gallery/:id" element={<Gallery />} />
