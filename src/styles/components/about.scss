@@ -63,6 +63,7 @@
 @media (min-width: 700px) {
   .about-container {
     flex-direction: row;
+
     
     .about-image {
       flex: 0 0 50%;
@@ -84,6 +85,9 @@
 // Large Desktop breakpoint
 @media (min-width: 1200px) {
   .about-container {
+    .about-image {
+      height: 60rem;
+    }
     .about-text {
       padding: 4rem 3.5rem;
     }

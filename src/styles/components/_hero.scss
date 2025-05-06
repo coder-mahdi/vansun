@@ -82,7 +82,7 @@
 
   // Large tablet styles
   @media screen and (max-width: 1023px) {
-    height: 82vh; 
+    height: 75vh; 
     
     .hero {
       margin-bottom: 3rem;
@@ -98,12 +98,12 @@
 
     h1 {
       font-size: 7rem;
-      padding-top: 1.5rem;
+      padding-top: 2.5rem;
     }
 
     h2 {
       font-size: 2rem;
-      margin-bottom: 1.5rem;
+      margin-top: 2rem;
     }
   }
 
@@ -119,7 +119,7 @@
 
   // Large mobile styles
   @media screen and (max-width: 767px) {
-    height: 60vh; // Smaller on large mobile
+    height: 50vh; // Smaller on large mobile
     
     .hero {
       margin-bottom: 2rem;
@@ -135,14 +135,13 @@
 
     h1 {
       font-size: 4rem;
-      padding-top: 1rem;
+      padding-top: 3rem;
       letter-spacing: 0.05em;
     }
 
     h2 {
       margin-top: 2rem;
       font-size: 1.3rem;
-      margin-bottom: 1rem;
     }
   }
 
