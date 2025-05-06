@@ -109,6 +109,7 @@
       }
 
       @media (max-width: 480px) {
+        margin-top: 3rem;
         width: 140px;
         height: 140px;
         margin-bottom: 0.8rem;
@@ -153,6 +154,8 @@
       }
 
       @media (max-width: 480px) {
+        margin-right: 1.5rem;
+        margin-left: 1.5rem;
         font-size: 0.9rem;
       }
     }
@@ -170,7 +173,7 @@
       }
 
       @media (max-width: 480px) {
-        margin-top: -2rem;
+        margin-top: 0;
         gap: 0.6rem;
       }
 
@@ -202,6 +205,12 @@
         }
       }
     }
+  }
+
+  .my-work-item:nth-child(2) .button-group .btn-book::after {
+    border-color: rgb(61, 44, 0);
+    animation: blink-second 1.5s infinite;
+    background-color: transparent;
   }
 
   // Responsive styles for section positioning
@@ -249,6 +258,18 @@
   }
   50% {
     background-color: var(--brown-color);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes blink-second {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgb(61, 44, 0);
   }
   100% {
     background-color: transparent;
