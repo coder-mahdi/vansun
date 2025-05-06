@@ -34,7 +34,7 @@
 
   .slider-item {
     flex: 0 0 auto;
-    width: 300px;
+    width: 200px;
 
     img {
       width: 100%;
@@ -93,7 +93,7 @@
     }
 
     .slider-item {
-      width: 250px;
+      width: 180px;
     }
 
     h1 {
@@ -130,7 +130,7 @@
     }
 
     .slider-item {
-      width: 200px;
+      width: 140px;
     }
 
     h1 {
@@ -163,5 +163,9 @@
   // Small mobile styles
   @media screen and (max-width: 480px) {
     height: 65vh; 
+    
+    .slider-item {
+      width: 120px;
+    }
   }
 }
