@@ -16,7 +16,8 @@ const BookNow = () => {
         const data = await Promise.all(
           page.acf['book-now'].map(async (item) => {
             const imageUrl = await fetchImageUrl(item['book-now-image']);
-            const productId = item['booking-link']; 
+            const productId = item['woocommerce_product_id'];
+            console.log('Product ID from ACF:', productId);
             return {
               title: item.title,
               price: item.price,
@@ -25,6 +26,7 @@ const BookNow = () => {
             };
           })
         );
+        console.log('Final book now data:', data);
         setBookNowData(data);
       }
       setLoading(false);
@@ -52,26 +54,29 @@ const BookNow = () => {
         <h1>Services</h1>
 
         <div className="booknow-items-container">
-
-        {bookNowData.map((item, index) => (
-          <div key={index} className="book-now-item">
-            {item.imageUrl && (
-              <img
-              src={item.imageUrl}
-              alt={`Book now ${index + 1}`}
-              className="book-now-image"
-              />
-            )}
-            <h2>{item.title}</h2>
-            <p>{item.price}</p>
-            <Link
-              to={`/booking/${item.productId}`}
-              className="book-now-button"
+        {bookNowData.map((item, index) => {
+          console.log('Rendering item:', item);
+          return (
+            <div key={index} className="book-now-item">
+              {item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt={`Book now ${index + 1}`}
+                  className="book-now-image"
+                />
+              )}
+              <h2>{item.title}</h2>
+              <p>{item.price}</p>
+              <Link
+                to={`/booking/${item.productId}`}
+                className="book-now-button"
+                onClick={() => console.log('Clicked product ID:', item.productId)}
               >
-              Book Now
-            </Link>
-          </div>
-        ))}
+                Book Now
+              </Link>
+            </div>
+          );
+        })}
         </div>
       </section>
     </Layout>

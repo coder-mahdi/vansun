@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../layout/Layout";
 
-const API_URL = "http://localhost:8888/vansun/wp-json";
+const API_URL = "https://vansunstudio.com/cms/wp-json";
+const WOO_API_URL = "https://vansunstudio.com/cms/wp-json/wc/v3";
+// TODO: Replace these with your actual WooCommerce API keys
+const CONSUMER_KEY = "ck_bdffc7c83f1a21a48c38db54b0d860d22a114021"; // Replace with your actual Consumer Key
+const CONSUMER_SECRET = "cs_74e57602afa5b7ded03243824214072179910ce8"; // Replace with your actual Consumer Secret
 
 const BookingPage = () => {
   const { productId } = useParams();
@@ -24,25 +28,99 @@ const BookingPage = () => {
     const fetchProductData = async () => {
       try {
         setLoading(true);
-        // Fetch product details
-        const productRes = await fetch(`${API_URL}/wc-bookings-direct/v1/products`);
-        const productData = await productRes.json();
+        console.log('=== FETCHING WOOCOMMERCE PRODUCT DATA ===');
         
-        // Find the specific product
-        const currentProduct = productData.products.find(p => p.id === parseInt(productId));
-        if (currentProduct) {
-          setProduct(currentProduct);
-          
-          // Fetch availability data
-          const availabilityRes = await fetch(`${API_URL}/wc-bookings/v1/products/${productId}/availability`);
-          const availabilityData = await availabilityRes.json();
-          setAvailability(availabilityData);
-        } else {
-          setError("Product not found");
+        const productRes = await fetch(
+          `${WOO_API_URL}/products/${productId}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+        );
+        
+        if (!productRes.ok) {
+          throw new Error(`Failed to fetch product: ${productRes.status}`);
         }
+        
+        const productData = await productRes.json();
+        const metaData = productData.meta_data || [];
+        
+        // Get booking meta data
+        const bookingMeta = {
+          enabled: metaData.find(meta => meta.key === '_booking_enabled')?.value,
+          duration: metaData.find(meta => meta.key === '_booking_duration')?.value || 1,
+          durationUnit: metaData.find(meta => meta.key === '_booking_duration_unit')?.value || 'hour',
+          startDate: metaData.find(meta => meta.key === '_booking_start_date')?.value,
+          endDate: metaData.find(meta => meta.key === '_booking_end_date')?.value,
+          workingHours: metaData.find(meta => meta.key === '_booking_working_hours')?.value
+        };
+
+        // Parse working hours from WooCommerce meta data
+        const workingHours = bookingMeta.workingHours ? JSON.parse(bookingMeta.workingHours) : {
+          monday: { start: '09:00', end: '17:00' },
+          tuesday: { start: '09:00', end: '17:00' },
+          wednesday: { start: '09:00', end: '17:00' },
+          thursday: { start: '09:00', end: '17:00' },
+          friday: { start: '09:00', end: '17:00' }
+        };
+
+        // Generate dates for next 30 days
+        const dates = [];
+        const today = new Date();
+        const endDate = new Date();
+        endDate.setDate(today.getDate() + 30);
+
+        let currentDate = new Date(today);
+        while (currentDate <= endDate) {
+          dates.push(currentDate.toISOString().split('T')[0]);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Generate time slots for each date
+        const availability = dates.map(date => {
+          const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+          const slots = [];
+          
+          const dayHours = workingHours[dayOfWeek];
+          if (dayHours) {
+            const [startHour, startMinute] = dayHours.start.split(':').map(Number);
+            const [endHour, endMinute] = dayHours.end.split(':').map(Number);
+            
+            let currentTime = new Date();
+            currentTime.setHours(startHour, startMinute, 0);
+            
+            const endTime = new Date();
+            endTime.setHours(endHour, endMinute, 0);
+            
+            while (currentTime < endTime) {
+              const slotStart = currentTime.toTimeString().slice(0, 5);
+              currentTime.setHours(currentTime.getHours() + bookingMeta.duration); // Use duration from WooCommerce
+              const slotEnd = currentTime.toTimeString().slice(0, 5);
+              
+              if (currentTime <= endTime) {
+                slots.push({
+                  time: slotStart,
+                  end_time: slotEnd
+                });
+              }
+            }
+          }
+
+          return {
+            date,
+            slots
+          };
+        });
+
+        console.log('Generated Availability:', availability);
+        setAvailability(availability);
+        
+        setProduct({
+          id: productData.id,
+          title: productData.name,
+          price: productData.price,
+          description: productData.description
+        });
+        
       } catch (err) {
         console.error("Error fetching product data:", err);
-        setError("Error loading product data");
+        setError(`Error loading product data: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -54,13 +132,9 @@ const BookingPage = () => {
   // Update available time slots when date changes
   useEffect(() => {
     if (availability && date) {
-      const selectedDateData = availability.available_dates.find(d => d.date === date);
+      const selectedDateData = availability.find(avail => avail.date === date);
       if (selectedDateData) {
-        setAvailableTimeSlots(selectedDateData.slots);
-        // Reset time if it's not in the available slots
-        if (time && !selectedDateData.slots.some(slot => slot.time === time)) {
-          setTime('');
-        }
+        setAvailableTimeSlots(selectedDateData.slots || []);
       } else {
         setAvailableTimeSlots([]);
         setTime('');
@@ -71,36 +145,56 @@ const BookingPage = () => {
   const handleBooking = async (e) => {
     e.preventDefault();
 
-    // Make sure all required fields are filled
     if (!fullName || !email || !phone || !date || !time) {
       alert("Please fill in all fields.");
       return;
     }
 
     try {
-      const res = await fetch(`${API_URL}/custom-booking-endpoint/v1/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      console.log('=== CREATING BOOKING ===');
+      
+      const bookingData = {
+        title: `Booking for ${product?.title} - ${fullName}`,
+        status: 'publish',
+        type: 'wc_booking',
+        acf: {
           full_name: fullName,
-          email,
-          phone,
-          date,
-          time,
-          product_id: productId
-        })
+          phone: phone,
+          date: date,
+          time: time,
+          product_id: parseInt(productId),
+          email_address: email
+        }
+      };
+      
+      console.log('Sending booking data:', bookingData);
+
+      const res = await fetch(`${API_URL}/wp/v2/wc_booking`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": `Basic ${btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`)}`
+        },
+        body: JSON.stringify(bookingData)
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setIsBooked(true);
-      } else {
-        alert(data.message || "Something went wrong while booking.");
+      console.log('Booking Response Status:', res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Booking Error Response:', errorText);
+        throw new Error(`Booking failed: ${res.status} ${errorText}`);
       }
+
+      const data = await res.json();
+      console.log('Booking Response:', data);
+
+      setIsBooked(true);
+      alert('Your booking has been created successfully!');
     } catch (error) {
       console.error("Booking error:", error);
-      alert("Error creating booking. Please try again.");
+      alert(`Error creating booking: ${error.message}`);
     }
   };
 
@@ -179,9 +273,14 @@ const BookingPage = () => {
                   required
                 >
                   <option value="">Select a date</option>
-                  {availability?.available_dates.map((dateObj) => (
-                    <option key={dateObj.date} value={dateObj.date}>
-                      {dateObj.date} ({dateObj.day})
+                  {availability?.map((avail, index) => (
+                    <option key={`${avail.date}-${index}`} value={avail.date}>
+                      {new Date(avail.date).toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </option>
                   ))}
                 </select>
@@ -193,12 +292,12 @@ const BookingPage = () => {
                   value={time} 
                   onChange={(e) => setTime(e.target.value)} 
                   required
-                  disabled={!date || availableTimeSlots.length === 0}
+                  disabled={!date}
                 >
                   <option value="">Select a time</option>
-                  {availableTimeSlots.map((slot) => (
-                    <option key={slot.time} value={slot.time}>
-                      {slot.time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                  {availableTimeSlots.map((slot, index) => (
+                    <option key={`${slot.time}-${index}`} value={slot.time}>
+                      {slot.time} - {slot.end_time}
                     </option>
                   ))}
                 </select>
