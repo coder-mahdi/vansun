@@ -10,6 +10,10 @@
   height: 100vh;
   margin-bottom: -33vh;
 
+  @media (min-width: 1024px) {
+    margin-bottom: 6vh;
+  }
+
   h2 {
     color: var(--brown-color);
     font-weight: 300;
@@ -235,7 +239,7 @@
   @media (max-width: 480px) {
     margin-top: 0;
     height: 128vh;
-    margin-bottom: 44vh;
+    margin-bottom: 58vh;
   }
 }
 
