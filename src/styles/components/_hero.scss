@@ -162,7 +162,14 @@
 
   // Small mobile styles
   @media screen and (max-width: 480px) {
-    height: 65vh; 
+    height: 57vh; 
+
+    h2 {
+      font-size: 1.2rem;
+      margin-top: 3rem;
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
     
     .slider-item {
       width: 120px;
