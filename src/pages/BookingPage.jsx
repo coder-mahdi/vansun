@@ -1,1 +1,1 @@
-const API_URL = "http://vansunstudio.com/cms/wp-json"; 
+const API_URL = "https://vansunstudio.com/cms/wp-json"; 

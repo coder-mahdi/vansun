@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../layout/Layout";
 
-const API_URL = "http://localhost:8888/vansun/wp-json";
+const API_URL = "https://vansunstudio.com/cms/wp-json/wp/v2";
 
 const BookingPage = () => {
   const { productId } = useParams();

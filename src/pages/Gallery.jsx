@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { fetchPageBySlug } from '../utils/api';
 import Layout from '../layout/Layout';
 
-const API_BASE = 'http://vansunstudio.com/cms/wp-json/wp/v2';
+const API_BASE = 'https://vansunstudio.com/cms/wp-json/wp/v2';
 
 const GalleryPage = () => {
   const { id } = useParams();

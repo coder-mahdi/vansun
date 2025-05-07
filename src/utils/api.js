@@ -1,4 +1,4 @@
-export const API_BASE = 'http://vansunstudio.com/cms/wp-json/wp/v2';
+export const API_BASE = 'https://vansunstudio.com/cms/wp-json/wp/v2';
 
 export const fetchPageBySlug = async (slug) => {
   try {

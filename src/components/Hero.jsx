@@ -15,7 +15,7 @@ const Hero = () => {
         const imageIds = pageData.acf.hero['hero-image'];
         if (imageIds && imageIds.length > 0) {
           const imagePromises = imageIds.map(async (imageId) => {
-            const imageData = await fetch(`http://vansunstudio.com/cms/wp-json/wp/v2/media/${imageId}`);
+            const imageData = await fetch(`https://vansunstudio.com/cms/wp-json/wp/v2/media/${imageId}`);
             return imageData.json();
           });
           const images = await Promise.all(imagePromises);

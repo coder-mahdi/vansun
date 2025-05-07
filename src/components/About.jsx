@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPageBySlug } from '../utils/api';
 
-const API_BASE = 'http://vansunstudio.com/cms/wp-json/wp/v2';
+const API_BASE = 'https://vansunstudio.com/cms/wp-json/wp/v2';
 
 const About = () => {
   const [aboutData, setAboutData] = useState(null);
