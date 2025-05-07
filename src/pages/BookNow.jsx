@@ -25,16 +25,14 @@ const BookNow = () => {
 
         // Combine WooCommerce products with ACF data
         const data = await Promise.all(
-          products.map(async (product) => {
-            // Find matching ACF data by title
-            const acfItem = acfData.find(item => item.title === product.name);
-            const imageUrl = acfItem ? await fetchImageUrl(acfItem['book-now-image']) : null;
+          acfData.map(async (acfItem) => {
+            const imageUrl = await fetchImageUrl(acfItem['book-now-image']);
 
             return {
-              title: product.name,
-              price: product.price_html || 'Contact for price',
+              title: acfItem.title,
+              price: acfItem.price,
               imageUrl: imageUrl,
-              productId: product.id,
+              productId: acfItem.woocommerce_product_id,
             };
           })
         );
