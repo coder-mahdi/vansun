@@ -85,20 +85,36 @@ const BookingPage = () => {
     }
 
     try {
-      const res = await fetch(`${API_URL}/bookings`, {
+      // Convert date and time to ISO format
+      const startDate = new Date(`${date}T${time}`);
+      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Add 1 hour
+
+      const res = await fetch(`${API_URL}/bookings?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`, {
         method: "POST",
         headers: { 
-          "Content-Type": "application/json",
-          "consumer_key": CONSUMER_KEY,
-          "consumer_secret": CONSUMER_SECRET
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          full_name: fullName,
-          email,
-          phone,
-          date,
-          time,
-          product_id: productId
+          product_id: parseInt(productId),
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+          all_day: false,
+          customer_id: 0,
+          status: "unpaid",
+          meta_data: [
+            {
+              key: "full_name",
+              value: fullName
+            },
+            {
+              key: "email",
+              value: email
+            },
+            {
+              key: "phone",
+              value: phone
+            }
+          ]
         })
       });
 

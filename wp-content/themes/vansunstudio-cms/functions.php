@@ -152,7 +152,29 @@ function register_booking_endpoint() {
 }
 add_action('rest_api_init', 'register_booking_endpoint');
 
-// Handle Booking Creation
+// Add custom fields to bookings
+function add_custom_booking_fields($booking_data) {
+    // Add custom fields to booking data
+    $booking_data['meta_data'] = array(
+        array(
+            'key' => '_booking_customer_name',
+            'value' => $booking_data['full_name']
+        ),
+        array(
+            'key' => '_booking_customer_email',
+            'value' => $booking_data['email_address']
+        ),
+        array(
+            'key' => '_booking_customer_phone',
+            'value' => $booking_data['phone']
+        )
+    );
+    
+    return $booking_data;
+}
+add_filter('woocommerce_booking_data', 'add_custom_booking_fields');
+
+// Modify handle_booking_creation function to use custom fields
 function handle_booking_creation($request) {
     // Check if WooCommerce is active
     if (!function_exists('WC')) {
@@ -198,24 +220,18 @@ function handle_booking_creation($request) {
         'product_id' => $params['product_id'],
         'start_date' => $params['date'] . ' ' . $params['time'],
         'end_date' => $params['date'] . ' ' . $params['time'],
-        'customer_id' => 0,
-        'status' => 'confirmed',
-        'customer_name' => sanitize_text_field($params['full_name']),
-        'customer_email' => sanitize_email($params['email_address']),
-        'customer_phone' => sanitize_text_field($params['phone'])
+        'full_name' => $params['full_name'],
+        'email_address' => $params['email_address'],
+        'phone' => $params['phone']
     );
+
+    // Apply custom fields filter
+    $booking_data = apply_filters('woocommerce_booking_data', $booking_data);
 
     // Create the booking
     $booking = new WC_Booking();
     $booking->set_props($booking_data);
     $booking->save();
-
-    if (!$booking->get_id()) {
-        error_log('Failed to create booking');
-        return new WP_Error('booking_creation_failed', 'Failed to create booking', array('status' => 500));
-    }
-
-    error_log('Booking created successfully with ID: ' . $booking->get_id());
 
     return array(
         'success' => true,
