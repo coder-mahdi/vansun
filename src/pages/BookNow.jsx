@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import Layout from '../layout/Layout';
 
 const API_BASE = 'https://vansunstudio.com/cms/wp-json/wp/v2';
+const WC_API_URL = 'https://vansunstudio.com/cms/wp-json/wc/v3';
+const CONSUMER_KEY = "ck_44d32257666864a9026ec404789951b93a88aeca";
+const CONSUMER_SECRET = "cs_dc01b9d6f3523dc2313989f18178a9146c78afd6";
 
 const BookNow = () => {
   const [bookNowData, setBookNowData] = useState([]);
@@ -11,24 +14,39 @@ const BookNow = () => {
 
   useEffect(() => {
     const getBookNowData = async () => {
-      const page = await fetchPageBySlug('booknow-data');
-      if (page && page.acf && page.acf['book-now']) {
+      try {
+        // Fetch products from WooCommerce
+        const productsRes = await fetch(`${WC_API_URL}/products?type=booking&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+        const products = await productsRes.json();
+
+        // Get the page data for additional info
+        const page = await fetchPageBySlug('booknow-data');
+        const acfData = page?.acf?.['book-now'] || [];
+
+        // Combine WooCommerce products with ACF data
         const data = await Promise.all(
-          page.acf['book-now'].map(async (item) => {
-            const imageUrl = await fetchImageUrl(item['book-now-image']);
-            const productId = item['booking-link']; 
+          products.map(async (product) => {
+            // Find matching ACF data by title
+            const acfItem = acfData.find(item => item.title === product.name);
+            const imageUrl = acfItem ? await fetchImageUrl(acfItem['book-now-image']) : null;
+
             return {
-              title: item.title,
-              price: item.price,
+              title: product.name,
+              price: product.price_html || 'Contact for price',
               imageUrl: imageUrl,
-              productId: productId,
+              productId: product.id,
             };
           })
         );
+
         setBookNowData(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     getBookNowData();
   }, []);
 
@@ -52,26 +70,25 @@ const BookNow = () => {
         <h1>Services</h1>
 
         <div className="booknow-items-container">
-
-        {bookNowData.map((item, index) => (
-          <div key={index} className="book-now-item">
-            {item.imageUrl && (
-              <img
-              src={item.imageUrl}
-              alt={`Book now ${index + 1}`}
-              className="book-now-image"
-              />
-            )}
-            <h2>{item.title}</h2>
-            <p>{item.price}</p>
-            <Link
-              to={`/booking/${item.productId}`}
-              className="book-now-button"
+          {bookNowData.map((item, index) => (
+            <div key={index} className="book-now-item">
+              {item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt={`Book now ${index + 1}`}
+                  className="book-now-image"
+                />
+              )}
+              <h2>{item.title}</h2>
+              <p>{item.price}</p>
+              <Link
+                to={`/booking/${item.productId}`}
+                className="book-now-button"
               >
-              Book Now
-            </Link>
-          </div>
-        ))}
+                Book Now
+              </Link>
+            </div>
+          ))}
         </div>
       </section>
     </Layout>
