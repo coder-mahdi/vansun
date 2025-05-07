@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../layout/Layout";
 
-const API_URL = "https://vansunstudio.com/cms/wp-json/wp/v2";
+const API_URL = "https://vansunstudio.com/cms/wp-json/wc-bookings/v1";
+const CONSUMER_KEY = "ck_44d32257666864a9026ec404789951b93a88aeca";
+const CONSUMER_SECRET = "cs_dc01b9d6f3523dc2313989f18178a9146c78afd6";
 
 const BookingPage = () => {
   const { productId } = useParams();
@@ -25,16 +27,14 @@ const BookingPage = () => {
       try {
         setLoading(true);
         // Fetch product details
-        const productRes = await fetch(`${API_URL}/wc-bookings-direct/v1/products`);
+        const productRes = await fetch(`${API_URL}/products/${productId}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
         const productData = await productRes.json();
         
-        // Find the specific product
-        const currentProduct = productData.products.find(p => p.id === parseInt(productId));
-        if (currentProduct) {
-          setProduct(currentProduct);
+        if (productData) {
+          setProduct(productData);
           
           // Fetch availability data
-          const availabilityRes = await fetch(`${API_URL}/wc-bookings/v1/products/${productId}/availability`);
+          const availabilityRes = await fetch(`${API_URL}/products/slots?product_id=${productId}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
           const availabilityData = await availabilityRes.json();
           setAvailability(availabilityData);
         } else {
@@ -54,15 +54,22 @@ const BookingPage = () => {
   // Update available time slots when date changes
   useEffect(() => {
     if (availability && date) {
-      const selectedDateData = availability.available_dates.find(d => d.date === date);
-      if (selectedDateData) {
-        setAvailableTimeSlots(selectedDateData.slots);
-        // Reset time if it's not in the available slots
-        if (time && !selectedDateData.slots.some(slot => slot.time === time)) {
-          setTime('');
-        }
-      } else {
-        setAvailableTimeSlots([]);
+      // Filter slots for the selected date
+      const slotsForDate = availability.records.filter(slot => {
+        const slotDate = new Date(slot.date).toISOString().split('T')[0];
+        return slotDate === date && slot.available > 0;
+      });
+
+      // Format time slots
+      const formattedSlots = slotsForDate.map(slot => ({
+        time: new Date(slot.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        end_time: new Date(new Date(slot.date).getTime() + slot.duration * 60 * 60 * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+      }));
+
+      setAvailableTimeSlots(formattedSlots);
+      
+      // Reset time if it's not in the available slots
+      if (time && !formattedSlots.some(slot => slot.time === time)) {
         setTime('');
       }
     }
@@ -78,9 +85,13 @@ const BookingPage = () => {
     }
 
     try {
-      const res = await fetch(`${API_URL}/custom-booking-endpoint/v1/create`, {
+      const res = await fetch(`${API_URL}/bookings`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "consumer_key": CONSUMER_KEY,
+          "consumer_secret": CONSUMER_SECRET
+        },
         body: JSON.stringify({
           full_name: fullName,
           email,
@@ -124,10 +135,21 @@ const BookingPage = () => {
     );
   }
 
+  // Get unique available dates from records
+  const availableDates = availability?.records
+    ? [...new Set(availability.records
+        .filter(slot => slot.available > 0)
+        .map(slot => new Date(slot.date).toISOString().split('T')[0]))]
+        .map(dateStr => ({
+          date: dateStr,
+          day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' })
+        }))
+    : [];
+
   return (
     <Layout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Book Your {product?.title}</h1>
+        <h1 className="text-2xl font-bold mb-4">Book Your {product?.name}</h1>
 
         {isBooked ? (
           <p className="text-green-600 font-medium">Your appointment was successfully booked!</p>
@@ -179,7 +201,7 @@ const BookingPage = () => {
                   required
                 >
                   <option value="">Select a date</option>
-                  {availability?.available_dates.map((dateObj) => (
+                  {availableDates.map((dateObj) => (
                     <option key={dateObj.date} value={dateObj.date}>
                       {dateObj.date} ({dateObj.day})
                     </option>
@@ -198,7 +220,7 @@ const BookingPage = () => {
                   <option value="">Select a time</option>
                   {availableTimeSlots.map((slot) => (
                     <option key={slot.time} value={slot.time}>
-                      {slot.time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                      {slot.time} - {slot.end_time}
                     </option>
                   ))}
                 </select>
