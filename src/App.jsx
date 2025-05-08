@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import BookNow from './pages/BookNow';
 import BookingPage from './pages/‌BookingPage';
@@ -11,7 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/BookNow" element={<BookNow />} />
+        <Route path="/booknow" element={<BookNow />} />
         <Route path="/booking/:productId" element={<BookingPage />} />
         <Route path="/gallery/:id" element={<Gallery />} />
       </Routes>

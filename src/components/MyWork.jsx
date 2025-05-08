@@ -59,7 +59,7 @@ const MyWork = () => {
             )}
             <p>{item.description}</p>
             <div className="button-group">
-              <a href="/booknow" className="btn-book">Book Now</a>
+              <a href="/#/booknow" className="btn-book">Book Now</a>
               <Link to={`/gallery/${index}`} className="btn-gallery">Gallery</Link>
             </div>
           </div>

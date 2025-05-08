@@ -45,7 +45,7 @@ const Header = () => {
       <div className="header-container">
         {/* Logo */}
         <div className="logo">
-          <Link to="/">
+          <Link to="/#/">
             <img src="/logo/logo.png" alt="Vansun Logo" />
           </Link>
         </div>
@@ -65,7 +65,7 @@ const Header = () => {
         <nav className={isMenuOpen ? 'active' : ''}>
           <div className="nav-links">
             <div className="book-now-link">  
-            <Link to="/booknow">Book Now</Link>
+            <Link to="/#/booknow">Book Now</Link>
             </div>
             <a onClick={() => scrollToSection('about')}>About</a>
             <a onClick={() => scrollToSection('my-work')}>Services</a>
