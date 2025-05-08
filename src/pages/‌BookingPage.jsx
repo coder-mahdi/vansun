@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../layout/Layout";
+// import ReCAPTCHA from "react-google-recaptcha";
 
-const API_URL = "https://vansunstudio.com/cms/wp-json/wc-bookings/v1";
-const CONSUMER_KEY = "ck_44d32257666864a9026ec404789951b93a88aeca";
-const CONSUMER_SECRET = "cs_dc01b9d6f3523dc2313989f18178a9146c78afd6";
+const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
+// const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
 
 const BookingPage = () => {
   const { productId } = useParams();
+  console.log('Current productId from URL:', productId);
+
   const [product, setProduct] = useState(null);
   const [availability, setAvailability] = useState(null);
   const [isBooked, setIsBooked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [availableDates, setAvailableDates] = useState([]);
 
   // State for form data
   const [fullName, setFullName] = useState('');
@@ -21,28 +24,95 @@ const BookingPage = () => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
+  // const [recaptchaToken, setRecaptchaToken] = useState(null);
+  // const recaptchaRef = useRef();
+
+  // Fetch available dates
+  useEffect(() => {
+    const fetchAvailableDates = async () => {
+      try {
+        const today = new Date();
+        const nextMonth = new Date();
+        nextMonth.setMonth(today.getMonth() + 1);
+
+        const dates = [];
+        for (let d = new Date(today); d <= nextMonth; d.setDate(d.getDate() + 1)) {
+          dates.push(d.toISOString().split('T')[0]);
+        }
+
+        setAvailableDates(dates.map(dateStr => ({
+          date: dateStr,
+          day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' })
+        })));
+      } catch (err) {
+        console.error("Error fetching available dates:", err);
+        setError("Error loading available dates");
+      }
+    };
+
+    fetchAvailableDates();
+  }, []);
 
   useEffect(() => {
     const fetchProductData = async () => {
+      if (!productId) {
+        console.error('No productId provided');
+        setError("No product ID provided");
+        return;
+      }
+
       try {
         setLoading(true);
-        // Fetch product details
-        const productRes = await fetch(`${API_URL}/products/${productId}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+        console.log('Fetching product data for ID:', productId);
+        
+        // Fetch product details and availability rules
+        const url = `${API_URL}/booking/product?product_id=${productId}`;
+        console.log('Request URL:', url);
+        
+        const productRes = await fetch(url);
+        console.log('Product Response Status:', productRes.status);
+        
+        if (!productRes.ok) {
+          throw new Error(`HTTP error! status: ${productRes.status}`);
+        }
+        
         const productData = await productRes.json();
+        console.log('Product Data:', productData);
         
         if (productData) {
           setProduct(productData);
           
-          // Fetch availability data
-          const availabilityRes = await fetch(`${API_URL}/products/slots?product_id=${productId}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-          const availabilityData = await availabilityRes.json();
-          setAvailability(availabilityData);
+          // Set default time slots based on product availability rules
+          if (productData.availability_rules) {
+            const timeSlots = productData.availability_rules
+              .filter(rule => rule.type === 'time:range')
+              .map(rule => ({
+                time: rule.from,
+                end_time: rule.to
+              }));
+            
+            if (timeSlots.length > 0) {
+              setAvailableTimeSlots(timeSlots);
+            } else {
+              // Default time slots if no specific rules are defined
+              setAvailableTimeSlots([
+                { time: '09:00', end_time: '10:00' },
+                { time: '10:00', end_time: '11:00' },
+                { time: '11:00', end_time: '12:00' },
+                { time: '12:00', end_time: '13:00' },
+                { time: '13:00', end_time: '14:00' },
+                { time: '14:00', end_time: '15:00' },
+                { time: '15:00', end_time: '16:00' },
+                { time: '16:00', end_time: '17:00' }
+              ]);
+            }
+          }
         } else {
           setError("Product not found");
         }
       } catch (err) {
         console.error("Error fetching product data:", err);
-        setError("Error loading product data");
+        setError(`Error loading product data: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -51,83 +121,115 @@ const BookingPage = () => {
     fetchProductData();
   }, [productId]);
 
-  // Update available time slots when date changes
+  // Fetch availability when date changes
   useEffect(() => {
-    if (availability && date) {
-      // Filter slots for the selected date
-      const slotsForDate = availability.records.filter(slot => {
-        const slotDate = new Date(slot.date).toISOString().split('T')[0];
-        return slotDate === date && slot.available > 0;
-      });
-
-      // Format time slots
-      const formattedSlots = slotsForDate.map(slot => ({
-        time: new Date(slot.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        end_time: new Date(new Date(slot.date).getTime() + slot.duration * 60 * 60 * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-      }));
-
-      setAvailableTimeSlots(formattedSlots);
-      
-      // Reset time if it's not in the available slots
-      if (time && !formattedSlots.some(slot => slot.time === time)) {
-        setTime('');
+    const fetchAvailability = async () => {
+      if (date) {
+        try {
+          console.log('Fetching availability for date:', date);
+          const url = `${API_URL}/booking/availability?product_id=${productId}&date=${date}`;
+          console.log('Request URL:', url);
+          
+          const availabilityRes = await fetch(url);
+          console.log('Availability Response Status:', availabilityRes.status);
+          
+          if (!availabilityRes.ok) {
+            throw new Error(`HTTP error! status: ${availabilityRes.status}`);
+          }
+          
+          const availabilityData = await availabilityRes.json();
+          console.log('Raw Availability Data:', availabilityData);
+          setAvailability(availabilityData);
+          
+          // Update time slots based on date-specific availability
+          if (availabilityData.availability_rules) {
+            const dateSpecificSlots = availabilityData.availability_rules
+              .filter(rule => rule.type === 'time:range')
+              .map(rule => ({
+                time: rule.from,
+                end_time: rule.to
+              }));
+            
+            if (dateSpecificSlots.length > 0) {
+              setAvailableTimeSlots(dateSpecificSlots);
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching availability:", err);
+          setError(`Error loading availability data: ${err.message}`);
+        }
       }
+    };
+
+    if (date && productId) {
+      fetchAvailability();
     }
-  }, [date, availability]);
+  }, [date, productId]);
+
+  // const handleRecaptchaChange = (token) => {
+  //   console.log('reCAPTCHA token received:', token);
+  //   setRecaptchaToken(token);
+  // };
 
   const handleBooking = async (e) => {
     e.preventDefault();
 
-    // Make sure all required fields are filled
     if (!fullName || !email || !phone || !date || !time) {
       alert("Please fill in all fields.");
       return;
     }
 
-    try {
-      // Convert date and time to ISO format
-      const startDate = new Date(`${date}T${time}`);
-      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Add 1 hour
+    /* Temporarily disabled reCAPTCHA
+    if (!recaptchaToken) {
+      alert("Please complete the reCAPTCHA verification.");
+      return;
+    }
+    */
 
-      const res = await fetch(`${API_URL}/bookings?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`, {
+    try {
+      const bookingData = {
+        full_name: fullName,
+        email: email,
+        phone: phone,
+        product_id: parseInt(productId),
+        booking_date: date,
+        booking_time: time,
+        // recaptcha_token: recaptchaToken,
+        terms_accepted: true
+      };
+
+      console.log('Sending booking request with data:', bookingData);
+
+      const res = await fetch(`${API_URL}/booking/create`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          product_id: parseInt(productId),
-          start: startDate.toISOString(),
-          end: endDate.toISOString(),
-          all_day: false,
-          customer_id: 0,
-          status: "unpaid",
-          meta_data: [
-            {
-              key: "full_name",
-              value: fullName
-            },
-            {
-              key: "email",
-              value: email
-            },
-            {
-              key: "phone",
-              value: phone
-            }
-          ]
-        })
+        body: JSON.stringify(bookingData)
       });
 
+      console.log('Booking Response Status:', res.status);
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Booking Error Response:', errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
+      console.log('Booking Success Response:', data);
 
       if (res.ok) {
         setIsBooked(true);
+        // recaptchaRef.current?.reset();
       } else {
         alert(data.message || "Something went wrong while booking.");
+        // recaptchaRef.current?.reset();
       }
     } catch (error) {
       console.error("Booking error:", error);
-      alert("Error creating booking. Please try again.");
+      alert(`Error creating booking: ${error.message}`);
+      // recaptchaRef.current?.reset();
     }
   };
 
@@ -150,17 +252,6 @@ const BookingPage = () => {
       </Layout>
     );
   }
-
-  // Get unique available dates from records
-  const availableDates = availability?.records
-    ? [...new Set(availability.records
-        .filter(slot => slot.available > 0)
-        .map(slot => new Date(slot.date).toISOString().split('T')[0]))]
-        .map(dateStr => ({
-          date: dateStr,
-          day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' })
-        }))
-    : [];
 
   return (
     <Layout>
@@ -242,6 +333,16 @@ const BookingPage = () => {
                 </select>
               </div>
             </div>
+
+            {/* Temporarily disabled reCAPTCHA
+            <div className="recaptcha-container my-4">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={RECAPTCHA_SITE_KEY}
+                onChange={handleRecaptchaChange}
+              />
+            </div>
+            */}
 
             {/* Submit Button Row */}
             <div className="submit-row">

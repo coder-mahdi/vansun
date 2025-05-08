@@ -1,1 +1,1 @@
-GET http://localhost:8888/vansun/wp-json/wp/v2/media/139
+GET https://vansunstudio.com/wp-json/vansunstudio/v1/booking/availability?product_id=123&date=2024-03-20
