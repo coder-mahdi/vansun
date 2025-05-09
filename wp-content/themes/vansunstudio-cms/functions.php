@@ -199,13 +199,41 @@ function handle_booking_creation($request) {
 
     // Validate required fields
     if (empty($params['full_name']) || 
-        empty($params['email_address']) || 
+        empty($params['email']) || 
         empty($params['phone']) || 
-        empty($params['date']) || 
-        empty($params['time']) || 
-        empty($params['product_id'])) {
+        empty($params['booking_date']) || 
+        empty($params['booking_time']) || 
+        empty($params['product_id']) ||
+        empty($params['recaptcha_token'])) {
         error_log('Missing required fields');
         return new WP_Error('missing_fields', 'All fields are required', array('status' => 400));
+    }
+
+    // Verify reCAPTCHA token
+    $recaptcha_secret = "6Lez4zErAAAAADLh3bipgwi75nB6a9_01BQg9aBI"; // Secret key for reCAPTCHA verification
+    $recaptcha_response = $params['recaptcha_token'];
+    
+    $verify_url = "https://www.google.com/recaptcha/api/siteverify";
+    $data = array(
+        'secret' => $recaptcha_secret,
+        'response' => $recaptcha_response
+    );
+
+    $options = array(
+        'http' => array(
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method' => 'POST',
+            'content' => http_build_query($data)
+        )
+    );
+
+    $context = stream_context_create($options);
+    $verify_response = file_get_contents($verify_url, false, $context);
+    $captcha_success = json_decode($verify_response);
+
+    if (!$captcha_success->success) {
+        error_log('reCAPTCHA verification failed');
+        return new WP_Error('recaptcha_failed', 'reCAPTCHA verification failed', array('status' => 400));
     }
 
     // Get the product
@@ -218,10 +246,10 @@ function handle_booking_creation($request) {
     // Create booking data
     $booking_data = array(
         'product_id' => $params['product_id'],
-        'start_date' => $params['date'] . ' ' . $params['time'],
-        'end_date' => $params['date'] . ' ' . $params['time'],
+        'start_date' => $params['booking_date'] . ' ' . $params['booking_time'],
+        'end_date' => $params['booking_date'] . ' ' . $params['booking_time'],
         'full_name' => $params['full_name'],
-        'email_address' => $params['email_address'],
+        'email_address' => $params['email'],
         'phone' => $params['phone']
     );
 
