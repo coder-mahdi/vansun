@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../layout/Layout";
 import { fetchPageBySlug } from "../utils/api";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -7,8 +7,31 @@ import ReCAPTCHA from "react-google-recaptcha";
 const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
 const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
 
+// Helper function to generate time slots
+const generateTimeSlots = (from, to) => {
+  const slots = [];
+  const startTime = new Date(`2000-01-01T${from}`);
+  const endTime = new Date(`2000-01-01T${to}`);
+  
+  let currentTime = new Date(startTime);
+  
+  while (currentTime < endTime) {
+    const slotStart = currentTime.toTimeString().slice(0, 5);
+    currentTime.setMinutes(currentTime.getMinutes() + 30);
+    const slotEnd = currentTime.toTimeString().slice(0, 5);
+    
+    slots.push({
+      time: slotStart,
+      end_time: slotEnd
+    });
+  }
+  
+  return slots;
+};
+
 const BookingPage = () => {
   const { productId } = useParams();
+  const navigate = useNavigate();
   console.log('Current productId from URL:', productId);
 
   const [product, setProduct] = useState(null);
@@ -67,7 +90,6 @@ const BookingPage = () => {
         setLoading(true);
         console.log('Fetching product data for ID:', productId);
         
-        // Fetch product details and availability rules
         const url = `${API_URL}/booking/product?product_id=${productId}`;
         console.log('Request URL:', url);
         
@@ -84,30 +106,21 @@ const BookingPage = () => {
         if (productData) {
           setProduct(productData);
           
-          // Set default time slots based on product availability rules
-          if (productData.availability_rules) {
-            const timeSlots = productData.availability_rules
-              .filter(rule => rule.type === 'time:range')
-              .map(rule => ({
-                time: rule.from,
-                end_time: rule.to
-              }));
+          // Set time slots based on product availability rules
+          if (productData.availability_rules && productData.availability_rules.length > 0) {
+            // Get the first available time rule
+            const timeRule = productData.availability_rules.find(rule => 
+              rule.type === 'time' || rule.type === 'time:7'
+            );
             
-            if (timeSlots.length > 0) {
-              setAvailableTimeSlots(timeSlots);
+            if (timeRule && timeRule.bookable === 'yes') {
+              const slots = generateTimeSlots(timeRule.from, timeRule.to);
+              setAvailableTimeSlots(slots);
             } else {
-              // Default time slots if no specific rules are defined
-              setAvailableTimeSlots([
-                { time: '09:00', end_time: '10:00' },
-                { time: '10:00', end_time: '11:00' },
-                { time: '11:00', end_time: '12:00' },
-                { time: '12:00', end_time: '13:00' },
-                { time: '13:00', end_time: '14:00' },
-                { time: '14:00', end_time: '15:00' },
-                { time: '15:00', end_time: '16:00' },
-                { time: '16:00', end_time: '17:00' }
-              ]);
+              setAvailableTimeSlots([]);
             }
+          } else {
+            setAvailableTimeSlots([]);
           }
         } else {
           setError("Product not found");
@@ -273,10 +286,25 @@ const BookingPage = () => {
   return (
     <Layout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Book Your {productTitle || 'Appointment'}</h1>
+        {!isBooked && (
+          <h1 className="text-2xl font-bold mb-4">Book Your {productTitle || 'Appointment'}</h1>
+        )}
 
         {isBooked ? (
-          <p className="text-green-600 font-medium">Your appointment was successfully booked!</p>
+          <div className="booking-page__success-message">
+            <p>
+              Your appointment was successfully booked!<br />
+              If you need to cancel your appointment, please notify us via email at least 5 hours before your scheduled time.
+            </p>
+            <div className="success-buttons">
+              <a href="mailto:info@vansunstudio.com" className="email-btn">
+                Send Email
+              </a>
+              <button onClick={() => navigate('/')} className="home-btn">
+                Back to Home
+              </button>
+            </div>
+          </div>
         ) : (
           <form onSubmit={handleBooking} className="booking-form">
             {/* Personal Info Row */}

@@ -176,6 +176,70 @@
         }
     }
 
+    &__success-message {
+        text-align: center;
+        padding: 3rem 1rem;
+        
+        p {
+            color: #3d2c00;
+            font-weight: 500;
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            
+            @media (min-width: 768px) {
+                font-size: 1.5rem;
+            }
+            
+            @media (min-width: 1024px) {
+                font-size: 1.875rem;
+            }
+        }
+
+        .success-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            
+            @media (min-width: 768px) {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            a, button {
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 500;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                min-width: 200px;
+                text-align: center;
+
+                &.email-btn {
+                    background-color: #3d2c00;
+                    color: #faffee;
+                    border: 2px solid #3d2c00;
+
+                    &:hover {
+                        background-color: transparent;
+                        color: #3d2c00;
+                    }
+                }
+
+                &.home-btn {
+                    background-color: transparent;
+                    color: #3d2c00;
+                    border: 2px solid #3d2c00;
+
+                    &:hover {
+                        background-color: #3d2c00;
+                        color: #faffee;
+                    }
+                }
+            }
+        }
+    }
+
     @media (max-width: 768px) {
         padding: 1rem;
 
