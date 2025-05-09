@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../layout/Layout";
+import { fetchPageBySlug } from "../utils/api";
 // import ReCAPTCHA from "react-google-recaptcha";
 
 const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
@@ -11,6 +12,7 @@ const BookingPage = () => {
   console.log('Current productId from URL:', productId);
 
   const [product, setProduct] = useState(null);
+  const [productTitle, setProductTitle] = useState('');
   const [availability, setAvailability] = useState(null);
   const [isBooked, setIsBooked] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -119,6 +121,23 @@ const BookingPage = () => {
     };
 
     fetchProductData();
+  }, [productId]);
+
+  useEffect(() => {
+    const fetchProductTitle = async () => {
+      try {
+        const page = await fetchPageBySlug('booknow-data');
+        const acfData = page?.acf?.['book-now'] || [];
+        const productAcfData = acfData.find(item => item.woocommerce_product_id === parseInt(productId));
+        if (productAcfData) {
+          setProductTitle(productAcfData.title);
+        }
+      } catch (err) {
+        console.error("Error fetching product title:", err);
+      }
+    };
+
+    fetchProductTitle();
   }, [productId]);
 
   // Fetch availability when date changes
@@ -256,7 +275,7 @@ const BookingPage = () => {
   return (
     <Layout>
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Book Your {product?.name}</h1>
+        <h1 className="text-2xl font-bold mb-4">Book Your {productTitle || 'Appointment'}</h1>
 
         {isBooked ? (
           <p className="text-green-600 font-medium">Your appointment was successfully booked!</p>
