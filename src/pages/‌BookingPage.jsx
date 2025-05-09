@@ -52,22 +52,56 @@ const BookingPage = () => {
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef();
 
+  // Helper function to get current Vancouver time
+  const getVancouverTime = () => {
+    return new Date().toLocaleString("en-US", {
+      timeZone: "America/Vancouver"
+    });
+  };
+
+  // Helper function to check if a time slot is in the future
+  const isTimeSlotInFuture = (timeStr) => {
+    if (!date) return true;
+    
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const slotTime = new Date(date);
+    slotTime.setHours(hours, minutes, 0, 0);
+    
+    // Convert slot time to Vancouver timezone
+    const vancouverSlotTime = new Date(slotTime.toLocaleString("en-US", {
+      timeZone: "America/Vancouver"
+    }));
+    
+    // Get current Vancouver time
+    const vancouverNow = new Date(getVancouverTime());
+    
+    return vancouverSlotTime > vancouverNow;
+  };
+
   // Fetch available dates
   useEffect(() => {
     const fetchAvailableDates = async () => {
       try {
-        const today = new Date();
-        const nextMonth = new Date();
+        // Get current Vancouver time
+        const vancouverNow = new Date(getVancouverTime());
+        const today = new Date(vancouverNow);
+        const nextMonth = new Date(vancouverNow);
         nextMonth.setMonth(today.getMonth() + 1);
 
         const dates = [];
         for (let d = new Date(today); d <= nextMonth; d.setDate(d.getDate() + 1)) {
-          dates.push(d.toISOString().split('T')[0]);
+          // Only add dates that are today or in the future in Vancouver time
+          if (d >= today) {
+            dates.push(d.toISOString().split('T')[0]);
+          }
         }
 
         setAvailableDates(dates.map(dateStr => ({
           date: dateStr,
-          day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' })
+          day: new Date(dateStr).toLocaleDateString('en-US', { 
+            weekday: 'long',
+            timeZone: "America/Vancouver"
+          })
         })));
       } catch (err) {
         console.error("Error fetching available dates:", err);
@@ -183,7 +217,9 @@ const BookingPage = () => {
               }));
             
             if (dateSpecificSlots.length > 0) {
-              setAvailableTimeSlots(dateSpecificSlots);
+              // Filter out past time slots
+              const filteredSlots = dateSpecificSlots.filter(slot => isTimeSlotInFuture(slot.time));
+              setAvailableTimeSlots(filteredSlots);
             }
           }
         } catch (err) {
@@ -293,7 +329,7 @@ const BookingPage = () => {
         {isBooked ? (
           <div className="booking-page__success-message">
             <p>
-              Your appointment was successfully booked!<br />
+              Your appointment was successfully booked!<br /><br />
               If you need to cancel your appointment, please notify us via email at least 5 hours before your scheduled time.
             </p>
             <div className="success-buttons">
