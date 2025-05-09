@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../layout/Layout";
 import { fetchPageBySlug } from "../utils/api";
-// import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
-// const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
+const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
 
 const BookingPage = () => {
   const { productId } = useParams();
@@ -26,8 +26,8 @@ const BookingPage = () => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
-  // const [recaptchaToken, setRecaptchaToken] = useState(null);
-  // const recaptchaRef = useRef();
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const recaptchaRef = useRef();
 
   // Fetch available dates
   useEffect(() => {
@@ -185,10 +185,10 @@ const BookingPage = () => {
     }
   }, [date, productId]);
 
-  // const handleRecaptchaChange = (token) => {
-  //   console.log('reCAPTCHA token received:', token);
-  //   setRecaptchaToken(token);
-  // };
+  const handleRecaptchaChange = (token) => {
+    console.log('reCAPTCHA token received:', token);
+    setRecaptchaToken(token);
+  };
 
   const handleBooking = async (e) => {
     e.preventDefault();
@@ -198,12 +198,10 @@ const BookingPage = () => {
       return;
     }
 
-    /* Temporarily disabled reCAPTCHA
     if (!recaptchaToken) {
       alert("Please complete the reCAPTCHA verification.");
       return;
     }
-    */
 
     try {
       const bookingData = {
@@ -213,7 +211,7 @@ const BookingPage = () => {
         product_id: parseInt(productId),
         booking_date: date,
         booking_time: time,
-        // recaptcha_token: recaptchaToken,
+        recaptcha_token: recaptchaToken,
         terms_accepted: true
       };
 
@@ -240,15 +238,15 @@ const BookingPage = () => {
 
       if (res.ok) {
         setIsBooked(true);
-        // recaptchaRef.current?.reset();
+        recaptchaRef.current?.reset();
       } else {
         alert(data.message || "Something went wrong while booking.");
-        // recaptchaRef.current?.reset();
+        recaptchaRef.current?.reset();
       }
     } catch (error) {
       console.error("Booking error:", error);
       alert(`Error creating booking: ${error.message}`);
-      // recaptchaRef.current?.reset();
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -353,7 +351,6 @@ const BookingPage = () => {
               </div>
             </div>
 
-            {/* Temporarily disabled reCAPTCHA
             <div className="recaptcha-container my-4">
               <ReCAPTCHA
                 ref={recaptchaRef}
@@ -361,7 +358,6 @@ const BookingPage = () => {
                 onChange={handleRecaptchaChange}
               />
             </div>
-            */}
 
             {/* Submit Button Row */}
             <div className="submit-row">
