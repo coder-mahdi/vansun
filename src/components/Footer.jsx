@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const [footerData, setFooterData] = useState(null);
@@ -36,55 +37,52 @@ const Footer = () => {
 
   return (
     <footer>
-    <h1>{footerData.title}</h1>
+      <h1>{footerData.title}</h1>
 
+      <div className="footer-content">
+        <div className="left-side">
+          <nav>
+            <ul>
+              {footerData.header_links.map((link, index) => (
+                <li key={index}>
+                  <a href={link.url} target={link.target || '_self'}>
+                    {link.title}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <Link to="/terms-and-conditions">Terms & Conditions</Link>
+              </li>
+            </ul>
+          </nav>
 
-    <div className="footer-content">
-
-
-    <div className="left-side">
-
-    <nav>
-      <ul>
-        {footerData.header_links.map((link, index) => (
-          <li key={index}>
-            <a href={link.url} target={link.target || '_self'}>
-              {link.title}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-
-      <div className="address">
-        {footerData.address}
-      </div>
-  
-      </div>
-
-    <div className="social-media">
-      <ul>
-        {footerData.social_media.instagram && (
-          <li>
-            <a href={footerData.social_media.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
-          </li>
-        )}
-        {footerData.social_media.facebook && (
-          <li>
-            <a href={footerData.social_media.facebook} target="_blank" rel="noopener noreferrer">Facebook</a>
-          </li>
-        )}
-      </ul>
-    </div>
-  
-    <div className="email-btn">
-      <button onClick={() => window.location.href = `mailto:${footerData.email_button}`}>
-        Send Email
-      </button>
-    </div>
-    
+          <div className="address">
+            {footerData.address}
+          </div>
         </div>
-  </footer>
+
+        <div className="social-media">
+          <ul>
+            {footerData.social_media.instagram && (
+              <li>
+                <a href={footerData.social_media.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+              </li>
+            )}
+            {footerData.social_media.facebook && (
+              <li>
+                <a href={footerData.social_media.facebook} target="_blank" rel="noopener noreferrer">Facebook</a>
+              </li>
+            )}
+          </ul>
+        </div>
+  
+        <div className="email-btn">
+          <button onClick={() => window.location.href = `mailto:${footerData.email_button}`}>
+            Send Email
+          </button>
+        </div>
+      </div>
+    </footer>
   )  
 };
 
