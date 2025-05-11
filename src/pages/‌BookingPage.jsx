@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../layout/Layout";
 import { fetchPageBySlug } from "../utils/api";
 import ReCAPTCHA from "react-google-recaptcha";
+import '../styles/pages/_bookingpage.scss';
 
 const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
 const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
@@ -50,6 +51,7 @@ const BookingPage = () => {
   const [time, setTime] = useState('');
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const recaptchaRef = useRef();
 
   // Helper function to get current Vancouver time
@@ -247,6 +249,11 @@ const BookingPage = () => {
       return;
     }
 
+    if (!termsAccepted) {
+      alert("Please accept the Terms & Conditions and Privacy Policy.");
+      return;
+    }
+
     if (!recaptchaToken) {
       alert("Please complete the reCAPTCHA verification.");
       return;
@@ -261,7 +268,7 @@ const BookingPage = () => {
         booking_date: date,
         booking_time: time,
         recaptcha_token: recaptchaToken,
-        terms_accepted: true
+        terms_accepted: termsAccepted
       };
 
       console.log('Sending booking request with data:', bookingData);
@@ -421,6 +428,28 @@ const BookingPage = () => {
                 sitekey={RECAPTCHA_SITE_KEY}
                 onChange={handleRecaptchaChange}
               />
+            </div>
+
+            {/* Terms and Conditions Checkbox */}
+            <div className="terms-checkbox">
+              <label className="terms-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  required
+                />
+                <span>
+                  I have read and agree to the{' '}
+                  <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+                    Terms & Conditions
+                  </a>{' '}
+                  and{' '}
+                  <a href="/terms-and-conditions#privacy-policy" target="_blank" rel="noopener noreferrer">
+                    Privacy Policy
+                  </a>
+                </span>
+              </label>
             </div>
 
             {/* Submit Button Row */}
