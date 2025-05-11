@@ -250,7 +250,7 @@ const BookingPage = () => {
     }
 
     if (!termsAccepted) {
-      alert("Please accept the Terms & Conditions and Privacy Policy.");
+      alert("Please accept the Terms & Conditions and Privacy Policy to proceed with booking.");
       return;
     }
 
