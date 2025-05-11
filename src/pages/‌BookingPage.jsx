@@ -61,6 +61,16 @@ const BookingPage = () => {
     });
   };
 
+  // Helper function to format date to YYYY-MM-DD in Vancouver timezone
+  const formatVancouverDate = (date) => {
+    return date.toLocaleDateString("en-US", {
+      timeZone: "America/Vancouver",
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).split('/').reverse().join('-');
+  };
+
   // Helper function to check if a time slot is in the future
   const isTimeSlotInFuture = (timeStr) => {
     if (!date) return true;
@@ -87,24 +97,27 @@ const BookingPage = () => {
         // Get current Vancouver time
         const vancouverNow = new Date(getVancouverTime());
         const today = new Date(vancouverNow);
-        const nextMonth = new Date(vancouverNow);
+        today.setHours(0, 0, 0, 0); // Set to start of day
+        
+        const nextMonth = new Date(today);
         nextMonth.setMonth(today.getMonth() + 1);
 
         const dates = [];
-        for (let d = new Date(today); d <= nextMonth; d.setDate(d.getDate() + 1)) {
-          // Only add dates that are today or in the future in Vancouver time
-          if (d >= today) {
-            dates.push(d.toISOString().split('T')[0]);
-          }
+        const currentDate = new Date(today);
+
+        while (currentDate <= nextMonth) {
+          const dateStr = formatVancouverDate(currentDate);
+          dates.push({
+            date: dateStr,
+            day: currentDate.toLocaleDateString('en-US', { 
+              weekday: 'long',
+              timeZone: "America/Vancouver"
+            })
+          });
+          currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        setAvailableDates(dates.map(dateStr => ({
-          date: dateStr,
-          day: new Date(dateStr).toLocaleDateString('en-US', { 
-            weekday: 'long',
-            timeZone: "America/Vancouver"
-          })
-        })));
+        setAvailableDates(dates);
       } catch (err) {
         console.error("Error fetching available dates:", err);
         setError("Error loading available dates");
@@ -422,34 +435,35 @@ const BookingPage = () => {
               </div>
             </div>
 
-            <div className="recaptcha-container my-4">
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={RECAPTCHA_SITE_KEY}
-                onChange={handleRecaptchaChange}
-              />
-            </div>
-
-            {/* Terms and Conditions Checkbox */}
-            <div className="terms-checkbox">
-              <label className="terms-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  required
+            <div className="recaptcha-terms-row">
+              <div className="recaptcha-container">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={handleRecaptchaChange}
                 />
-                <span>
-                  I have read and agree to the{' '}
-                  <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-                    Terms & Conditions
-                  </a>{' '}
-                  and{' '}
-                  <a href="/terms-and-conditions#privacy-policy" target="_blank" rel="noopener noreferrer">
-                    Privacy Policy
-                  </a>
-                </span>
-              </label>
+              </div>
+
+              <div className="terms-checkbox">
+                <label className="terms-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    I have read and agree to the{' '}
+                    <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+                      Terms & Conditions
+                    </a>{' '}
+                    and{' '}
+                    <a href="/terms-and-conditions#privacy-policy" target="_blank" rel="noopener noreferrer">
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
+              </div>
             </div>
 
             {/* Submit Button Row */}
