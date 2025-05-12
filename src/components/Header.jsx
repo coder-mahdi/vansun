@@ -115,6 +115,7 @@ const Header = () => {
               <Link to="/booknow" className="btn-book">Book Now</Link>
             </div>
             <a onClick={() => scrollToSection('about')}>About</a>
+            <Link to="/blog">Blog</Link>
             <a onClick={() => scrollToSection('my-work')}>Services</a>
           </div>
         </nav>

@@ -11,6 +11,21 @@ export const fetchPageBySlug = async (slug) => {
   }
 };
 
+export const fetchMedia = async (mediaId) => {
+  try {
+    const res = await fetch(`${API_BASE}/media/${mediaId}`);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const data = await res.json();
+    console.log('Media data:', data); 
+    return data;
+  } catch (error) {
+    console.error('Error fetching media:', error);
+    return null;
+  }
+};
+
 export const fetchPosts = async () => {
   try {
     const res = await fetch(`${API_BASE}/posts?_embed`);
@@ -18,6 +33,7 @@ export const fetchPosts = async () => {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
     const data = await res.json();
+    console.log('Fetched posts:', data); 
     return data;
   } catch (error) {
     console.error('Error fetching posts:', error);
