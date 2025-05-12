@@ -279,10 +279,30 @@
                     background-color: transparent;
                     color: #3d2c00;
                     border: 2px solid #3d2c00;
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 1;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(45deg, #3d2c00 0%, #faffee 100%);
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                        z-index: -1;
+                    }
 
                     &:hover {
-                        background-color: #3d2c00;
-                        color: #faffee;
+                        color: #3d2c00;
+                        border-color: #3d2c00;
+
+                        &::before {
+                            opacity: 0.2;
+                        }
                     }
                 }
             }

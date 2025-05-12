@@ -2,61 +2,107 @@
   &__container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 2rem;
+    color: rgb(250, 255, 238);
   }
 
   &__section {
-    background: #fff;
+    margin-bottom: 4rem;
+    background: rgb(61, 44, 0);
+    border: 1px solid rgb(250, 255, 238);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 2rem;
-    margin-bottom: 2rem;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
   }
 
   &__title {
     font-size: 2rem;
-    font-weight: 700;
-    color: #333;
     margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #eee;
+    color: rgb(250, 255, 238);
+    text-align: center;
+    font-weight: 500;
   }
 
   &__content {
-    color: #666;
-    line-height: 1.6;
-
     h3 {
       font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
       margin: 2rem 0 1rem;
+      color: rgb(250, 255, 238);
+      font-weight: 500;
     }
 
     p {
       margin-bottom: 1rem;
+      line-height: 1.6;
+      color: rgb(250, 255, 238);
     }
 
-    ul {
-      list-style: none;
-      padding-left: 1.5rem;
-      margin-bottom: 1rem;
+    li {
+      margin-bottom: 0.5rem;
+      margin-left: 1.5rem;
+      line-height: 1.6;
+      color: rgb(250, 255, 238);
+    }
 
-      li {
-        position: relative;
-        margin-bottom: 0.5rem;
-        padding-left: 1rem;
+    a {
+      color: rgb(250, 255, 238);
+      text-decoration: none;
+      border-bottom: 1px solid rgb(250, 255, 238);
+      transition: all 0.3s ease;
 
-        &:before {
-          content: "•";
-          position: absolute;
-          left: 0;
-          color: #666;
-        }
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .error {
+    color: #ff6b6b;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+}
+
+// Tablet styles
+@media (max-width: 768px) {
+  .terms-and-conditions {
+    &__container {
+      padding: 1.5rem;
+    }
+
+    &__section {
+      padding: 1.5rem;
+    }
+
+    &__title {
+      font-size: 1.75rem;
+    }
+
+    &__content {
+      h3 {
+        font-size: 1.25rem;
+      }
+    }
+  }
+}
+
+// Mobile styles
+@media (max-width: 480px) {
+  .terms-and-conditions {
+    &__container {
+      padding: 1rem;
+    }
+
+    &__section {
+      padding: 1rem;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__content {
+      h3 {
+        font-size: 1.1rem;
       }
     }
   }

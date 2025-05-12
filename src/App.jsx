@@ -5,7 +5,7 @@ import BookNow from './pages/BookNow';
 import BookingPage from './pages/‌BookingPage';
 import Gallery from './pages/Gallery';
 import TermsAndConditions from './components/TermsAndConditions';
-import ConsentFormPage from './pages/ConsentFormPage';
+import ConsentForm from './components/ConsentForm';
 import './styles/main.scss';
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
         <Route path="/booking/:productId" element={<BookingPage />} />
         <Route path="/gallery/:id" element={<Gallery />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-        <Route path="/consent-form" element={<ConsentFormPage />} />
+        <Route path="/consent-form/:type" element={<ConsentForm />} />
       </Routes>
     </Router>
   )
