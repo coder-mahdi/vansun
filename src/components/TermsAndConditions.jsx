@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../layout/Layout';
-import './TermsAndConditions.scss';
 
 const TermsAndConditions = () => {
   const [content, setContent] = useState({
@@ -22,24 +21,13 @@ const TermsAndConditions = () => {
         
         if (data.length > 0 && data[0].acf && data[0].acf['t&c_']) {
           const tcData = data[0].acf['t&c_'];
-          // Split the content into privacy policy and terms & conditions
-          const contentParts = tcData.split('\r\n\r\nTerms and Conditions');
-          
-          // Format the text by replacing multiple newlines with single newline
-          const formatText = (text) => {
-            return text
-              .replace(/^Vansun studio's Privacy Policy\r\n/, '') // Remove the title
-              .replace(/\r\n\r\n/g, '\n') // Replace double newlines with single
-              .replace(/\n{3,}/g, '\n\n') // Replace 3 or more newlines with double
-              .trim();
-          };
           
           setContent({
             privacyPolicy: {
-              text: formatText(contentParts[0])
+              text: tcData['text-privacy-policy'] || ''
             },
             conditions: {
-              text: formatText(contentParts[1] || '')
+              text: tcData['text-conditions'] || ''
             }
           });
         } else {

@@ -21,6 +21,7 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    flex: 1;
 
     nav ul {
       list-style: none;
@@ -31,6 +32,96 @@ footer {
 
       li {
         margin: 0;
+
+        a {
+          color: $color-text-light;
+          text-decoration: none;
+          position: relative;
+          display: inline-block;
+          padding-bottom: 2px;
+
+          &::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: $color-text-light;
+            transition: width 0.3s ease;
+          }
+
+          &:hover::after {
+            width: 100%;
+          }
+        }
+
+        .dropdown {
+          position: relative;
+          display: inline-block;
+
+          button {
+            background: none;
+            border: 1px solid $color-text-light;
+            color: $color-text-light;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            min-width: 150px;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+            margin: 0;
+            line-height: 1.5;
+
+            &:hover {
+              background-color: $color-text-light;
+              color: $color-footer-bg;
+            }
+          }
+
+          .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: $color-footer-bg;
+            min-width: 150px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 0;
+            z-index: 1000;
+            margin-top: 0.5rem;
+            border: 1px solid $color-text-light;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            li {
+              margin: 0;
+              padding: 0;
+
+              a {
+                display: block;
+                padding: 0.5rem 1rem;
+                color: $color-text-light;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                font-size: 0.9rem;
+                text-align: center;
+                border: none;
+                background: none;
+                width: 100%;
+                cursor: pointer;
+
+                &:hover {
+                  background-color: $color-text-light;
+                  color: $color-footer-bg;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -41,6 +132,10 @@ footer {
     margin-top: 1.5rem !important;
     padding-top: 0 !important;
     border-top: none !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
 
     ul {
       list-style: none;
@@ -48,27 +143,144 @@ footer {
       margin: 0;
       display: flex;
       gap: 4rem;
+      justify-content: center;
 
       li {
         margin: 0;
+
+        a {
+          color: $color-text-light;
+          text-decoration: none;
+          position: relative;
+          display: inline-block;
+          padding-bottom: 2px;
+
+          &::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: $color-text-light;
+            transition: width 0.3s ease;
+          }
+
+          &:hover::after {
+            width: 100%;
+          }
+        }
       }
     }
   }
 
-  .email-btn {
-    button {
-      background: none;
-      border: 1px solid $color-text-light;
-      color: $color-text-light;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
+  .right-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+    flex: 1;
 
-      &:hover {
-        background-color: $color-text-light;
-        color: $color-footer-bg;
+    .dropdown {
+      position: relative;
+      display: inline-block;
+
+      .email-btn {
+        button {
+          background: none;
+          border: 1px solid $color-text-light;
+          color: $color-text-light;
+          padding: 0.5rem 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 1rem;
+          min-width: 150px;
+          text-align: center;
+          display: inline-block;
+          text-decoration: none;
+          margin: 0;
+          line-height: 1.5;
+
+          &:hover {
+            background-color: $color-text-light;
+            color: $color-footer-bg;
+          }
+        }
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: $color-footer-bg;
+        min-width: 150px;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 0.5rem 0;
+        z-index: 1000;
+        margin-top: 0.5rem;
+        border: 1px solid $color-text-light;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+          margin: 0;
+          padding: 0;
+
+          a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: $color-text-light;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+
+            &:hover {
+              background-color: $color-text-light;
+              color: $color-footer-bg;
+            }
+          }
+        }
       }
     }
+
+    .email-btn {
+      button {
+        background: none;
+        border: 1px solid $color-text-light;
+        color: $color-text-light;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        min-width: 150px;
+        text-align: center;
+        display: inline-block;
+        text-decoration: none;
+        margin: 0;
+        line-height: 1.5;
+
+        &:hover {
+          background-color: $color-text-light;
+          color: $color-footer-bg;
+        }
+      }
+    }
+  }
+
+  .copyright {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(250, 255, 238, 0.1);
+    font-size: 0.9rem;
+    color: rgba(250, 255, 238, 0.8);
   }
 
   // Tablet styles
@@ -95,6 +307,10 @@ footer {
 
     .social-media ul {
       gap: 2rem;
+    }
+
+    .right-side {
+      align-items: center;
     }
   }
 

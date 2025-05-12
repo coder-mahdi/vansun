@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const [footerData, setFooterData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     fetch('https://vansunstudio.com/cms/wp-json/wp/v2/pages?slug=footer-data')
@@ -32,6 +34,19 @@ const Footer = () => {
       })
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   if (loading) return <p>Loading footer...</p>;
   if (!footerData) return <p>No footer data found.</p>;
 
@@ -51,7 +66,7 @@ const Footer = () => {
                 </li>
               ))}
               <li>
-                <Link to="/terms-and-conditions">Terms & Conditions</Link>
+                <a href="/terms-and-conditions">Terms & Conditions</a>
               </li>
             </ul>
           </nav>
@@ -75,12 +90,38 @@ const Footer = () => {
             )}
           </ul>
         </div>
-  
-        <div className="email-btn">
-          <button onClick={() => window.location.href = `mailto:${footerData.email_button}`}>
-            Send Email
-          </button>
+
+        <div className="right-side">
+          <div className="dropdown" ref={dropdownRef}>
+            <div className="email-btn">
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDropdownOpen(!isDropdownOpen);
+                }}
+              >
+                Consent Forms
+              </button>
+            </div>
+            {isDropdownOpen && (
+              <ul className="dropdown-menu">
+                <li><Link to="/consent-form/tattoo">Tattoo Consent Form</Link></li>
+                <li><Link to="/consent-form/piercing">Piercing Consent Form</Link></li>
+              </ul>
+            )}
+          </div>
+          <div className="email-btn">
+            <button onClick={() => window.location.href = `mailto:${footerData.email_button}`}>
+              Send Email
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div className="copyright">
+        <p>&copy; 2025 Van Sun Studio. All rights reserved.</p>
       </div>
     </footer>
   )  
