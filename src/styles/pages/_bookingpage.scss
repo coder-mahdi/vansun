@@ -696,3 +696,95 @@
         padding: 1.5rem;
     }
 }
+
+.booking-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.booking-faq {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(250, 255, 238, 0.2);
+
+    .faq-container {
+        h3 {
+            color: rgb(61, 44, 0);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .faq-title {
+        color: rgb(61, 44, 0);
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        font-family: 'Playfair Display', serif;
+        text-align: center;
+        position: relative;
+        padding-bottom: 1rem;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background-color: rgb(61, 44, 0);
+        }
+    }
+
+    .faq-item {
+        background: rgb(61, 44, 0);
+        border: 1px solid rgba(250, 255, 238, 0.2);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+
+        .faq-question {
+            color: rgb(250, 255, 238);
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1.1rem;
+
+            &:hover {
+                background: rgba(250, 255, 238, 0.1);
+            }
+
+            .faq-icon {
+                color: rgb(250, 255, 238);
+                transition: transform 0.3s ease;
+            }
+        }
+
+        .faq-answer {
+            color: rgba(250, 255, 238, 0.9);
+            padding: 0 1rem 1rem;
+            line-height: 1.6;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        &.active {
+            .faq-question {
+                background: rgba(250, 255, 238, 0.1);
+                
+                .faq-icon {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+    }
+}

@@ -1,9 +1,12 @@
 export const API_BASE = 'https://vansunstudio.com/cms/wp-json/wp/v2';
+export const API_V1_BASE = 'https://vansunstudio.com/cms/wp-json/vansunstudio/v1';
 
 export const fetchPageBySlug = async (slug) => {
   try {
+    // Always use wp/v2 API for pages
     const res = await fetch(`${API_BASE}/pages?slug=${slug}`);
     const data = await res.json();
+    console.log(`Fetched page data for slug ${slug}:`, data[0]);
     return data[0] || null;
   } catch (error) {
     console.error(`Error fetching page with slug ${slug}:`, error);

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../layout/Layout";
 import { fetchPageBySlug } from "../utils/api";
 import ReCAPTCHA from "react-google-recaptcha";
+import FAQ from "../components/FAQ";
 import '../styles/pages/_bookingpage.scss';
 
 const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
@@ -188,9 +189,13 @@ const BookingPage = () => {
   useEffect(() => {
     const fetchProductTitle = async () => {
       try {
+        console.log('Fetching product title for ID:', productId);
         const page = await fetchPageBySlug('booknow-data');
+        console.log('Booknow data page:', page);
         const acfData = page?.acf?.['book-now'] || [];
+        console.log('ACF data:', acfData);
         const productAcfData = acfData.find(item => item.woocommerce_product_id === parseInt(productId));
+        console.log('Found product data:', productAcfData);
         if (productAcfData) {
           setProductTitle(productAcfData.title);
         }
@@ -319,6 +324,20 @@ const BookingPage = () => {
     }
   };
 
+  // Determine FAQ type based on product title
+  const getFaqType = () => {
+    console.log('Product Title:', productTitle);
+    if (!productTitle) return null;
+    
+    const title = productTitle.toLowerCase();
+    if (title.includes('tattoo')) {
+      return 'tattoo';
+    } else if (title.includes('piercing')) {
+      return 'piercing';
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -341,7 +360,7 @@ const BookingPage = () => {
 
   return (
     <Layout>
-      <div className="p-6">
+      <div className="booking-container">
         {!isBooked && (
           <h1 className="text-2xl font-bold mb-4">Book Your {productTitle || 'Appointment'}</h1>
         )}
@@ -471,6 +490,13 @@ const BookingPage = () => {
               <button type="submit">Book Appointment</button>
             </div>
           </form>
+        )}
+
+        {/* Add FAQ section after the form */}
+        {getFaqType() && (
+          <div className="booking-faq">
+            <FAQ type={getFaqType()} />
+          </div>
         )}
       </div>
     </Layout>
