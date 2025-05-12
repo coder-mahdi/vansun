@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../layout/Layout';
-import './TermsAndConditions.scss';
 
 const TermsAndConditions = () => {
   const [content, setContent] = useState({
