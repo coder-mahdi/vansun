@@ -1,0 +1,211 @@
+.consent-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: rgb(61, 44, 0);
+  color: rgb(250, 255, 238);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  h1, h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: rgb(250, 255, 238);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: rgb(250, 255, 238);
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgb(250, 255, 238);
+      border-radius: 6px;
+      font-size: 1rem;
+      background-color: rgb(250, 255, 238);
+      color: rgb(61, 44, 0);
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: rgb(250, 255, 238);
+        box-shadow: 0 0 0 2px rgba(250, 255, 238, 0.2);
+      }
+
+      &::placeholder {
+        color: rgba(61, 44, 0, 0.7);
+      }
+    }
+  }
+
+  .consent-text {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgb(250, 255, 238);
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid rgba(250, 255, 238, 0.2);
+
+    .consent-paragraph {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      color: rgb(61, 44, 0);
+    }
+  }
+
+  .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgb(250, 255, 238);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(250, 255, 238, 0.9);
+    }
+
+    input[type="checkbox"] {
+      margin-top: 0.25rem;
+      width: 18px;
+      height: 18px;
+      accent-color: rgb(61, 44, 0);
+      cursor: pointer;
+    }
+
+    label {
+      color: rgb(61, 44, 0);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+  }
+
+  .recaptcha-container {
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 1rem;
+    background-color: rgb(250, 255, 238);
+    color: rgb(61, 44, 0);
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: rgba(250, 255, 238, 0.9);
+    }
+
+    &:disabled {
+      background-color: rgba(250, 255, 238, 0.5);
+      cursor: not-allowed;
+    }
+  }
+
+  .error-message {
+    color: #dc3545;
+    margin-top: 1rem;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 6px;
+  }
+
+  .success-message {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background-color: rgb(250, 255, 238);
+    border-radius: 6px;
+    color: rgb(61, 44, 0);
+
+    h3 {
+      color: rgb(61, 44, 0);
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-bottom: 1.5rem;
+    }
+
+    .home-button {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background-color: rgb(61, 44, 0);
+      color: rgb(250, 255, 238);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: rgba(61, 44, 0, 0.9);
+      }
+    }
+  }
+}
+
+// Remove any extra white background from parent elements
+body {
+  background: rgb(61, 44, 0);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+// Ensure the page container doesn't add extra background
+.page-container {
+  background: transparent;
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .consent-form-container {
+    padding: 1.5rem;
+    margin: 1rem;
+
+    h1, h2 {
+      font-size: 1.8rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"] {
+        padding: 0.7rem;
+      }
+    }
+
+    .checkbox-container {
+      padding: 0.8rem;
+      margin-bottom: 1.5rem;
+
+      label {
+        font-size: 0.9rem;
+      }
+    }
+
+    button[type="submit"] {
+      padding: 0.8rem;
+    }
+  }
+} 

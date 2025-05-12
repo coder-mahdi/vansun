@@ -53,6 +53,9 @@ const Footer = () => {
               <li>
                 <Link to="/terms-and-conditions">Terms & Conditions</Link>
               </li>
+              <li>
+                <Link to="/consent-form">Consent Form</Link>
+              </li>
             </ul>
           </nav>
 
