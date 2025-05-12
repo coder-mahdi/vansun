@@ -6,6 +6,8 @@ import BookingPage from './pages/‌BookingPage';
 import Gallery from './pages/Gallery';
 import TermsAndConditions from './components/TermsAndConditions';
 import ConsentForm from './components/ConsentForm';
+import Blog from './pages/blog/Blog';
+import BlogPost from './pages/blog/BlogPost';
 import './styles/main.scss';
 
 function App() {
@@ -18,6 +20,11 @@ function App() {
         <Route path="/gallery/:id" element={<Gallery />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/consent-form/:type" element={<ConsentForm />} />
+        
+        {/* Blog Routes */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:category" element={<Blog />} />
+        <Route path="/blog/post/:slug" element={<BlogPost />} />
       </Routes>
     </Router>
   )

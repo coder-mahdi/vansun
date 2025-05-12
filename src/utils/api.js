@@ -13,7 +13,10 @@ export const fetchPageBySlug = async (slug) => {
 
 export const fetchPosts = async () => {
   try {
-    const res = await fetch(`${API_BASE}/posts`);
+    const res = await fetch(`${API_BASE}/posts?_embed`);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
     const data = await res.json();
     return data;
   } catch (error) {
