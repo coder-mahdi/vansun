@@ -72,7 +72,7 @@
     }
 
     @media (max-width: 768px) {
-      min-height: 70vh;
+      min-height: 75vh;
       padding: 1.2rem;
     }
 
@@ -111,7 +111,7 @@
         width: 160px;
         height: 160px;
         margin-bottom: 1rem;
-        margin-top: 4rem;
+        margin-top: 1rem;
       }
 
       @media (max-width: 480px) {
@@ -154,15 +154,17 @@
       margin-bottom: 0;
       line-height: 1.6;
       font-size: 1rem;
+      margin-right: 4rem;
+      margin-left: 4rem;
 
       @media (max-width: 1023px) {
-        margin-right: 3rem;
-        margin-left: 3rem;
+        margin-right: 10rem;
+        margin-left: 10rem;
       }
 
       @media (max-width: 768px) {
-        margin-left: 4rem;
-        margin-right: 4rem;
+        margin-left: 6rem;
+        margin-right: 6rem;
         font-size: 0.95rem;
       }
 
@@ -242,7 +244,7 @@
   }
 
   @media (max-width: 767px) {
-    height: 174vh;
+    height: 190vh;
   }
 
   @media (max-width: 650px) {
