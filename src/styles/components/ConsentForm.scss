@@ -244,10 +244,12 @@
       text-decoration: none;
       border-radius: 6px;
       transition: all 0.3s ease;
+      border: 2px solid transparent;
 
       &:hover {
         background-color: rgb(250, 255, 238);
         color: rgb(61, 44, 0);
+        border-color: rgb(61, 44, 0);
       }
     }
   }

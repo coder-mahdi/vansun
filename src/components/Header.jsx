@@ -90,14 +90,24 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-container">
-        {/* Logo */}
-        <div className="logo">
-          <Link to="/">
-            <img src="/logo/logo.png" alt="Vansun Logo" />
-          </Link>
+        <div className="header-left">
+          <div className="logo">
+            <Link to="/">
+              <img src="/logo/logo.png" alt="Vansun Logo" />
+            </Link>
+          </div>
         </div>
 
-        {/* Hamburger Menu */}
+        <div className="header-center">
+          <Link to="/booknow" className="btn-book">Book Now</Link>
+        </div>
+
+        <div className="header-right">
+          <a onClick={() => scrollToSection('about')}>About</a>
+          <Link to="/blog">Blog</Link>
+          <a onClick={() => scrollToSection('my-work')}>Services</a>
+        </div>
+
         <button 
           className={`hamburger ${isMenuOpen ? 'active' : ''}`} 
           onClick={toggleMenu}
@@ -108,12 +118,9 @@ const Header = () => {
           <span></span>
         </button>
 
-        {/* Navigation */}
         <nav className={isMenuOpen ? 'active' : ''}>
           <div className="nav-links">
-            <div className="book-now-link">  
-              <Link to="/booknow" className="btn-book">Book Now</Link>
-            </div>
+            <Link to="/booknow" className="btn-book">Book Now</Link>
             <a onClick={() => scrollToSection('about')}>About</a>
             <Link to="/blog">Blog</Link>
             <a onClick={() => scrollToSection('my-work')}>Services</a>

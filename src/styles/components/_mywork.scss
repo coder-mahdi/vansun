@@ -154,10 +154,12 @@
       margin-bottom: 0;
       line-height: 1.6;
       font-size: 1rem;
+      margin-right: 4rem;
+      margin-left: 4rem;
 
       @media (max-width: 1023px) {
-        margin-right: 3rem;
-        margin-left: 3rem;
+        margin-right: 10rem;
+        margin-left: 10rem;
       }
 
       @media (max-width: 768px) {

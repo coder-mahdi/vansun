@@ -7,21 +7,62 @@ header {
   width: 100%;
 
   .header-container {
-    position: sticky;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding: 1rem 3rem;
     margin: 0 auto;
     position: relative;
   }
 
-  .logo {
-    img {
-      height: 50px;
-      width: auto;
-      object-fit: contain;
+  .header-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+
+    .logo {
+      img {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+
+    a {
+      color: $color-light;
+      text-decoration: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+
+    a {
+      color: $color-light;
+      text-decoration: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 
@@ -47,17 +88,9 @@ header {
       transition: all 0.3s ease;
     }
 
-    span:nth-child(1) {
-      top: 5px;
-    }
-
-    span:nth-child(2) {
-      top: 13px;
-    }
-
-    span:nth-child(3) {
-      top: 21px;
-    }
+    span:nth-child(1) { top: 5px; }
+    span:nth-child(2) { top: 13px; }
+    span:nth-child(3) { top: 21px; }
 
     &.active {
       span:nth-child(1) {
@@ -75,40 +108,12 @@ header {
   }
 
   nav {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-
-      .book-now-link {
-        margin: 0 auto;
-      }
-
-      a {
-        color: $color-light;
-        text-decoration: none;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: opacity 0.3s ease;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-    }
+    display: none;
   }
 
   @media (max-width: 768px) {
-    .logo {
-      img {
-        height: 40px;
-      }
+    .header-left, .header-center, .header-right {
+      display: none;
     }
 
     .hamburger {
@@ -116,15 +121,13 @@ header {
     }
 
     nav {
+      display: block;
       position: fixed;
       top: 0;
       right: 0;
       width: 100%;
       height: 100vh;
       background-color: $color-header-bg;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       transform: translateX(100%);
       transition: transform 0.3s ease;
       z-index: 1000;
@@ -134,15 +137,23 @@ header {
       }
 
       .nav-links {
+        display: flex;
         flex-direction: column;
         gap: 2rem;
-
-        .book-now-link {
-          margin: 0;
-        }
+        align-items: center;
+        justify-content: center;
+        height: 100%;
 
         a {
+          color: $color-light;
+          text-decoration: none;
           font-size: 1.5rem;
+          cursor: pointer;
+          transition: opacity 0.3s ease;
+
+          &:hover {
+            opacity: 0.8;
+          }
         }
       }
     }
