@@ -320,7 +320,7 @@ const BookingPage = () => {
         bookingData.design = design;
       }
       if (explanation) {
-        bookingData.explanation_ = explanation;
+        bookingData.explanation = explanation;
       }
 
       console.log('Sending booking request with data:', bookingData);
