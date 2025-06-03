@@ -53,7 +53,33 @@ const BookingPage = () => {
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [design, setDesign] = useState(null);
+  const [explanation, setExplanation] = useState('');
   const recaptchaRef = useRef();
+  const fileInputRef = useRef();
+
+  // Check if this is a tattoo booking
+  const isTattooBooking = productTitle?.toLowerCase().includes('tattoo');
+
+  // Handle design image upload
+  const handleDesignUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setDesign(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove design image
+  const removeDesign = () => {
+    setDesign(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   // Helper function to get current Vancouver time
   const getVancouverTime = () => {
@@ -289,6 +315,14 @@ const BookingPage = () => {
         terms_accepted: termsAccepted
       };
 
+      // Add design and explanation only if they exist
+      if (design) {
+        bookingData.design = design;
+      }
+      if (explanation) {
+        bookingData.explanation_ = explanation;
+      }
+
       console.log('Sending booking request with data:', bookingData);
 
       const res = await fetch(`${API_URL}/booking/create`, {
@@ -453,6 +487,46 @@ const BookingPage = () => {
                 </select>
               </div>
             </div>
+
+            {/* Design and Explanation Fields - Only for Tattoo Bookings */}
+            {isTattooBooking && (
+              <div className="design-explanation-row">
+                <div className="design-upload">
+                  <label>Design (Optional):</label>
+                  <div className="design-upload-container">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleDesignUpload}
+                      accept="image/*"
+                      className="design-file-input"
+                    />
+                    {design && (
+                      <div className="design-preview">
+                        <img src={design} alt="Design preview" />
+                        <button
+                          type="button"
+                          onClick={removeDesign}
+                          className="remove-design-btn"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="explanation-field">
+                  <label>Additional Explanation (Optional):</label>
+                  <textarea
+                    value={explanation}
+                    onChange={(e) => setExplanation(e.target.value)}
+                    placeholder="Add any additional details about your tattoo design..."
+                    rows={4}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="recaptcha-terms-row">
               <div className="recaptcha-container">
