@@ -13,6 +13,10 @@ header {
     padding: 1rem 3rem;
     margin: 0 auto;
     position: relative;
+
+    @media (max-width: 768px) {
+      padding: 0.5rem 1rem;
+    }
   }
 
   .header-left {
@@ -25,6 +29,10 @@ header {
         height: 50px;
         width: auto;
         object-fit: contain;
+
+        @media (max-width: 768px) {
+          height: 35px;
+        }
       }
     }
   }
@@ -112,7 +120,16 @@ header {
   }
 
   @media (max-width: 768px) {
-    .header-left, .header-center, .header-right {
+    .header-container {
+      padding: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      flex: 0 0 auto;
+    }
+
+    .header-center, .header-right {
       display: none;
     }
 
