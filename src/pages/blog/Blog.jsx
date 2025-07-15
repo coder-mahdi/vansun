@@ -150,7 +150,13 @@ const Blog = () => {
                     </div>
                   )}
                   <h2>{post.acf.blog_post.title}</h2>
-                  <p>{post.acf.blog_post.text.split('\n')[0]}</p>
+                  <p>
+                    {(() => {
+                      const cleanText = post.acf.blog_post.text.replace(/<[^>]*>/g, '').trim();
+                      const firstLine = cleanText.split('\n')[0];
+                      return firstLine && firstLine.length > 0 ? firstLine : 'No preview available';
+                    })()}
+                  </p>
                   <Link to={`/blog/post/${post.slug}`}>Read More</Link>
                 </article>
               );
