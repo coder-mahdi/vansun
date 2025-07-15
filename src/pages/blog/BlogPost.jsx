@@ -16,8 +16,6 @@ const BlogPost = () => {
         const posts = await fetchPosts();
         const currentPost = posts.find(p => p.slug === slug);
         if (currentPost) {
-          console.log('ACF blog_post data:', currentPost.acf?.blog_post);
-          console.log('ACF text content:', currentPost.acf?.blog_post?.text);
           setPost(currentPost);
           
           // Fetch image URL if exists
@@ -73,17 +71,12 @@ const BlogPost = () => {
             </div>
           )}
           
-          <div className="post-content">
-            {/* Debug: Show raw content */}
-            <div style={{display: 'none'}}>
-              Raw ACF content: {JSON.stringify(post.acf?.blog_post?.text)}
-            </div>
-            <div 
-              dangerouslySetInnerHTML={{
-                __html: post.acf?.blog_post?.text || post.content.rendered
-              }}
-            />
-          </div>
+          <div 
+            className="post-content"
+            dangerouslySetInnerHTML={{
+              __html: post.acf?.blog_post?.text || post.content.rendered
+            }}
+          />
         </article>
       </div>
     </Layout>
