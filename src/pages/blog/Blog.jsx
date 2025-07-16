@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchPosts, fetchMedia } from '../../utils/api';
 import Layout from '../../layout/Layout';
+import TagList from '../../components/TagList';
 
 const Blog = () => {
   const [posts, setPosts] = useState([]);
@@ -157,6 +158,7 @@ const Blog = () => {
                       return firstLine && firstLine.length > 0 ? firstLine : 'No preview available';
                     })()}
                   </p>
+                  <TagList tags={post.tags || []} size="small" />
                   <Link to={`/blog/post/${post.slug}`}>Read More</Link>
                 </article>
               );
