@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../../layout/Layout';
-import { fetchPosts } from '../../utils/api';
+import { fetchPosts, fetchTags } from '../../utils/api';
+import TagList from '../../components/TagList';
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -9,6 +10,7 @@ const BlogPost = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const [tagNames, setTagNames] = useState({});
 
   useEffect(() => {
     const getPost = async () => {
@@ -28,6 +30,18 @@ const BlogPost = () => {
               console.error('Error fetching image:', err);
             }
           }
+
+          // Fetch tag names if post has tags
+          if (currentPost.tags && currentPost.tags.length > 0) {
+            try {
+              const tagNamesMap = await fetchTags(currentPost.tags);
+              setTagNames(tagNamesMap);
+            } catch (err) {
+              console.error('Error fetching tag names:', err);
+            }
+          }
+
+
         } else {
           setError('Post not found');
         }
@@ -59,6 +73,7 @@ const BlogPost = () => {
               <span className="category">
                 {post._embedded?.['wp:term']?.[0]?.[0]?.name || 'Uncategorized'}
               </span>
+              <TagList tags={post.tags || []} tagNames={tagNames} size="medium" />
             </div>
           </div>
 

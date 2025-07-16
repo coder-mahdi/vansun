@@ -43,3 +43,30 @@ export const fetchPosts = async () => {
     return [];
   }
 };
+
+export const fetchTags = async (tagIds = []) => {
+  try {
+    if (!tagIds || tagIds.length === 0) {
+      return {};
+    }
+    
+    const includeParam = tagIds.join(',');
+    const res = await fetch(`${API_BASE}/tags?include=${includeParam}`);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const data = await res.json();
+    
+    // Create a map of tag ID to tag name
+    const tagMap = {};
+    data.forEach(tag => {
+      tagMap[tag.id] = tag.name;
+    });
+    
+    console.log('Fetched tags:', tagMap);
+    return tagMap;
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    return {};
+  }
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TagList = ({ tags = [], onTagClick, clickable = false, size = 'medium' }) => {
+const TagList = ({ tags = [], tagNames = {}, onTagClick, clickable = false, size = 'medium' }) => {
   if (!tags || tags.length === 0) {
     return null;
   }
@@ -19,7 +19,7 @@ const TagList = ({ tags = [], onTagClick, clickable = false, size = 'medium' }) 
           className={`tag ${clickable ? 'tag--clickable' : ''}`}
           onClick={() => handleTagClick(tagId)}
         >
-          {tagId}
+          {tagNames[tagId] || tagId}
         </span>
       ))}
     </div>
