@@ -73,7 +73,6 @@ const BlogPost = () => {
               <span className="category">
                 {post._embedded?.['wp:term']?.[0]?.[0]?.name || 'Uncategorized'}
               </span>
-              <TagList tags={post.tags || []} tagNames={tagNames} size="medium" />
             </div>
           </div>
 
@@ -92,6 +91,13 @@ const BlogPost = () => {
               __html: post.acf?.blog_post?.text || post.content.rendered
             }}
           />
+          
+          {(post.tags && post.tags.length > 0) && (
+            <div className="post-tags">
+              <h3>Tags</h3>
+              <TagList tags={post.tags || []} tagNames={tagNames} />
+            </div>
+          )}
         </article>
       </div>
     </Layout>
