@@ -63,6 +63,31 @@
   }
 }
 
+// Blog post tags specific styling
+.blog-post .post-tags .tag-list {
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+
+  .tag {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 25px;
+    background-color: #3d2c00;
+    color: #faffee;
+    border: 2px solid #3d2c00;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #faffee;
+      color: #3d2c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(61, 44, 0, 0.2);
+    }
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   .tag {
@@ -78,6 +103,18 @@
   .tag-list--large .tag {
     font-size: 0.8rem;
     padding: 0.3rem 0.8rem;
+  }
+
+  // Blog post tags mobile styling
+  .blog-post .post-tags .tag-list {
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+
+    .tag {
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      border-radius: 20px;
+    }
   }
 }
 
@@ -95,5 +132,17 @@
   .tag-list--large .tag {
     font-size: 0.75rem;
     padding: 0.25rem 0.7rem;
+  }
+
+  // Blog post tags small mobile styling
+  .blog-post .post-tags .tag-list {
+    gap: 0.4rem;
+    margin: 0.5rem 0;
+
+    .tag {
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      border-radius: 18px;
+    }
   }
 } 
