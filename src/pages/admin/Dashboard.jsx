@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getCurrentAdmin, adminLogout } from '../../utils/adminAuth';
+import { Link, useNavigate } from 'react-router-dom';
+import { getCurrentAdmin, adminLogout, isAdminAuthenticated } from '../../utils/adminAuth';
 import { getAllStaffUsers } from '../../utils/userManagement';
 import Layout from '../../layout/Layout';
 
@@ -8,16 +8,52 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentAdmin = getCurrentAdmin();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadUsers();
   }, []);
 
-  const loadUsers = () => {
-    const staffUsers = getAllStaffUsers();
-    setUsers(staffUsers);
-    setLoading(false);
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const staffUsers = await getAllStaffUsers();
+      setUsers(staffUsers);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Session timeout monitoring
+  useEffect(() => {
+    const checkSession = () => {
+      if (!isAdminAuthenticated()) {
+        adminLogout();
+        navigate('/admin/login');
+      }
+    };
+
+    // Check session every minute
+    const interval = setInterval(checkSession, 60000);
+    
+    // Also check on user activity
+    const handleUserActivity = () => {
+      checkSession();
+    };
+
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keypress', handleUserActivity);
+    window.addEventListener('click', handleUserActivity);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keypress', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
+    };
+  }, [navigate]);
 
   const handleLogout = () => {
     adminLogout();
@@ -49,21 +85,21 @@ const AdminDashboard = () => {
             <div className="stat-icon">👥</div>
             <div className="stat-content">
               <h3>Total Users</h3>
-              <p className="stat-number">{users.length}</p>
+              <p className="stat-number">{loading ? '...' : users.length}</p>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">✅</div>
             <div className="stat-content">
               <h3>Active Users</h3>
-              <p className="stat-number">{getActiveUsersCount()}</p>
+              <p className="stat-number">{loading ? '...' : getActiveUsersCount()}</p>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">❌</div>
             <div className="stat-content">
               <h3>Inactive Users</h3>
-              <p className="stat-number">{getInactiveUsersCount()}</p>
+              <p className="stat-number">{loading ? '...' : getInactiveUsersCount()}</p>
             </div>
           </div>
         </div>
@@ -83,61 +119,10 @@ const AdminDashboard = () => {
                 <h3>Manage Users</h3>
                 <p>View and edit all staff users</p>
               </Link>
-
-              <div className="action-card">
-                <div className="card-icon">📊</div>
-                <h3>Analytics</h3>
-                <p>View user activity reports</p>
-              </div>
-
-              <div className="action-card">
-                <div className="card-icon">⚙️</div>
-                <h3>Settings</h3>
-                <p>Admin panel settings</p>
-              </div>
             </div>
           </div>
 
-          <div className="recent-users">
-            <h2>Recent Users</h2>
-            {loading ? (
-              <div className="loading">Loading users...</div>
-            ) : users.length === 0 ? (
-              <div className="no-users">
-                <p>No staff users created yet.</p>
-                <Link to="/admin/users/create" className="create-first-user">
-                  Create First User
-                </Link>
-              </div>
-            ) : (
-              <div className="users-list">
-                {users.slice(0, 5).map(user => (
-                  <div key={user.id} className="user-item">
-                    <div className="user-avatar">
-                      {user.fullName ? user.fullName.charAt(0).toUpperCase() : user.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="user-info">
-                      <h4>{user.fullName || user.username}</h4>
-                      <p>{user.username} • {user.role}</p>
-                      <span className={`status ${user.isActive ? 'active' : 'inactive'}`}>
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div className="user-actions">
-                      <Link to={`/admin/users/edit/${user.id}`} className="edit-btn">
-                        Edit
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-                {users.length > 5 && (
-                  <div className="view-all-users">
-                    <Link to="/admin/users/manage">View All Users</Link>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+
         </div>
       </div>
     </Layout>

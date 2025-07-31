@@ -28,7 +28,7 @@ export const adminLogin = (username, password) => {
     setTimeout(() => {
       if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
         const token = `admin_${Date.now()}`;
-        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+        const expiry = new Date().getTime() + (5 * 60 * 1000); // 5 minutes
         
         localStorage.setItem('adminToken', token);
         localStorage.setItem('adminExpiry', expiry.toString());

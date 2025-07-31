@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { createStaffUser, getAvailableRoles } from '../../utils/userManagement';
 import Layout from '../../layout/Layout';
 
@@ -66,7 +66,7 @@ const CreateUser = () => {
 
       // Redirect after a short delay
       setTimeout(() => {
-        navigate('/admin/users');
+        navigate('/admin/dashboard');
       }, 2000);
 
     } catch (err) {
@@ -84,6 +84,9 @@ const CreateUser = () => {
             <h1>Create New User</h1>
             <p>Add a new staff member to the system</p>
           </div>
+          <Link to="/admin/dashboard" className="back-to-dashboard">
+            ← Back to Admin Dashboard
+          </Link>
         </div>
 
         <div className="create-user-container">
@@ -188,7 +191,7 @@ const CreateUser = () => {
                 <button 
                   type="button" 
                   className="cancel-button"
-                  onClick={() => navigate('/admin/users')}
+                  onClick={() => navigate('/admin/dashboard')}
                   disabled={loading}
                 >
                   Cancel
