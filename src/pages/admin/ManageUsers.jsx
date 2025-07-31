@@ -25,9 +25,13 @@ const ManageUsers = () => {
     loadUsers();
   }, []);
 
-  const loadUsers = () => {
-    const allUsers = getAllStaffUsers();
-    setUsers(allUsers);
+  const loadUsers = async () => {
+    try {
+      const allUsers = await getAllStaffUsers();
+      setUsers(allUsers);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    }
   };
 
   const handleEdit = (user) => {
@@ -43,12 +47,12 @@ const ManageUsers = () => {
     setMessage({ type: '', text: '' });
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     try {
-      const updatedUser = updateStaffUser(selectedUser.id, editForm);
+      const updatedUser = await updateStaffUser(selectedUser.id, editForm);
       if (updatedUser) {
         setMessage({ type: 'success', text: 'User updated successfully!' });
-        loadUsers();
+        await loadUsers();
         setEditMode(false);
         setSelectedUser(null);
       } else {
@@ -59,12 +63,12 @@ const ManageUsers = () => {
     }
   };
 
-  const handleDelete = (userId) => {
+  const handleDelete = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       try {
-        deleteStaffUser(userId);
+        await deleteStaffUser(userId);
         setMessage({ type: 'success', text: 'User deleted successfully!' });
-        loadUsers();
+        await loadUsers();
         if (selectedUser && selectedUser.id === userId) {
           setSelectedUser(null);
           setEditMode(false);
@@ -75,12 +79,12 @@ const ManageUsers = () => {
     }
   };
 
-  const handleToggleActive = (user) => {
+  const handleToggleActive = async (user) => {
     try {
-      const updatedUser = updateStaffUser(user.id, { isActive: !user.isActive });
+      const updatedUser = await updateStaffUser(user.id, { isActive: !user.isActive });
       if (updatedUser) {
         setMessage({ type: 'success', text: `User ${updatedUser.isActive ? 'activated' : 'deactivated'} successfully!` });
-        loadUsers();
+        await loadUsers();
       } else {
         setMessage({ type: 'error', text: 'Failed to update user status' });
       }
@@ -123,48 +127,50 @@ const ManageUsers = () => {
           <div className="users-grid">
             <div className="users-list">
               <h2>All Users ({users.length})</h2>
-              <div className="users-table">
-                <div className="table-header">
-                  <span>Username</span>
-                  <span>Full Name</span>
-                  <span>Role</span>
-                  <span>Status</span>
-                  <span>Created</span>
-                  <span>Actions</span>
-                </div>
-                {users.map((user) => (
-                  <div key={user.id} className={`table-row ${selectedUser?.id === user.id ? 'selected' : ''}`}>
-                    <span>{user.username}</span>
-                    <span>{user.fullName || 'N/A'}</span>
-                    <span className={`role-badge ${user.role.toLowerCase()}`}>
-                      {user.role}
-                    </span>
-                    <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                    <span>{formatDate(user.createdAt)}</span>
-                    <div className="action-buttons">
-                      <button 
-                        className="edit-btn"
-                        onClick={() => handleEdit(user)}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className={`toggle-btn ${user.isActive ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleActive(user)}
-                      >
-                        {user.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button 
-                        className="delete-btn"
-                        onClick={() => handleDelete(user.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+              <div className="users-table-container">
+                <div className="users-table">
+                  <div className="table-header">
+                    <span className="username-col">Username</span>
+                    <span className="name-col">Full Name</span>
+                    <span className="role-col">Role</span>
+                    <span className="status-col">Status</span>
+                    <span className="created-col">Created</span>
+                    <span className="actions-col">Actions</span>
                   </div>
-                ))}
+                  {users.map((user) => (
+                    <div key={user.id} className={`table-row ${selectedUser?.id === user.id ? 'selected' : ''}`}>
+                      <span className="username-col">{user.username}</span>
+                      <span className="name-col">{user.fullName || 'N/A'}</span>
+                      <span className={`role-badge ${user.role.toLowerCase()}`}>
+                        {user.role}
+                      </span>
+                      <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
+                        {user.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                      <span className="created-col">{formatDate(user.createdAt)}</span>
+                      <div className="action-buttons">
+                        <button 
+                          className="edit-btn"
+                          onClick={() => handleEdit(user)}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className={`toggle-btn ${user.isActive ? 'deactivate' : 'activate'}`}
+                          onClick={() => handleToggleActive(user)}
+                        >
+                          {user.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button 
+                          className="delete-btn"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 

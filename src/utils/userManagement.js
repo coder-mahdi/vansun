@@ -1,99 +1,89 @@
-// User management system for admin
-const STAFF_USERS_KEY = 'staffUsers';
+// User management system for admin - WordPress API integration
+import { getStaffUsers, createStaffUser as createStaffUserAPI, updateStaffUser as updateStaffUserAPI, deleteStaffUser as deleteStaffUserAPI, validateStaffLogin as validateStaffLoginAPI } from './wordpressApi';
 
 // Get all staff users
-export const getAllStaffUsers = () => {
-  const users = localStorage.getItem(STAFF_USERS_KEY);
-  return users ? JSON.parse(users) : [];
-};
-
-// Save all staff users
-const saveStaffUsers = (users) => {
-  localStorage.setItem(STAFF_USERS_KEY, JSON.stringify(users));
+export const getAllStaffUsers = async () => {
+  try {
+    const users = await getStaffUsers();
+    return users;
+  } catch (error) {
+    console.error('Failed to fetch staff users from WordPress API:', error);
+    console.log('Falling back to localStorage...');
+    
+    // Fallback to localStorage if WordPress API is not available
+    const STAFF_USERS_KEY = 'staffUsers';
+    const users = localStorage.getItem(STAFF_USERS_KEY);
+    return users ? JSON.parse(users) : [];
+  }
 };
 
 // Create new staff user
-export const createStaffUser = (userData) => {
-  const users = getAllStaffUsers();
-  const newUser = {
-    id: Date.now().toString(),
-    username: userData.username,
-    password: userData.password,
-    fullName: userData.fullName,
-    email: userData.email,
-    role: userData.role || 'Staff', // Default role is Staff
-    isActive: true,
-    createdAt: new Date().toISOString()
-  };
-  
-  users.push(newUser);
-  saveStaffUsers(users);
-  return newUser;
+export const createStaffUser = async (userData) => {
+  try {
+    const newUser = await createStaffUserAPI(userData);
+    return newUser;
+  } catch (error) {
+    console.error('Failed to create staff user:', error);
+    throw error;
+  }
 };
 
 // Update staff user
-export const updateStaffUser = (userId, userData) => {
-  const users = getAllStaffUsers();
-  const userIndex = users.findIndex(user => user.id === userId);
-  
-  if (userIndex !== -1) {
-    users[userIndex] = {
-      ...users[userIndex],
-      ...userData,
-      updatedAt: new Date().toISOString()
-    };
-    saveStaffUsers(users);
-    return users[userIndex];
+export const updateStaffUser = async (userId, userData) => {
+  try {
+    const updatedUser = await updateStaffUserAPI(userId, userData);
+    return updatedUser;
+  } catch (error) {
+    console.error('Failed to update staff user:', error);
+    throw error;
   }
-  return null;
 };
 
 // Delete staff user
-export const deleteStaffUser = (userId) => {
-  const users = getAllStaffUsers();
-  const filteredUsers = users.filter(user => user.id !== userId);
-  saveStaffUsers(filteredUsers);
+export const deleteStaffUser = async (userId) => {
+  try {
+    await deleteStaffUserAPI(userId);
+    return true;
+  } catch (error) {
+    console.error('Failed to delete staff user:', error);
+    throw error;
+  }
 };
 
 // Get staff user by ID
-export const getStaffUserById = (userId) => {
-  const users = getAllStaffUsers();
-  return users.find(user => user.id === userId);
+export const getStaffUserById = async (userId) => {
+  try {
+    const users = await getAllStaffUsers();
+    return users.find(user => user.id === userId);
+  } catch (error) {
+    console.error('Failed to get staff user by ID:', error);
+    return null;
+  }
 };
 
 // Validate staff login (for regular staff users)
-export const validateStaffLogin = (username, password) => {
-  const users = getAllStaffUsers();
-  const user = users.find(u => u.username === username && u.isActive);
-  
-  if (user && user.password === password) {
+export const validateStaffLogin = async (username, password) => {
+  try {
+    const response = await validateStaffLoginAPI(username, password);
+    return response;
+  } catch (error) {
+    console.error('Failed to validate staff login:', error);
     return {
-      success: true,
-      user: {
-        id: user.id,
-        username: user.username,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role
-      }
+      success: false,
+      message: error.message || 'Invalid username or password'
     };
   }
-  
-  return {
-    success: false,
-    message: 'Invalid username or password'
-  };
 };
 
 // Role-based access control
 export const canViewAllReports = (userRole) => {
-  return userRole === 'Manager' || userRole === 'Supervisor';
+  return userRole === 'Manager';
 };
 
 export const canManageUsers = (userRole) => {
-  return userRole === 'Supervisor';
+  return userRole === 'Manager';
 };
 
 export const getAvailableRoles = () => {
-  return ['Staff', 'Manager', 'Supervisor'];
+  return ['Staff', 'Manager'];
 }; 
