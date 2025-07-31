@@ -28,28 +28,16 @@ const Dashboard = () => {
             <h2>Quick Actions</h2>
             <div className="action-cards">
               <Link to="/staff/sales-report" className="action-card">
-                <div className="card-icon">📊</div>
-                <h3>Submit Sales Report</h3>
-                <p>Create and submit a new sales report</p>
+                <div className="card-icon">📝</div>
+                <h3>Create Report</h3>
+                <p>Submit a new sales report</p>
               </Link>
 
-              <Link to="/staff/reports" className="action-card">
-                <div className="card-icon">📋</div>
+              <Link to="/staff/view-reports" className="action-card">
+                <div className="card-icon">📊</div>
                 <h3>View Reports</h3>
-                <p>View and print existing sales reports</p>
+                <p>View and analyze sales reports</p>
               </Link>
-
-              <div className="action-card">
-                <div className="card-icon">📈</div>
-                <h3>Analytics</h3>
-                <p>View sales analytics and trends</p>
-              </div>
-
-              <div className="action-card">
-                <div className="card-icon">📊</div>
-                <h3>Sales Reports</h3>
-                <p>Submit and view sales reports</p>
-              </div>
             </div>
           </div>
 

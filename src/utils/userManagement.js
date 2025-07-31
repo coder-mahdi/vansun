@@ -14,122 +14,45 @@ const saveStaffUsers = (users) => {
 
 // Create new staff user
 export const createStaffUser = (userData) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const users = getAllStaffUsers();
-      
-      // Check if username already exists
-      const existingUser = users.find(user => user.username === userData.username);
-      if (existingUser) {
-        reject({ success: false, message: 'Username already exists' });
-        return;
-      }
-
-      // Validate password strength
-      if (userData.password.length < 6) {
-        reject({ success: false, message: 'Password must be at least 6 characters long' });
-        return;
-      }
-
-      const newUser = {
-        id: Date.now().toString(),
-        username: userData.username,
-        password: userData.password, // In production, this should be hashed
-        fullName: userData.fullName,
-        email: userData.email,
-        role: userData.role || 'staff',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        lastLogin: null
-      };
-
-      users.push(newUser);
-      saveStaffUsers(users);
-
-      resolve({ 
-        success: true, 
-        message: 'Staff user created successfully',
-        user: { ...newUser, password: undefined } // Don't return password
-      });
-    } catch (error) {
-      reject({ success: false, message: 'Failed to create user' });
-    }
-  });
+  const users = getAllStaffUsers();
+  const newUser = {
+    id: Date.now().toString(),
+    username: userData.username,
+    password: userData.password,
+    fullName: userData.fullName,
+    email: userData.email,
+    role: userData.role || 'Staff', // Default role is Staff
+    isActive: true,
+    createdAt: new Date().toISOString()
+  };
+  
+  users.push(newUser);
+  saveStaffUsers(users);
+  return newUser;
 };
 
 // Update staff user
 export const updateStaffUser = (userId, userData) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const users = getAllStaffUsers();
-      const userIndex = users.findIndex(user => user.id === userId);
-      
-      if (userIndex === -1) {
-        reject({ success: false, message: 'User not found' });
-        return;
-      }
-
-      // Check if new username conflicts with other users
-      const usernameConflict = users.find(user => 
-        user.id !== userId && user.username === userData.username
-      );
-      if (usernameConflict) {
-        reject({ success: false, message: 'Username already exists' });
-        return;
-      }
-
-      // Update user data
-      users[userIndex] = {
-        ...users[userIndex],
-        username: userData.username,
-        fullName: userData.fullName,
-        email: userData.email,
-        role: userData.role || users[userIndex].role,
-        isActive: userData.isActive !== undefined ? userData.isActive : users[userIndex].isActive
-      };
-
-      // Update password if provided
-      if (userData.password) {
-        if (userData.password.length < 6) {
-          reject({ success: false, message: 'Password must be at least 6 characters long' });
-          return;
-        }
-        users[userIndex].password = userData.password;
-      }
-
-      saveStaffUsers(users);
-
-      resolve({ 
-        success: true, 
-        message: 'User updated successfully',
-        user: { ...users[userIndex], password: undefined }
-      });
-    } catch (error) {
-      reject({ success: false, message: 'Failed to update user' });
-    }
-  });
+  const users = getAllStaffUsers();
+  const userIndex = users.findIndex(user => user.id === userId);
+  
+  if (userIndex !== -1) {
+    users[userIndex] = {
+      ...users[userIndex],
+      ...userData,
+      updatedAt: new Date().toISOString()
+    };
+    saveStaffUsers(users);
+    return users[userIndex];
+  }
+  return null;
 };
 
 // Delete staff user
 export const deleteStaffUser = (userId) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const users = getAllStaffUsers();
-      const userIndex = users.findIndex(user => user.id === userId);
-      
-      if (userIndex === -1) {
-        reject({ success: false, message: 'User not found' });
-        return;
-      }
-
-      users.splice(userIndex, 1);
-      saveStaffUsers(users);
-
-      resolve({ success: true, message: 'User deleted successfully' });
-    } catch (error) {
-      reject({ success: false, message: 'Failed to delete user' });
-    }
-  });
+  const users = getAllStaffUsers();
+  const filteredUsers = users.filter(user => user.id !== userId);
+  saveStaffUsers(filteredUsers);
 };
 
 // Get staff user by ID
@@ -144,11 +67,33 @@ export const validateStaffLogin = (username, password) => {
   const user = users.find(u => u.username === username && u.isActive);
   
   if (user && user.password === password) {
-    // Update last login
-    user.lastLogin = new Date().toISOString();
-    saveStaffUsers(users);
-    return { success: true, user: { ...user, password: undefined } };
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role
+      }
+    };
   }
   
-  return { success: false, message: 'Invalid credentials or user is inactive' };
+  return {
+    success: false,
+    message: 'Invalid username or password'
+  };
+};
+
+// Role-based access control
+export const canViewAllReports = (userRole) => {
+  return userRole === 'Manager' || userRole === 'Supervisor';
+};
+
+export const canManageUsers = (userRole) => {
+  return userRole === 'Supervisor';
+};
+
+export const getAvailableRoles = () => {
+  return ['Staff', 'Manager', 'Supervisor'];
 }; 

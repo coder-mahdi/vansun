@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createStaffUser } from '../../utils/userManagement';
+import { createStaffUser, getAvailableRoles } from '../../utils/userManagement';
 import Layout from '../../layout/Layout';
 
 const CreateUser = () => {
@@ -10,7 +10,7 @@ const CreateUser = () => {
     confirmPassword: '',
     fullName: '',
     email: '',
-    role: 'staff'
+    role: 'Staff'
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -61,7 +61,7 @@ const CreateUser = () => {
         confirmPassword: '',
         fullName: '',
         email: '',
-        role: 'staff'
+        role: 'Staff'
       });
 
       // Redirect after a short delay
@@ -147,9 +147,9 @@ const CreateUser = () => {
                     onChange={handleChange}
                     disabled={loading}
                   >
-                    <option value="staff">Staff</option>
-                    <option value="manager">Manager</option>
-                    <option value="supervisor">Supervisor</option>
+                    {getAvailableRoles().map(role => (
+                      <option key={role} value={role}>{role}</option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -78,7 +78,7 @@ const AdminDashboard = () => {
                 <p>Add a new staff member</p>
               </Link>
 
-              <Link to="/admin/users" className="action-card">
+              <Link to="/admin/users/manage" className="action-card">
                 <div className="card-icon">👥</div>
                 <h3>Manage Users</h3>
                 <p>View and edit all staff users</p>
@@ -132,7 +132,7 @@ const AdminDashboard = () => {
                 ))}
                 {users.length > 5 && (
                   <div className="view-all-users">
-                    <Link to="/admin/users">View All Users</Link>
+                    <Link to="/admin/users/manage">View All Users</Link>
                   </div>
                 )}
               </div>
