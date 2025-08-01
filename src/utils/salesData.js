@@ -103,12 +103,23 @@ export const calculateJewelryPrice = (jewelrySelections) => {
     }
   });
   
-  // Apply discount for 3 or more items
-  if (jewelrySelections.length >= 3) {
-    totalPrice = totalPrice * 0.9; // 10% discount
-  }
-  
   return totalPrice;
+};
+
+// Calculate jewelry cost reductions
+export const calculateJewelryReductions = (jewelrySelections) => {
+  if (!jewelrySelections || jewelrySelections.length === 0) return 0;
+  
+  let totalReductions = 0;
+  
+  jewelrySelections.forEach(jewelry => {
+    if (jewelry.name && jewelry.quantity) {
+      const reduction = JEWELRY_COST_REDUCTIONS[jewelry.name] || 0;
+      totalReductions += reduction * jewelry.quantity;
+    }
+  });
+  
+  return totalReductions;
 };
 
 // Calculate total price with tax
@@ -123,86 +134,133 @@ export const calculateTotalPrice = (servicePrice, jewelryPrice, customPrice = 0,
   };
 };
 
-// Calculate employee income (Staff/Manager/Supervisor - all get same calculation)
-export const calculateEmployeeIncome = (report) => {
+// Calculate employee income based on role
+export const calculateEmployeeIncome = (report, userRole = 'staff') => {
   const serviceAmount = report.servicePrice || 0;
   const jewelryAmount = report.jewelryPrice || 0;
   const tip = report.tip || 0;
   
-  // Service amount halved
-  const serviceIncome = serviceAmount / 2;
-  
-  // 5% of jewelry amount
-  const jewelryIncome = jewelryAmount * 0.05;
-  
-  // Tips (if any)
-  const tipIncome = tip;
-  
-  // Total employee income
-  const totalIncome = serviceIncome + jewelryIncome + tipIncome;
-  
-  return {
-    serviceIncome,
-    jewelryIncome,
-    tipIncome,
-    totalIncome
-  };
+  if (userRole === 'manager') {
+    // Manager gets Vansun income (same as Vansun)
+    return calculateVansunIncome(report);
+  } else {
+    // Staff gets: half service + 3% jewelry + tips
+    const serviceIncome = serviceAmount / 2;
+    const jewelryIncome = jewelryAmount * 0.03; // 3% of jewelry
+    const tipIncome = tip;
+    
+    const totalIncome = serviceIncome + jewelryIncome + tipIncome;
+    
+    return {
+      serviceIncome,
+      jewelryIncome,
+      tipIncome,
+      totalIncome
+    };
+  }
 };
 
-// Calculate Oscar's income (same as employee - half service + 5% jewelry + tips)
+// Calculate Oscar's income
 export const calculateOscarIncome = (report) => {
   const serviceAmount = report.servicePrice || 0;
   const jewelryAmount = report.jewelryPrice || 0;
-  const tip = report.tip || 0;
   
-  // Half the service price
+  // Oscar gets:
+  // - Half service cost
+  // - 3% of jewelry cost (after reductions)
+  
   const serviceIncome = serviceAmount / 2;
   
-  // 5% of jewelry amount
-  const jewelryIncome = jewelryAmount * 0.05;
+  // Calculate jewelry income after reductions
+  const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
+  const jewelryAfterReductions = jewelryAmount - jewelryReductions;
+  const jewelryIncome = jewelryAfterReductions * 0.03;
   
-  // Tips (if any)
-  const tipIncome = tip;
-  
-  // Total Oscar income
-  const totalIncome = serviceIncome + jewelryIncome + tipIncome;
+  const totalIncome = serviceIncome + jewelryIncome;
   
   return {
     serviceIncome,
     jewelryIncome,
-    tipIncome,
+    jewelryReductions,
+    jewelryAfterReductions,
     totalIncome
   };
 };
 
-// Calculate Vansun income (remaining jewelry amount after staff/oscar cuts)
+// Calculate Vansun income (Manager gets this)
 export const calculateVansunIncome = (report) => {
+  const serviceAmount = report.servicePrice || 0;
   const jewelryAmount = report.jewelryPrice || 0;
+  const tip = report.tip || 0;
   
-  // Calculate total cuts (staff + oscar = 10% total)
-  const totalCuts = jewelryAmount * 0.10; // 5% + 5% = 10%
+  // Vansun income includes:
+  // - Tips
+  // - Half service cost
+  // - Jewelry cost minus reductions and cuts
   
-  // Vansun gets the remaining 90%
-  const vansunIncome = jewelryAmount - totalCuts;
+  const tipIncome = tip;
+  const serviceIncome = serviceAmount / 2;
+  
+  // Calculate jewelry income after reductions
+  const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
+  const jewelryAfterReductions = jewelryAmount - jewelryReductions;
+  
+  // Calculate cuts: 3% staff + 3% Oscar = 6% total
+  const staffCut = jewelryAfterReductions * 0.03;
+  const oscarCut = jewelryAfterReductions * 0.03;
+  const totalCuts = staffCut + oscarCut;
+  
+  const jewelryIncome = jewelryAfterReductions - totalCuts;
+  
+  const totalIncome = tipIncome + serviceIncome + jewelryIncome;
   
   return {
-    jewelryAmount,
+    tipIncome,
+    serviceIncome,
+    jewelryIncome,
+    jewelryReductions,
+    staffCut,
+    oscarCut,
     totalCuts,
-    vansunIncome
+    totalIncome
   };
 };
 
-// Calculate Manager's income (same as regular staff)
-export const calculateManagerIncome = (report) => {
-  return calculateEmployeeIncome(report);
-};
+
 
 // Get service names for dropdown
 export const getServiceNames = () => {
   return Object.keys(SERVICES);
 };
 
-// Get jewelry names for dropdown
+// Get jewelry names for dropdown (excluding *2 items which are for pricing calculations)
 export const getJewelryNames = () => {
-  return Object.keys(JEWELRY);
+  return Object.keys(JEWELRY).filter(name => !name.includes('*2'));
+};
+
+// Calculate Vansun's income from staff transactions
+export const calculateVansunIncomeFromStaff = (report) => {
+  const jewelryAmount = report.jewelryPrice || 0;
+  
+  // Calculate jewelry income after reductions
+  const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
+  const jewelryAfterReductions = jewelryAmount - jewelryReductions;
+  
+  // Calculate cuts: 3% staff + 3% Oscar = 6% total
+  const staffCut = jewelryAfterReductions * 0.03;
+  const oscarCut = jewelryAfterReductions * 0.03;
+  const totalCuts = staffCut + oscarCut;
+  
+  // Vansun gets the remaining amount
+  const vansunIncome = jewelryAfterReductions - totalCuts;
+  
+  return {
+    jewelryAmount,
+    jewelryReductions,
+    jewelryAfterReductions,
+    staffCut,
+    oscarCut,
+    totalCuts,
+    vansunIncome
+  };
 }; 
