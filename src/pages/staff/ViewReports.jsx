@@ -5,8 +5,9 @@ import { getAllStaffUsers, canViewAllReports } from '../../utils/userManagement'
 import { 
   calculateEmployeeIncome, 
   calculateOscarIncome, 
-  calculateManagerIncome,
-  calculateVansunIncome 
+  calculateVansunIncome,
+  calculateVansunIncomeFromStaff,
+  calculateJewelryReductions
 } from '../../utils/salesData';
 import Layout from '../../layout/Layout';
 
@@ -31,13 +32,27 @@ const ViewReports = () => {
   }, [reports, selectedStaffFilter]);
 
   const loadReports = () => {
-    const storedReports = JSON.parse(localStorage.getItem('salesReports') || '[]');
-    setReports(storedReports);
+    try {
+      const storedReports = JSON.parse(localStorage.getItem('salesReports') || '[]');
+      setReports(storedReports);
+    } catch (error) {
+      console.error('Failed to load reports:', error);
+      setReports([]);
+    }
   };
 
-  const loadStaffUsers = () => {
-    const users = getAllStaffUsers();
-    setStaffUsers(users);
+  const loadStaffUsers = async () => {
+    try {
+      const users = await getAllStaffUsers();
+      setStaffUsers(users);
+    } catch (error) {
+      console.error('Failed to load staff users:', error);
+      // Fallback to localStorage if API fails
+      const STAFF_USERS_KEY = 'staffUsers';
+      const users = localStorage.getItem(STAFF_USERS_KEY);
+      const fallbackUsers = users ? JSON.parse(users) : [];
+      setStaffUsers(fallbackUsers);
+    }
   };
 
   const filterReports = () => {
@@ -56,30 +71,7 @@ const ViewReports = () => {
     setFilteredReports(filtered);
   };
 
-  const calculateEmployeeIncome = (report) => {
-    const serviceAmount = report.servicePrice || 0;
-    const jewelryAmount = report.jewelryPrice || 0;
-    const tip = report.tip || 0;
-    
-    // Service amount halved
-    const serviceIncome = serviceAmount / 2;
-    
-    // 5% of jewelry amount
-    const jewelryIncome = jewelryAmount * 0.05;
-    
-    // Tips (if any)
-    const tipIncome = tip;
-    
-    // Total employee income
-    const totalIncome = serviceIncome + jewelryIncome + tipIncome;
-    
-    return {
-      serviceIncome,
-      jewelryIncome,
-      tipIncome,
-      totalIncome
-    };
-  };
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -148,7 +140,7 @@ const ViewReports = () => {
   
   // Calculate total incomes for analysis
   const totalStaffIncome = filteredReports.reduce((sum, report) => {
-    const income = calculateEmployeeIncome(report);
+    const income = calculateEmployeeIncome(report, 'staff');
     return sum + income.totalIncome;
   }, 0);
   
@@ -159,7 +151,7 @@ const ViewReports = () => {
   
   const totalVansunIncome = filteredReports.reduce((sum, report) => {
     const income = calculateVansunIncome(report);
-    return sum + income.vansunIncome;
+    return sum + income.totalIncome;
   }, 0);
 
   // For Staff users, only calculate their own income
@@ -167,7 +159,7 @@ const ViewReports = () => {
     filteredReports
       .filter(report => report.staffMember === currentUser.username)
       .reduce((sum, report) => {
-        const income = calculateEmployeeIncome(report);
+        const income = calculateEmployeeIncome(report, 'staff');
         return sum + income.totalIncome;
       }, 0) : 0;
 
@@ -230,11 +222,22 @@ const ViewReports = () => {
             )}
             
             <div className="reports-grid">
-              {filteredReports.map((report) => {
-                const employeeIncome = calculateEmployeeIncome(report);
-                const oscarIncome = showOscarIncome ? calculateOscarIncome(report) : null;
-                const vansunIncome = showVansunIncome ? calculateVansunIncome(report) : null;
-                const managerIncome = currentUser?.role === 'Manager' ? calculateManagerIncome(report) : null;
+              {filteredReports.length === 0 ? (
+                <div className="no-reports">
+                  <p>No reports found.</p>
+                </div>
+              ) : (
+                filteredReports.map((report) => {
+                // Ensure report has jewelry field for backward compatibility
+                const reportWithJewelry = {
+                  ...report,
+                  jewelry: report.jewelry || []
+                };
+                
+                const employeeIncome = calculateEmployeeIncome(reportWithJewelry, 'staff');
+                const oscarIncome = showOscarIncome ? calculateOscarIncome(reportWithJewelry) : null;
+                const vansunIncome = showVansunIncome ? calculateVansunIncome(reportWithJewelry) : null;
+                const managerIncome = currentUser?.role === 'Manager' ? calculateEmployeeIncome(reportWithJewelry, 'manager') : null;
                 
                 return (
                   <div 
@@ -288,13 +291,14 @@ const ViewReports = () => {
                       {vansunIncome && (
                         <div className="summary-item vansun-income">
                           <span>Vansun Income:</span>
-                          <span>${vansunIncome.vansunIncome.toFixed(2)}</span>
+                          <span>${vansunIncome.totalIncome.toFixed(2)}</span>
                         </div>
                       )}
                     </div>
                   </div>
                 );
-              })}
+              })
+            )}
             </div>
           </div>
 
@@ -391,7 +395,11 @@ const ViewReports = () => {
                   <div className="detail-section">
                     <h3>Employee Income</h3>
                     {(() => {
-                      const employeeIncome = calculateEmployeeIncome(selectedReport);
+                      const selectedReportWithJewelry = {
+                        ...selectedReport,
+                        jewelry: selectedReport.jewelry || []
+                      };
+                      const employeeIncome = calculateEmployeeIncome(selectedReportWithJewelry, 'staff');
                       return (
                         <div className="employee-income-breakdown">
                           <div className="income-item">
@@ -399,7 +407,7 @@ const ViewReports = () => {
                             <span>${employeeIncome.serviceIncome.toFixed(2)}</span>
                           </div>
                           <div className="income-item">
-                            <span>Jewelry Amount (5%):</span>
+                            <span>Jewelry Amount (3%):</span>
                             <span>${employeeIncome.jewelryIncome.toFixed(2)}</span>
                           </div>
                           {employeeIncome.tipIncome > 0 && (
@@ -420,19 +428,27 @@ const ViewReports = () => {
 
                 {currentUser?.role === 'Manager' && (
                   <div className="detail-section">
-                    <h3>Manager Income</h3>
+                    <h3>Manager Income (Vansun)</h3>
                     {(() => {
-                      const managerIncome = calculateManagerIncome(selectedReport);
+                      const selectedReportWithJewelry = {
+                        ...selectedReport,
+                        jewelry: selectedReport.jewelry || []
+                      };
+                      const managerIncome = calculateEmployeeIncome(selectedReportWithJewelry, 'manager');
                       return (
                         <div className="manager-income-breakdown">
                           <div className="income-item">
-                            <span>Jewelry Cost (minus reductions):</span>
-                            <span>${managerIncome.jewelryCost.toFixed(2)}</span>
+                            <span>Service Amount (50%):</span>
+                            <span>${managerIncome.serviceIncome.toFixed(2)}</span>
                           </div>
-                          {managerIncome.tip > 0 && (
+                          <div className="income-item">
+                            <span>Jewelry Income (After Reductions & Cuts):</span>
+                            <span>${managerIncome.jewelryIncome.toFixed(2)}</span>
+                          </div>
+                          {managerIncome.tipIncome > 0 && (
                             <div className="income-item">
                               <span>Tips:</span>
-                              <span>${managerIncome.tip.toFixed(2)}</span>
+                              <span>${managerIncome.tipIncome.toFixed(2)}</span>
                             </div>
                           )}
                           <div className="income-item total">
@@ -450,7 +466,11 @@ const ViewReports = () => {
                   <div className="detail-section">
                     <h3>Oscar's Income</h3>
                     {(() => {
-                      const oscarIncome = calculateOscarIncome(selectedReport);
+                      const selectedReportWithJewelry = {
+                        ...selectedReport,
+                        jewelry: selectedReport.jewelry || []
+                      };
+                      const oscarIncome = calculateOscarIncome(selectedReportWithJewelry);
                       return (
                         <div className="oscar-income-breakdown">
                           <div className="income-item">
@@ -458,15 +478,9 @@ const ViewReports = () => {
                             <span>${oscarIncome.serviceIncome.toFixed(2)}</span>
                           </div>
                           <div className="income-item">
-                            <span>Jewelry Amount (5%):</span>
+                            <span>Jewelry Amount (3%):</span>
                             <span>${oscarIncome.jewelryIncome.toFixed(2)}</span>
                           </div>
-                          {oscarIncome.tipIncome > 0 && (
-                            <div className="income-item">
-                              <span>Tips:</span>
-                              <span>${oscarIncome.tipIncome.toFixed(2)}</span>
-                            </div>
-                          )}
                           <div className="income-item total">
                             <span>Total Oscar's Income:</span>
                             <span>${oscarIncome.totalIncome.toFixed(2)}</span>
@@ -482,20 +496,30 @@ const ViewReports = () => {
                   <div className="detail-section">
                     <h3>Vansun Income</h3>
                     {(() => {
-                      const vansunIncome = calculateVansunIncome(selectedReport);
+                      const selectedReportWithJewelry = {
+                        ...selectedReport,
+                        jewelry: selectedReport.jewelry || []
+                      };
+                      const vansunIncome = calculateVansunIncome(selectedReportWithJewelry);
                       return (
                         <div className="vansun-income-breakdown">
                           <div className="income-item">
-                            <span>Total Jewelry Amount:</span>
-                            <span>${vansunIncome.jewelryAmount.toFixed(2)}</span>
+                            <span>Service Income (50%):</span>
+                            <span>${vansunIncome.serviceIncome.toFixed(2)}</span>
                           </div>
                           <div className="income-item">
-                            <span>Staff + Oscar Cuts (10%):</span>
-                            <span>${vansunIncome.totalCuts.toFixed(2)}</span>
+                            <span>Jewelry Income (After Reductions & Cuts):</span>
+                            <span>${vansunIncome.jewelryIncome.toFixed(2)}</span>
                           </div>
+                          {vansunIncome.tipIncome > 0 && (
+                            <div className="income-item">
+                              <span>Tips:</span>
+                              <span>${vansunIncome.tipIncome.toFixed(2)}</span>
+                            </div>
+                          )}
                           <div className="income-item total">
-                            <span>Vansun Income (90%):</span>
-                            <span>${vansunIncome.vansunIncome.toFixed(2)}</span>
+                            <span>Total Vansun Income:</span>
+                            <span>${vansunIncome.totalIncome.toFixed(2)}</span>
                           </div>
                         </div>
                       );

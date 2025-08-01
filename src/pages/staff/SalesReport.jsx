@@ -304,31 +304,59 @@ const SalesReport = () => {
                   const tempReport = {
                     servicePrice: pricing.servicePrice,
                     jewelryPrice: pricing.jewelryPrice,
-                    tip: formData.tip
+                    tip: formData.tip,
+                    jewelry: formData.jewelry
                   };
-                  const staffIncome = calculateEmployeeIncome(tempReport);
-                  return (
-                    <div className="income-breakdown">
-                      <div className="income-item">
-                        <span>Service Income (50%):</span>
-                        <span>${staffIncome.serviceIncome.toFixed(2)}</span>
-                      </div>
-                      <div className="income-item">
-                        <span>Jewelry Income (5%):</span>
-                        <span>${staffIncome.jewelryIncome.toFixed(2)}</span>
-                      </div>
-                      {staffIncome.tipIncome > 0 && (
+                  const userRole = currentUser?.role || 'staff';
+                  const staffIncome = calculateEmployeeIncome(tempReport, userRole);
+                  
+                  if (userRole === 'manager') {
+                    return (
+                      <div className="income-breakdown">
                         <div className="income-item">
-                          <span>Tips:</span>
-                          <span>${staffIncome.tipIncome.toFixed(2)}</span>
+                          <span>Service Income (50%):</span>
+                          <span>${staffIncome.serviceIncome.toFixed(2)}</span>
                         </div>
-                      )}
-                      <div className="income-item total">
-                        <span>Total Your Income:</span>
-                        <span>${staffIncome.totalIncome.toFixed(2)}</span>
+                        <div className="income-item">
+                          <span>Jewelry Income (After Reductions & Cuts):</span>
+                          <span>${staffIncome.jewelryIncome.toFixed(2)}</span>
+                        </div>
+                        {staffIncome.tipIncome > 0 && (
+                          <div className="income-item">
+                            <span>Tips:</span>
+                            <span>${staffIncome.tipIncome.toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div className="income-item total">
+                          <span>Total Your Income (Vansun):</span>
+                          <span>${staffIncome.totalIncome.toFixed(2)}</span>
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  } else {
+                    return (
+                      <div className="income-breakdown">
+                        <div className="income-item">
+                          <span>Service Income (50%):</span>
+                          <span>${staffIncome.serviceIncome.toFixed(2)}</span>
+                        </div>
+                        <div className="income-item">
+                          <span>Jewelry Income (3%):</span>
+                          <span>${staffIncome.jewelryIncome.toFixed(2)}</span>
+                        </div>
+                        {staffIncome.tipIncome > 0 && (
+                          <div className="income-item">
+                            <span>Tips:</span>
+                            <span>${staffIncome.tipIncome.toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div className="income-item total">
+                          <span>Total Your Income:</span>
+                          <span>${staffIncome.totalIncome.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    );
+                  }
                 })()}
               </div>
               
