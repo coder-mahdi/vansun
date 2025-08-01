@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getCurrentUser, logout } from '../../utils/auth';
+import { canViewAllReports, canManageUsers } from '../../utils/userManagement';
 import Layout from '../../layout/Layout';
 
 const Dashboard = () => {
@@ -10,13 +11,20 @@ const Dashboard = () => {
     logout();
   };
 
+  // Check user permissions
+  const canViewReports = currentUser ? canViewAllReports(currentUser.role) : false;
+  const canManageStaff = currentUser ? canManageUsers(currentUser.role) : false;
+
   return (
     <Layout>
       <div className="staff-dashboard-container">
         <div className="dashboard-header">
           <div className="user-info">
             <h1>Staff Dashboard</h1>
-            <p>Welcome back, {currentUser?.username}!</p>
+            <p>Welcome back, {currentUser?.full_name || currentUser?.username}!</p>
+            {currentUser?.role && (
+              <p className="user-role">Role: {currentUser.role}</p>
+            )}
           </div>
           <button onClick={handleLogout} className="logout-button">
             Logout
@@ -33,11 +41,21 @@ const Dashboard = () => {
                 <p>Submit a new sales report</p>
               </Link>
 
-              <Link to="/staff/view-reports" className="action-card">
-                <div className="card-icon">📊</div>
-                <h3>View Reports</h3>
-                <p>View and analyze sales reports</p>
-              </Link>
+              {canViewReports && (
+                <Link to="/staff/view-reports" className="action-card">
+                  <div className="card-icon">📊</div>
+                  <h3>View Reports</h3>
+                  <p>View and analyze sales reports</p>
+                </Link>
+              )}
+
+              {canManageStaff && (
+                <Link to="/staff/manage-users" className="action-card">
+                  <div className="card-icon">👥</div>
+                  <h3>Manage Staff</h3>
+                  <p>Manage staff users and permissions</p>
+                </Link>
+              )}
             </div>
           </div>
 

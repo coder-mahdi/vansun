@@ -1,4 +1,4 @@
-// Simple authentication utility for staff login
+// Authentication utility for staff login with WordPress API integration
 import { validateStaffLogin } from './userManagement';
 
 // Check if user is authenticated
@@ -19,30 +19,29 @@ export const isAuthenticated = () => {
   return true;
 };
 
-// Login function
-export const login = (username, password) => {
-  return new Promise((resolve, reject) => {
-    // Simulate API call delay
-    setTimeout(() => {
-      const result = validateStaffLogin(username, password);
+// Login function with WordPress API
+export const login = async (username, password) => {
+  try {
+    const result = await validateStaffLogin(username, password);
+    
+    if (result.success) {
+      // Create session token (simple timestamp-based token)
+      const token = `staff_${Date.now()}`;
+      const expiry = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
       
-      if (result.success) {
-        // Create session token (simple timestamp-based token)
-        const token = `staff_${Date.now()}`;
-        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
-        
-        // Store in localStorage
-        localStorage.setItem('staffToken', token);
-        localStorage.setItem('staffExpiry', expiry.toString());
-        localStorage.setItem('staffUsername', username);
-        localStorage.setItem('staffUserData', JSON.stringify(result.user));
-        
-        resolve({ success: true, message: 'Login successful' });
-      } else {
-        reject({ success: false, message: result.message });
-      }
-    }, 500);
-  });
+      // Store in localStorage
+      localStorage.setItem('staffToken', token);
+      localStorage.setItem('staffExpiry', expiry.toString());
+      localStorage.setItem('staffUsername', username);
+      localStorage.setItem('staffUserData', JSON.stringify(result.user));
+      
+      return { success: true, message: 'Login successful' };
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    throw new Error(error.message || 'Login failed');
+  }
 };
 
 // Logout function

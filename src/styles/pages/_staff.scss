@@ -98,16 +98,17 @@
         transition: all 0.3s ease;
         font-family: var(--font-family);
 
-        &:hover:not(:disabled) {
-          background-color: #2a1f00;
+        &:hover {
+          background-color: #2a1e00;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(61, 44, 0, 0.3);
         }
 
         &:disabled {
-          background-color: #999;
+          background-color: #ccc;
           cursor: not-allowed;
           transform: none;
+          box-shadow: none;
         }
       }
     }
@@ -115,7 +116,7 @@
     .login-footer {
       text-align: center;
       margin-top: 2rem;
-      padding-top: 1.5rem;
+      padding-top: 2rem;
       border-top: 1px solid #eee;
 
       p {

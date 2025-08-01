@@ -117,7 +117,9 @@ const SalesReport = () => {
     const report = {
       id: Date.now(),
       date: new Date().toISOString(),
-      staffMember: currentUser?.username || 'Unknown',
+      staffMember: currentUser?.full_name || currentUser?.username || 'Unknown',
+      staffRole: currentUser?.role || 'Staff',
+      staffId: currentUser?.id,
       ...formData,
       ...pricing
     };
