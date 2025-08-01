@@ -1,5 +1,5 @@
 // WordPress API service for staff user management
-const WORDPRESS_API_BASE = import.meta.env.VITE_WORDPRESS_API_URL || 'https://your-wordpress-site.com/wp-json';
+const WORDPRESS_API_BASE = import.meta.env.VITE_WORDPRESS_API_URL || 'https://vansunstudio.com/cms/wp-json';
 
 // Helper function to make API requests
 const apiRequest = async (endpoint, options = {}) => {

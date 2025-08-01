@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Staff User API Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Get All Staff Users</h3>
+        <button onclick="testGetStaffUsers()">Test Get Staff Users</button>
+        <div id="result1" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Test Staff Login</h3>
+        <input type="text" id="username" placeholder="Username" value="admin">
+        <input type="password" id="password" placeholder="Password" value="Vansun2024">
+        <button onclick="testStaffLogin()">Test Login</button>
+        <div id="result2" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: Check WordPress REST API</h3>
+        <button onclick="testWordPressAPI()">Test WordPress API</button>
+        <div id="result3" class="result"></div>
+    </div>
+
+    <script>
+        const WORDPRESS_API_BASE = 'https://vansunstudio.com/cms/wp-json';
+
+        async function testGetStaffUsers() {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${WORDPRESS_API_BASE}/wp/v2/staff_user`);
+                const data = await response.json();
+                
+                resultDiv.textContent = `Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`;
+                resultDiv.parentElement.className = response.ok ? 'test-section success' : 'test-section error';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        async function testStaffLogin() {
+            const resultDiv = document.getElementById('result2');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            resultDiv.textContent = 'Testing login...';
+            
+            try {
+                // First get available users
+                const usersResponse = await fetch(`${WORDPRESS_API_BASE}/wp/v2/staff_user`);
+                const users = await usersResponse.json();
+                
+                // Find user with matching credentials
+                const user = users.find(u => 
+                    u.title?.rendered?.toLowerCase() === username.toLowerCase()
+                );
+                
+                if (user) {
+                    resultDiv.textContent = `Login Test:\nUsername: ${username}\nFound User: ${JSON.stringify(user, null, 2)}`;
+                    resultDiv.parentElement.className = 'test-section success';
+                } else {
+                    resultDiv.textContent = `Login Test:\nUsername: ${username}\nUser not found in available users`;
+                    resultDiv.parentElement.className = 'test-section error';
+                }
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        async function testWordPressAPI() {
+            const resultDiv = document.getElementById('result3');
+            resultDiv.textContent = 'Testing WordPress API...';
+            
+            try {
+                const response = await fetch(`${WORDPRESS_API_BASE}/wp/v2/users`);
+                const data = await response.json();
+                
+                resultDiv.textContent = `Status: ${response.status}\nWordPress API accessible: ${response.ok}\nUsers found: ${data.length}`;
+                resultDiv.parentElement.className = response.ok ? 'test-section success' : 'test-section error';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            setTimeout(() => {
+                testGetStaffUsers();
+                setTimeout(() => {
+                    testWordPressAPI();
+                }, 1000);
+            }, 500);
+        };
+    </script>
+</body>
+</html> 

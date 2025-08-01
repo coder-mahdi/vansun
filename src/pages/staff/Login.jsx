@@ -33,10 +33,14 @@ const Login = () => {
     setError('');
 
     try {
-      await login(formData.username, formData.password);
-      navigate('/staff/dashboard');
+      const result = await login(formData.username, formData.password);
+      if (result.success) {
+        navigate('/staff/dashboard');
+      } else {
+        setError(result.message || 'Login failed');
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
