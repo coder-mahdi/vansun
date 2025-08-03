@@ -32,6 +32,11 @@ export const getStaffUsers = async () => {
   return await apiRequest('/staff-users');
 };
 
+// Get all staff users (alias for compatibility)
+export const getAllStaffUsers = async () => {
+  return await apiRequest('/staff-users');
+};
+
 // Create new staff user
 export const createStaffUser = async (userData) => {
   return await apiRequest('/staff-users', {
@@ -61,4 +66,22 @@ export const validateStaffLogin = async (username, password) => {
     method: 'POST',
     body: JSON.stringify({ username, password })
   });
+};
+
+// Save sales report
+export const saveSalesReport = async (reportData) => {
+  return await apiRequest('/sales-reports', {
+    method: 'POST',
+    body: JSON.stringify(reportData)
+  });
+};
+
+// Get all sales reports
+export const getSalesReports = async () => {
+  return await apiRequest('/sales-reports');
+};
+
+// Get sales reports by staff member
+export const getSalesReportsByStaff = async (staffId) => {
+  return await apiRequest(`/sales-reports/staff/${staffId}`);
 }; 

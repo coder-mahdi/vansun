@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/auth';
 import { 
@@ -6,10 +6,13 @@ import {
   getJewelryNames, 
   calculateServicePrice, 
   calculateJewelryPrice, 
+  calculateAfterCarePrice,
   calculateTotalPrice,
   calculateEmployeeIncome,
+  calculateVansunIncome,
   PAYMENT_METHODS
 } from '../../utils/salesData';
+import { saveSalesReport } from '../../utils/wordpressApi';
 import Layout from '../../layout/Layout';
 
 const SalesReport = () => {
@@ -19,6 +22,7 @@ const SalesReport = () => {
   const [formData, setFormData] = useState({
     services: [{ name: '', quantity: 1 }],
     jewelry: [{ name: '', quantity: 1 }],
+    afterCare: [{ quantity: 0 }],
     customPrice: 0,
     tip: 0,
     customerName: '',
@@ -29,6 +33,7 @@ const SalesReport = () => {
   const [pricing, setPricing] = useState({
     servicePrice: 0,
     jewelryPrice: 0,
+    afterCarePrice: 0,
     beforeTax: 0,
     afterTax: 0,
     taxAmount: 0
@@ -36,6 +41,20 @@ const SalesReport = () => {
 
   const serviceNames = getServiceNames();
   const jewelryNames = getJewelryNames();
+
+  // Calculate pricing whenever formData changes
+  useEffect(() => {
+    if (step >= 2) {
+      calculatePricing();
+    }
+  }, [formData.services, formData.jewelry, formData.afterCare, formData.customPrice, formData.tip, step]);
+
+  // Force calculate pricing when entering step 4
+  useEffect(() => {
+    if (step === 4) {
+      calculatePricing();
+    }
+  }, [step]);
 
   const handleServiceChange = (index, field, value) => {
     const updatedServices = [...formData.services];
@@ -47,6 +66,18 @@ const SalesReport = () => {
     const updatedJewelry = [...formData.jewelry];
     updatedJewelry[index] = { ...updatedJewelry[index], [field]: value };
     setFormData({ ...formData, jewelry: updatedJewelry });
+  };
+
+  const handleAfterCareChange = (index, field, value) => {
+    const updatedAfterCare = [...formData.afterCare];
+    updatedAfterCare[index] = { ...updatedAfterCare[index], [field]: value };
+
+    setFormData({ ...formData, afterCare: updatedAfterCare });
+    
+    // Force recalculation when aftercare quantity changes
+    if (field === 'quantity') {
+      setTimeout(() => calculatePricing(), 0);
+    }
   };
 
   const addService = () => {
@@ -79,6 +110,20 @@ const SalesReport = () => {
     }
   };
 
+  const addAfterCare = () => {
+    setFormData({
+      ...formData,
+      afterCare: [...formData.afterCare, { quantity: 0 }]
+    });
+  };
+
+  const removeAfterCare = (index) => {
+    if (formData.afterCare.length > 1) {
+      const updatedAfterCare = formData.afterCare.filter((_, i) => i !== index);
+      setFormData({ ...formData, afterCare: updatedAfterCare });
+    }
+  };
+
   const handleNext = () => {
     if (step === 1) {
       // Validate services
@@ -95,41 +140,98 @@ const SalesReport = () => {
         alert('Please select at least one jewelry type');
         return;
       }
-      calculatePricing();
       setStep(3);
+    } else if (step === 3) {
+      // After Care is optional, so no validation needed
+      calculatePricing();
+      setStep(4);
     }
   };
 
   const calculatePricing = () => {
     const servicePrice = calculateServicePrice(formData.services);
     const jewelryPrice = calculateJewelryPrice(formData.jewelry);
-    const total = calculateTotalPrice(servicePrice, jewelryPrice, formData.customPrice, formData.tip);
+    const afterCarePrice = calculateAfterCarePrice(formData.afterCare);
+    const customPrice = parseFloat(formData.customPrice) || 0;
+    const tip = parseFloat(formData.tip) || 0;
+    const total = calculateTotalPrice(servicePrice, jewelryPrice, afterCarePrice, customPrice, tip);
+    
+
     
     setPricing({
-      servicePrice,
-      jewelryPrice,
+      servicePrice: servicePrice || 0,
+      jewelryPrice: jewelryPrice || 0,
+      afterCarePrice: afterCarePrice || 0,
       ...total
     });
   };
 
-  const handleSubmit = () => {
-    // Save report to localStorage (in a real app, this would go to a database)
+  // Function to calculate after care price from report data
+  const calculateAfterCarePriceFromReport = (report) => {
+    if (!report.afterCare || report.afterCare.length === 0) return 0;
+    
+    let totalPrice = 0;
+    report.afterCare.forEach(afterCare => {
+      const quantity = parseInt(afterCare.quantity) || 0;
+      if (quantity > 0) {
+        totalPrice += 15 * quantity; // $15 per item
+      }
+    });
+    return totalPrice;
+  };
+
+  const handleSubmit = async () => {
+    // Calculate final pricing
+    const servicePrice = calculateServicePrice(formData.services);
+    const jewelryPrice = calculateJewelryPrice(formData.jewelry);
+    const afterCarePrice = calculateAfterCarePrice(formData.afterCare);
+    const customPrice = parseFloat(formData.customPrice) || 0;
+    const tip = parseFloat(formData.tip) || 0;
+    const total = calculateTotalPrice(servicePrice, jewelryPrice, afterCarePrice, customPrice, tip);
+    
+
+    
+    // Create report object
     const report = {
       id: Date.now(),
       date: new Date().toISOString(),
       staffMember: currentUser?.full_name || currentUser?.username || 'Unknown',
       staffRole: currentUser?.role || 'Staff',
       staffId: currentUser?.id,
-      ...formData,
-      ...pricing
+      services: formData.services,
+      jewelry: formData.jewelry,
+      afterCare: formData.afterCare,
+      customPrice: customPrice,
+      tip: tip,
+      customerName: formData.customerName,
+      customerPhone: formData.customerPhone,
+      paymentMethod: formData.paymentMethod,
+      notes: formData.notes,
+      servicePrice: servicePrice || 0,
+      jewelryPrice: jewelryPrice || 0,
+      afterCarePrice: afterCarePrice || 0,
+      ...total
     };
+    
 
-    const existingReports = JSON.parse(localStorage.getItem('salesReports') || '[]');
-    existingReports.push(report);
-    localStorage.setItem('salesReports', JSON.stringify(existingReports));
+    
+    
 
-    alert('Sales report submitted successfully!');
-    navigate('/staff/dashboard');
+    try {
+      // Save to WordPress API
+      await saveSalesReport(report);
+      
+      // Also save to localStorage as backup
+      const existingReports = JSON.parse(localStorage.getItem('salesReports') || '[]');
+      existingReports.push(report);
+      localStorage.setItem('salesReports', JSON.stringify(existingReports));
+
+      alert('Sales report submitted successfully!');
+      navigate('/staff/dashboard');
+    } catch (error) {
+      console.error('Error saving report:', error);
+      alert('Error saving report. Please try again.');
+    }
   };
 
   const handleBack = () => {
@@ -152,7 +254,8 @@ const SalesReport = () => {
           <div className="step-indicator">
             <div className={`step ${step >= 1 ? 'active' : ''}`}>1. Services</div>
             <div className={`step ${step >= 2 ? 'active' : ''}`}>2. Jewelry</div>
-            <div className={`step ${step >= 3 ? 'active' : ''}`}>3. Pricing</div>
+            <div className={`step ${step >= 3 ? 'active' : ''}`}>3. After Care</div>
+            <div className={`step ${step >= 4 ? 'active' : ''}`}>4. Pricing</div>
           </div>
         </div>
 
@@ -272,27 +375,97 @@ const SalesReport = () => {
 
           {step === 3 && (
             <div className="step-content">
+              <h2>After Care (Optional)</h2>
+              <p>Add after care products ($15 each) - Optional</p>
+              
+
+              
+              {formData.afterCare.map((afterCare, index) => (
+                <div key={index} className="after-care-row">
+                  <div className="form-group">
+                    <label>After Care {index + 1}</label>
+                    <div className="after-care-info">
+                      <span>Price: $15.00 each</span>
+                    </div>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Quantity</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={afterCare.quantity}
+                      onChange={(e) => handleAfterCareChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                    />
+                  </div>
+                  
+                  {formData.afterCare.length > 1 && (
+                    <button 
+                      type="button" 
+                      className="remove-btn"
+                      onClick={() => removeAfterCare(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              
+              <button type="button" className="add-btn" onClick={addAfterCare}>
+                + Add Another After Care
+              </button>
+              
+              <div className="after-care-note">
+                <p><strong>Note:</strong> Set quantity to 0 if you don't want to include After Care in this sale.</p>
+              </div>
+              
+              <div className="form-actions">
+                <button type="button" className="back-btn" onClick={handleBack}>
+                  Back
+                </button>
+                <button type="button" className="next-btn" onClick={handleNext}>
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="step-content">
               <h2>Pricing & Customer Details</h2>
               <p>Review pricing and enter customer information</p>
               
               <div className="pricing-summary">
                 <h3>Pricing Summary</h3>
+                
+
                 <div className="price-breakdown">
                   <div className="price-item">
                     <span>Services:</span>
-                    <span>${pricing.servicePrice.toFixed(2)}</span>
+                    <span>${(pricing.servicePrice || 0).toFixed(2)}</span>
                   </div>
                   <div className="price-item">
                     <span>Jewelry:</span>
-                    <span>${pricing.jewelryPrice.toFixed(2)}</span>
+                    <span>${(pricing.jewelryPrice || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="price-item">
+                    <span>After Care:</span>
+                    <span>
+                      ${(pricing.afterCarePrice || 0).toFixed(2)}
+                      {formData.afterCare && formData.afterCare.length > 0 && (
+                        <span className="after-care-details">
+                          ({formData.afterCare.reduce((total, item) => total + (parseInt(item.quantity) || 0), 0)} items × $15.00)
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <div className="price-item">
                     <span>Before Tax:</span>
-                    <span>${pricing.beforeTax.toFixed(2)}</span>
+                    <span>${(pricing.beforeTax || 0).toFixed(2)}</span>
                   </div>
                   <div className="price-item total">
                     <span>After Tax (12%):</span>
-                    <span>${pricing.afterTax.toFixed(2)}</span>
+                    <span>${(pricing.afterTax || 0).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -301,58 +474,96 @@ const SalesReport = () => {
               <div className="staff-income-preview">
                 <h3>Your Income from this Sale</h3>
                 {(() => {
+                  // Calculate current pricing for preview
+                  const servicePrice = calculateServicePrice(formData.services);
+                  const jewelryPrice = calculateJewelryPrice(formData.jewelry);
+                  const afterCarePrice = calculateAfterCarePrice(formData.afterCare);
+                  const customPrice = parseFloat(formData.customPrice) || 0;
+                  const tip = parseFloat(formData.tip) || 0;
+                  
                   const tempReport = {
-                    servicePrice: pricing.servicePrice,
-                    jewelryPrice: pricing.jewelryPrice,
-                    tip: formData.tip,
-                    jewelry: formData.jewelry
+                    servicePrice: servicePrice || 0,
+                    jewelryPrice: jewelryPrice || 0,
+                    afterCarePrice: afterCarePrice || 0,
+                    tip: tip,
+                    jewelry: formData.jewelry,
+                    afterCare: formData.afterCare
                   };
                   const userRole = currentUser?.role || 'staff';
-                  const staffIncome = calculateEmployeeIncome(tempReport, userRole);
                   
-                  if (userRole === 'manager') {
+
+                  
+                  if (userRole === 'manager' || userRole === 'Manager') {
+                    // For managers, show Vansun income
+                    const vansunIncome = calculateVansunIncome(tempReport);
                     return (
                       <div className="income-breakdown">
                         <div className="income-item">
                           <span>Service Income (50%):</span>
-                          <span>${staffIncome.serviceIncome.toFixed(2)}</span>
+                          <span>${(vansunIncome.serviceIncome || 0).toFixed(2)}</span>
                         </div>
                         <div className="income-item">
                           <span>Jewelry Income (After Reductions & Cuts):</span>
-                          <span>${staffIncome.jewelryIncome.toFixed(2)}</span>
+                          <span>${(vansunIncome.jewelryIncome || 0).toFixed(2)}</span>
                         </div>
-                        {staffIncome.tipIncome > 0 && (
+                        {(vansunIncome.afterCareIncome || 0) > 0 && (
+                          <div className="income-item">
+                            <span>After Care Income (Full profit):</span>
+                            <span>${(vansunIncome.afterCareIncome || 0).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {afterCarePrice > 0 && (vansunIncome.afterCareIncome || 0) === 0 && (
+                          <div className="income-item">
+                            <span>After Care Income (Full profit):</span>
+                            <span>$0.00 (No profit after $7 cost)</span>
+                          </div>
+                        )}
+                        {(vansunIncome.tipIncome || 0) > 0 && (
                           <div className="income-item">
                             <span>Tips:</span>
-                            <span>${staffIncome.tipIncome.toFixed(2)}</span>
+                            <span>${(vansunIncome.tipIncome || 0).toFixed(2)}</span>
                           </div>
                         )}
                         <div className="income-item total">
                           <span>Total Your Income (Vansun):</span>
-                          <span>${staffIncome.totalIncome.toFixed(2)}</span>
+                          <span>${(vansunIncome.totalIncome || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     );
                   } else {
+                    // For staff, show staff income
+                    const staffIncome = calculateEmployeeIncome(tempReport, 'staff');
                     return (
                       <div className="income-breakdown">
                         <div className="income-item">
                           <span>Service Income (50%):</span>
-                          <span>${staffIncome.serviceIncome.toFixed(2)}</span>
+                          <span>${(staffIncome.serviceIncome || 0).toFixed(2)}</span>
                         </div>
                         <div className="income-item">
                           <span>Jewelry Income (3%):</span>
-                          <span>${staffIncome.jewelryIncome.toFixed(2)}</span>
+                          <span>${(staffIncome.jewelryIncome || 0).toFixed(2)}</span>
                         </div>
-                        {staffIncome.tipIncome > 0 && (
+                        {(staffIncome.afterCareIncome || 0) > 0 && (
+                          <div className="income-item">
+                            <span>After Care Income (3% of profit):</span>
+                            <span>${(staffIncome.afterCareIncome || 0).toFixed(2)}</span>
+                          </div>
+                        )}
+                        {afterCarePrice > 0 && (staffIncome.afterCareIncome || 0) === 0 && (
+                          <div className="income-item">
+                            <span>After Care Income (3% of profit):</span>
+                            <span>$0.00 (No profit after $7 cost)</span>
+                          </div>
+                        )}
+                        {(staffIncome.tipIncome || 0) > 0 && (
                           <div className="income-item">
                             <span>Tips:</span>
-                            <span>${staffIncome.tipIncome.toFixed(2)}</span>
+                            <span>${(staffIncome.tipIncome || 0).toFixed(2)}</span>
                           </div>
                         )}
                         <div className="income-item total">
                           <span>Total Your Income:</span>
-                          <span>${staffIncome.totalIncome.toFixed(2)}</span>
+                          <span>${(staffIncome.totalIncome || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     );
