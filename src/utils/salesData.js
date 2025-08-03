@@ -56,6 +56,9 @@ export const JEWELRY = {
   'Pro-Premium*2': 120
 };
 
+// After Care price
+export const AFTER_CARE_PRICE = 15;
+
 // Jewelry cost reductions
 export const JEWELRY_COST_REDUCTIONS = {
   'Basic': 0.5,
@@ -83,7 +86,8 @@ export const calculateServicePrice = (services) => {
   services.forEach(service => {
     if (service.name && service.quantity) {
       const basePrice = SERVICES[service.name] || 0;
-      totalPrice += basePrice * service.quantity;
+      const quantity = parseInt(service.quantity) || 1;
+      totalPrice += basePrice * quantity;
     }
   });
   
@@ -99,9 +103,29 @@ export const calculateJewelryPrice = (jewelrySelections) => {
   jewelrySelections.forEach(jewelry => {
     if (jewelry.name && jewelry.quantity) {
       const basePrice = JEWELRY[jewelry.name] || 0;
-      totalPrice += basePrice * jewelry.quantity;
+      const quantity = parseInt(jewelry.quantity) || 1;
+      totalPrice += basePrice * quantity;
     }
   });
+  
+  return totalPrice;
+};
+
+// Calculate after care price based on quantity
+export const calculateAfterCarePrice = (afterCareSelections) => {
+  if (!afterCareSelections || afterCareSelections.length === 0) return 0;
+  
+  let totalPrice = 0;
+  
+  afterCareSelections.forEach(afterCare => {
+    const quantity = parseInt(afterCare.quantity) || 0;
+    if (quantity > 0) {
+      const itemPrice = AFTER_CARE_PRICE * quantity;
+      totalPrice += itemPrice;
+    }
+  });
+  
+
   
   return totalPrice;
 };
@@ -115,7 +139,8 @@ export const calculateJewelryReductions = (jewelrySelections) => {
   jewelrySelections.forEach(jewelry => {
     if (jewelry.name && jewelry.quantity) {
       const reduction = JEWELRY_COST_REDUCTIONS[jewelry.name] || 0;
-      totalReductions += reduction * jewelry.quantity;
+      const quantity = parseInt(jewelry.quantity) || 1;
+      totalReductions += reduction * quantity;
     }
   });
   
@@ -123,8 +148,14 @@ export const calculateJewelryReductions = (jewelrySelections) => {
 };
 
 // Calculate total price with tax
-export const calculateTotalPrice = (servicePrice, jewelryPrice, customPrice = 0, tip = 0) => {
-  const subtotal = servicePrice + jewelryPrice + customPrice + tip;
+export const calculateTotalPrice = (servicePrice, jewelryPrice, afterCarePrice = 0, customPrice = 0, tip = 0) => {
+  const service = parseFloat(servicePrice) || 0;
+  const jewelry = parseFloat(jewelryPrice) || 0;
+  const afterCare = parseFloat(afterCarePrice) || 0;
+  const custom = parseFloat(customPrice) || 0;
+  const tipAmount = parseFloat(tip) || 0;
+  
+  const subtotal = service + jewelry + afterCare + custom + tipAmount;
   const afterTax = subtotal * TAX_RATE;
   
   return {
@@ -136,24 +167,32 @@ export const calculateTotalPrice = (servicePrice, jewelryPrice, customPrice = 0,
 
 // Calculate employee income based on role
 export const calculateEmployeeIncome = (report, userRole = 'staff') => {
-  const serviceAmount = report.servicePrice || 0;
-  const jewelryAmount = report.jewelryPrice || 0;
-  const tip = report.tip || 0;
+  const serviceAmount = parseFloat(report.servicePrice) || 0;
+  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  const afterCareAmount = parseFloat(report.afterCarePrice) || 0;
+  const tip = parseFloat(report.tip) || 0;
   
   if (userRole === 'manager') {
     // Manager gets Vansun income (same as Vansun)
     return calculateVansunIncome(report);
   } else {
-    // Staff gets: half service + 3% jewelry + tips
+    // Staff gets: half service + 3% jewelry + after care income + tips
     const serviceIncome = serviceAmount / 2;
     const jewelryIncome = jewelryAmount * 0.03; // 3% of jewelry
+    
+    // After Care income: (price - $7) * 3% for staff
+    const afterCareCost = 7; // $7 cost
+    const afterCareProfit = afterCareAmount - afterCareCost;
+    const afterCareIncome = afterCareProfit > 0 ? afterCareProfit * 0.03 : 0;
+    
     const tipIncome = tip;
     
-    const totalIncome = serviceIncome + jewelryIncome + tipIncome;
+    const totalIncome = serviceIncome + jewelryIncome + afterCareIncome + tipIncome;
     
     return {
       serviceIncome,
       jewelryIncome,
+      afterCareIncome,
       tipIncome,
       totalIncome
     };
@@ -162,12 +201,14 @@ export const calculateEmployeeIncome = (report, userRole = 'staff') => {
 
 // Calculate Oscar's income
 export const calculateOscarIncome = (report) => {
-  const serviceAmount = report.servicePrice || 0;
-  const jewelryAmount = report.jewelryPrice || 0;
+  const serviceAmount = parseFloat(report.servicePrice) || 0;
+  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  const afterCareAmount = parseFloat(report.afterCarePrice) || 0;
   
   // Oscar gets:
   // - Half service cost
   // - 3% of jewelry cost (after reductions)
+  // - 3% of after care profit (same as staff)
   
   const serviceIncome = serviceAmount / 2;
   
@@ -176,27 +217,35 @@ export const calculateOscarIncome = (report) => {
   const jewelryAfterReductions = jewelryAmount - jewelryReductions;
   const jewelryIncome = jewelryAfterReductions * 0.03;
   
-  const totalIncome = serviceIncome + jewelryIncome;
+  // Calculate after care income: (price - $7) * 3% for Oscar
+  const afterCareCost = 7; // $7 cost
+  const afterCareProfit = afterCareAmount - afterCareCost;
+  const afterCareIncome = afterCareProfit > 0 ? afterCareProfit * 0.03 : 0;
+  
+  const totalIncome = serviceIncome + jewelryIncome + afterCareIncome;
   
   return {
     serviceIncome,
     jewelryIncome,
     jewelryReductions,
     jewelryAfterReductions,
+    afterCareIncome,
     totalIncome
   };
 };
 
 // Calculate Vansun income (Manager gets this)
 export const calculateVansunIncome = (report) => {
-  const serviceAmount = report.servicePrice || 0;
-  const jewelryAmount = report.jewelryPrice || 0;
-  const tip = report.tip || 0;
+  const serviceAmount = parseFloat(report.servicePrice) || 0;
+  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  const afterCareAmount = parseFloat(report.afterCarePrice) || 0;
+  const tip = parseFloat(report.tip) || 0;
   
   // Vansun income includes:
   // - Tips
   // - Half service cost
   // - Jewelry cost minus reductions and cuts
+  // - After Care profit (minus $7 cost, minus 3% staff cut)
   
   const tipIncome = tip;
   const serviceIncome = serviceAmount / 2;
@@ -212,7 +261,12 @@ export const calculateVansunIncome = (report) => {
   
   const jewelryIncome = jewelryAfterReductions - totalCuts;
   
-  const totalIncome = tipIncome + serviceIncome + jewelryIncome;
+  // Calculate After Care income for manager
+  const afterCareCost = 7; // $7 cost
+  const afterCareProfit = afterCareAmount - afterCareCost;
+  const afterCareIncome = afterCareProfit > 0 ? afterCareProfit : 0; // Manager gets full profit
+  
+  const totalIncome = tipIncome + serviceIncome + jewelryIncome + afterCareIncome;
   
   return {
     tipIncome,
@@ -222,6 +276,7 @@ export const calculateVansunIncome = (report) => {
     staffCut,
     oscarCut,
     totalCuts,
+    afterCareIncome,
     totalIncome
   };
 };
@@ -240,7 +295,7 @@ export const getJewelryNames = () => {
 
 // Calculate Vansun's income from staff transactions
 export const calculateVansunIncomeFromStaff = (report) => {
-  const jewelryAmount = report.jewelryPrice || 0;
+  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
   
   // Calculate jewelry income after reductions
   const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
