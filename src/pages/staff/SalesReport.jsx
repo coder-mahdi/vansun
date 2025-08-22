@@ -187,6 +187,13 @@ const SalesReport = () => {
     const afterCarePrice = calculateAfterCarePrice(formData.afterCare);
     const customPrice = parseFloat(formData.customPrice) || 0;
     const tip = parseFloat(formData.tip) || 0;
+    
+    // Validate custom price
+    if (customPrice > 0 && customPrice < servicePrice) {
+      alert('Custom price cannot be less than service price. Please enter a valid amount.');
+      return;
+    }
+    
     const total = calculateTotalPrice(servicePrice, jewelryPrice, afterCarePrice, customPrice, tip);
     
 
@@ -194,7 +201,7 @@ const SalesReport = () => {
     // Create report object
     const report = {
       id: Date.now(),
-      date: new Date().toISOString(),
+      date: new Date().toLocaleString("en-US", { timeZone: "America/Vancouver" }),
       staffMember: currentUser?.full_name || currentUser?.username || 'Unknown',
       staffRole: currentUser?.role || 'Staff',
       staffId: currentUser?.id,
@@ -210,6 +217,8 @@ const SalesReport = () => {
       servicePrice: servicePrice || 0,
       jewelryPrice: jewelryPrice || 0,
       afterCarePrice: afterCarePrice || 0,
+      adjustedServicePrice: total.adjustedServicePrice || servicePrice || 0,
+      adjustedJewelryPrice: total.adjustedJewelryPrice || jewelryPrice || 0,
       ...total
     };
     
@@ -459,20 +468,71 @@ const SalesReport = () => {
                       )}
                     </span>
                   </div>
-                  <div className="price-item">
-                    <span>Before Tax:</span>
-                    <span>${(pricing.beforeTax || 0).toFixed(2)}</span>
-                  </div>
-                  <div className="price-item total">
-                    <span>After Tax (12%):</span>
-                    <span>${(pricing.afterTax || 0).toFixed(2)}</span>
-                  </div>
+                  {formData.customPrice > 0 ? (
+                    <>
+                      <div className="price-item custom-price">
+                        <span>Custom Price (No Tax):</span>
+                        <span>${(formData.customPrice || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="price-item">
+                        <span>Service Amount:</span>
+                        <span>${(pricing.servicePrice || 0).toFixed(2)}</span>
+                      </div>
+                      {formData.customPrice > pricing.servicePrice ? (
+                        <div className="price-item">
+                          <span>Jewelry Amount:</span>
+                          <span>${((formData.customPrice - pricing.servicePrice) || 0).toFixed(2)}</span>
+                        </div>
+                      ) : (
+                        <div className="price-item">
+                          <span>Jewelry Amount:</span>
+                          <span>$0.00</span>
+                        </div>
+                      )}
+                      {formData.tip > 0 && (
+                        <div className="price-item">
+                          <span>Tip:</span>
+                          <span>${(formData.tip || 0).toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="price-item total custom-total">
+                        <span>Total Amount:</span>
+                        <span>${(pricing.afterTax || 0).toFixed(2)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="price-item">
+                        <span>Before Tax:</span>
+                        <span>${(pricing.beforeTax || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="price-item">
+                        <span>Tax Amount (12%):</span>
+                        <span>${(pricing.taxAmount || 0).toFixed(2)}</span>
+                      </div>
+                      {formData.tip > 0 && (
+                        <div className="price-item">
+                          <span>Tip (Not Taxed):</span>
+                          <span>${(formData.tip || 0).toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="price-item total">
+                        <span>Total Amount:</span>
+                        <span>${(pricing.afterTax || 0).toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Staff Income Preview */}
               <div className="staff-income-preview">
                 <h3>Your Income from this Sale</h3>
+                {formData.customPrice > 0 && (
+                  <div className="custom-price-note">
+                    <p>Income calculated based on Custom Price distribution</p>
+                  </div>
+                )}
                 {(() => {
                   // Calculate current pricing for preview
                   const servicePrice = calculateServicePrice(formData.services);
@@ -485,6 +545,8 @@ const SalesReport = () => {
                     servicePrice: servicePrice || 0,
                     jewelryPrice: jewelryPrice || 0,
                     afterCarePrice: afterCarePrice || 0,
+                    adjustedServicePrice: servicePrice || 0, // Always use original service price
+                    adjustedJewelryPrice: formData.customPrice > 0 ? Math.max(0, formData.customPrice - servicePrice) : jewelryPrice || 0,
                     tip: tip,
                     jewelry: formData.jewelry,
                     afterCare: formData.afterCare

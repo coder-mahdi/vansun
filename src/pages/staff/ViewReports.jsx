@@ -44,7 +44,15 @@ const ViewReports = () => {
         reportsData = await getSalesReports();
       }
       
-
+      // If API fails or returns no data, try localStorage as fallback
+      if (!reportsData || reportsData.length === 0) {
+        console.log('API returned no data, trying localStorage fallback...');
+        const localStorageReports = JSON.parse(localStorage.getItem('salesReports') || '[]');
+        if (localStorageReports.length > 0) {
+          console.log('Found reports in localStorage:', localStorageReports.length);
+          reportsData = localStorageReports;
+        }
+      }
       
       // Calculate afterCarePrice for each report and ensure afterCare is always an array
       if (reportsData) {
@@ -62,8 +70,6 @@ const ViewReports = () => {
             afterCareArr = [];
           }
 
-
-
           let afterCarePrice = 0;
           if (afterCareArr.length > 0) {
             afterCareArr.forEach(afterCare => {
@@ -74,18 +80,54 @@ const ViewReports = () => {
             });
           }
 
-
+          // Calculate adjusted amounts for custom price reports
+          const servicePrice = parseFloat(report.servicePrice) || 0;
+          const jewelryPrice = parseFloat(report.jewelryPrice) || 0;
+          const customPrice = parseFloat(report.customPrice) || 0;
           
-          return { ...report, afterCare: afterCareArr, afterCarePrice };
+          let adjustedServicePrice = servicePrice;
+          let adjustedJewelryPrice = jewelryPrice;
+          
+          if (customPrice > 0) {
+            adjustedServicePrice = servicePrice; // Keep original service price
+            adjustedJewelryPrice = Math.max(0, customPrice - servicePrice); // Calculate jewelry from custom price
+            console.log('Custom Price Report:', {
+              servicePrice,
+              jewelryPrice,
+              customPrice,
+              adjustedServicePrice,
+              adjustedJewelryPrice
+            });
+          }
+          
+          return { 
+            ...report, 
+            afterCare: afterCareArr, 
+            afterCarePrice,
+            adjustedServicePrice,
+            adjustedJewelryPrice
+          };
         });
       }
-      
-
       
       setReports(reportsData || []);
     } catch (error) {
       console.error('Failed to load reports from API:', error);
-      setReports([]);
+      
+      // Try localStorage as fallback
+      try {
+        console.log('Trying localStorage fallback...');
+        const localStorageReports = JSON.parse(localStorage.getItem('salesReports') || '[]');
+        if (localStorageReports.length > 0) {
+          console.log('Found reports in localStorage:', localStorageReports.length);
+          setReports(localStorageReports);
+        } else {
+          setReports([]);
+        }
+      } catch (localStorageError) {
+        console.error('Failed to load from localStorage:', localStorageError);
+        setReports([]);
+      }
     }
   };
 
