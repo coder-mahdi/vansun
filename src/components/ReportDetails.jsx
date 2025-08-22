@@ -51,10 +51,19 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
           <div className="services-list">
             {selectedReport.services.map((service, index) => (
               <div key={index} className="service-item">
-                <span>{service.name}</span>
-                <span>Qty: {service.quantity}</span>
+                <div className="service-info">
+                  <span className="service-name">{service.name}</span>
+                  <span className="service-quantity">Qty: {service.quantity}</span>
+                </div>
+                <div className="service-price">
+                  <span>${((selectedReport.servicePrice / selectedReport.services.length) * service.quantity || 0).toFixed(2)}</span>
+                </div>
               </div>
             ))}
+            <div className="service-total">
+              <span>Total Services:</span>
+              <span>${(selectedReport.servicePrice || 0).toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
@@ -63,10 +72,19 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
           <div className="jewelry-list">
             {selectedReport.jewelry.map((jewelry, index) => (
               <div key={index} className="jewelry-item">
-                <span>{jewelry.name}</span>
-                <span>Qty: {jewelry.quantity}</span>
+                <div className="jewelry-info">
+                  <span className="jewelry-name">{jewelry.name}</span>
+                  <span className="jewelry-quantity">Qty: {jewelry.quantity}</span>
+                </div>
+                <div className="jewelry-price">
+                  <span>${((selectedReport.jewelryPrice / selectedReport.jewelry.length) * jewelry.quantity || 0).toFixed(2)}</span>
+                </div>
               </div>
             ))}
+            <div className="jewelry-total">
+              <span>Total Jewelry:</span>
+              <span>${(selectedReport.jewelryPrice || 0).toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
@@ -87,40 +105,88 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
         <div className="detail-section">
           <h3>Pricing Breakdown</h3>
           <div className="pricing-breakdown">
-            <div className="price-item">
-              <span>Service Amount:</span>
-              <span>${(selectedReport.servicePrice || 0).toFixed(2)}</span>
-            </div>
-            <div className="price-item">
-              <span>Jewelry Amount:</span>
-              <span>${(selectedReport.jewelryPrice || 0).toFixed(2)}</span>
-            </div>
-            {selectedReport.afterCarePrice > 0 && (
-              <div className="price-item">
-                <span>After Care Amount:</span>
-                <span>${(selectedReport.afterCarePrice || 0).toFixed(2)}</span>
-              </div>
+            {selectedReport.customPrice > 0 ? (
+              <>
+                <div className="price-item">
+                  <span>Original Service Amount:</span>
+                  <span>${(selectedReport.servicePrice || 0).toFixed(2)}</span>
+                </div>
+                <div className="price-item">
+                  <span>Original Jewelry Amount:</span>
+                  <span>${(selectedReport.jewelryPrice || 0).toFixed(2)}</span>
+                </div>
+                {selectedReport.afterCarePrice > 0 && (
+                  <div className="price-item">
+                    <span>After Care Amount:</span>
+                    <span>${(selectedReport.afterCarePrice || 0).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="price-item custom-price">
+                  <span>Custom Price (No Tax):</span>
+                  <span>${(selectedReport.customPrice || 0).toFixed(2)}</span>
+                </div>
+                <div className="price-item">
+                  <span>Adjusted Service Amount:</span>
+                  <span>${(selectedReport.servicePrice || 0).toFixed(2)}</span>
+                </div>
+                {selectedReport.customPrice > selectedReport.servicePrice ? (
+                  <div className="price-item">
+                    <span>Adjusted Jewelry Amount:</span>
+                    <span>${((selectedReport.customPrice - selectedReport.servicePrice) || 0).toFixed(2)}</span>
+                  </div>
+                ) : (
+                  <div className="price-item">
+                    <span>Adjusted Jewelry Amount:</span>
+                    <span>$0.00</span>
+                  </div>
+                )}
+                {selectedReport.tip > 0 && (
+                  <div className="price-item">
+                    <span>Tip:</span>
+                    <span>${(selectedReport.tip || 0).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="price-item total custom-total">
+                  <span>Total Amount:</span>
+                  <span>${(selectedReport.afterTax || 0).toFixed(2)}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="price-item">
+                  <span>Service Amount:</span>
+                  <span>${(selectedReport.servicePrice || 0).toFixed(2)}</span>
+                </div>
+                <div className="price-item">
+                  <span>Jewelry Amount:</span>
+                  <span>${(selectedReport.jewelryPrice || 0).toFixed(2)}</span>
+                </div>
+                {selectedReport.afterCarePrice > 0 && (
+                  <div className="price-item">
+                    <span>After Care Amount:</span>
+                    <span>${(selectedReport.afterCarePrice || 0).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="price-item">
+                  <span>Before Tax:</span>
+                  <span>${(selectedReport.beforeTax || 0).toFixed(2)}</span>
+                </div>
+                <div className="price-item">
+                  <span>Tax Amount (12%):</span>
+                  <span>${(selectedReport.taxAmount || 0).toFixed(2)}</span>
+                </div>
+                {selectedReport.tip > 0 && (
+                  <div className="price-item">
+                    <span>Tip (Not Taxed):</span>
+                    <span>${(selectedReport.tip || 0).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="price-item total">
+                  <span>Total Amount:</span>
+                  <span>${(selectedReport.afterTax || 0).toFixed(2)}</span>
+                </div>
+              </>
             )}
-            {selectedReport.customPrice > 0 && (
-              <div className="price-item">
-                <span>Custom Price:</span>
-                <span>${(selectedReport.customPrice || 0).toFixed(2)}</span>
-              </div>
-            )}
-            {selectedReport.tip > 0 && (
-              <div className="price-item">
-                <span>Tip:</span>
-                <span>${(selectedReport.tip || 0).toFixed(2)}</span>
-              </div>
-            )}
-            <div className="price-item">
-              <span>Before Tax:</span>
-              <span>${(selectedReport.beforeTax || 0).toFixed(2)}</span>
-            </div>
-            <div className="price-item total">
-              <span>After Tax (12%):</span>
-              <span>${(selectedReport.afterTax || 0).toFixed(2)}</span>
-            </div>
           </div>
         </div>
 
@@ -130,11 +196,18 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
             {(() => {
               const selectedReportWithJewelry = {
                 ...selectedReport,
-                jewelry: selectedReport.jewelry || []
+                jewelry: selectedReport.jewelry || [],
+                adjustedServicePrice: selectedReport.adjustedServicePrice || selectedReport.servicePrice,
+                adjustedJewelryPrice: selectedReport.adjustedJewelryPrice || selectedReport.jewelryPrice
               };
               const employeeIncome = calculateEmployeeIncome(selectedReportWithJewelry, 'staff');
               return (
                 <div className="employee-income-breakdown">
+                  {selectedReport.customPrice > 0 && (
+                    <div className="income-item custom-note">
+                      <span>Income based on Custom Price distribution</span>
+                    </div>
+                  )}
                   <div className="income-item">
                     <span>Service Amount (50%):</span>
                     <span>${(employeeIncome?.serviceIncome || 0).toFixed(2)}</span>
@@ -169,11 +242,18 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
             {(() => {
               const selectedReportWithJewelry = {
                 ...selectedReport,
-                jewelry: selectedReport.jewelry || []
+                jewelry: selectedReport.jewelry || [],
+                adjustedServicePrice: selectedReport.adjustedServicePrice || selectedReport.servicePrice,
+                adjustedJewelryPrice: selectedReport.adjustedJewelryPrice || selectedReport.jewelryPrice
               };
               const managerIncome = calculateEmployeeIncome(selectedReportWithJewelry, 'manager');
               return (
                 <div className="manager-income-breakdown">
+                  {selectedReport.customPrice > 0 && (
+                    <div className="income-item custom-note">
+                      <span>Income based on Custom Price distribution</span>
+                    </div>
+                  )}
                   <div className="income-item">
                     <span>Service Amount (50%):</span>
                     <span>${(managerIncome?.serviceIncome || 0).toFixed(2)}</span>
@@ -209,11 +289,18 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
             {(() => {
               const selectedReportWithJewelry = {
                 ...selectedReport,
-                jewelry: selectedReport.jewelry || []
+                jewelry: selectedReport.jewelry || [],
+                adjustedServicePrice: selectedReport.adjustedServicePrice || selectedReport.servicePrice,
+                adjustedJewelryPrice: selectedReport.adjustedJewelryPrice || selectedReport.jewelryPrice
               };
               const oscarIncome = calculateOscarIncome(selectedReportWithJewelry);
               return (
                 <div className="oscar-income-breakdown">
+                  {selectedReport.customPrice > 0 && (
+                    <div className="income-item custom-note">
+                      <span>Income based on Custom Price distribution</span>
+                    </div>
+                  )}
                   <div className="income-item">
                     <span>Service Amount (50%):</span>
                     <span>${(oscarIncome?.serviceIncome || 0).toFixed(2)}</span>
@@ -243,11 +330,18 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
             {(() => {
               const selectedReportWithJewelry = {
                 ...selectedReport,
-                jewelry: selectedReport.jewelry || []
+                jewelry: selectedReport.jewelry || [],
+                adjustedServicePrice: selectedReport.adjustedServicePrice || selectedReport.servicePrice,
+                adjustedJewelryPrice: selectedReport.adjustedJewelryPrice || selectedReport.jewelryPrice
               };
               const vansunIncome = calculateVansunIncome(selectedReportWithJewelry);
               return (
                 <div className="vansun-income-breakdown">
+                  {selectedReport.customPrice > 0 && (
+                    <div className="income-item custom-note">
+                      <span>Income based on Custom Price distribution</span>
+                    </div>
+                  )}
                   <div className="income-item">
                     <span>Service Income (50%):</span>
                     <span>${(vansunIncome?.serviceIncome || 0).toFixed(2)}</span>

@@ -1,5 +1,6 @@
 // Services and their prices
 export const SERVICES = {
+  'No Service': 0,
   'Antieyebrow': 55,
   'Antitragus': 35,
   'Ashley': 35,
@@ -155,22 +156,48 @@ export const calculateTotalPrice = (servicePrice, jewelryPrice, afterCarePrice =
   const custom = parseFloat(customPrice) || 0;
   const tipAmount = parseFloat(tip) || 0;
   
-  const subtotal = service + jewelry + afterCare + custom + tipAmount;
-  const afterTax = subtotal * TAX_RATE;
+  // If custom price is provided, redistribute the amounts
+  if (custom > 0) {
+    // Calculate how much goes to jewelry (custom price - service price)
+    const jewelryFromCustom = Math.max(0, custom - service);
+    
+    return {
+      beforeTax: custom,
+      afterTax: custom + tipAmount, // Custom price + tip (no tax on custom price)
+      taxAmount: 0, // No tax on custom price
+      tip: tipAmount,
+      isCustomPrice: true,
+      adjustedServicePrice: service, // Keep original service price for income calculations
+      adjustedJewelryPrice: jewelryFromCustom // Only use excess for jewelry
+    };
+  }
+  
+  // Tip should NOT be included in tax calculation - only for income purposes
+  const subtotalForTax = service + jewelry + afterCare;
+  const afterTax = subtotalForTax * TAX_RATE;
+  
+  // Total amount including tip (but tip is not taxed)
+  const totalWithTip = subtotalForTax + tipAmount;
   
   return {
-    beforeTax: subtotal,
-    afterTax: afterTax,
-    taxAmount: afterTax - subtotal
+    beforeTax: subtotalForTax,
+    afterTax: afterTax + tipAmount, // Tax on services + tip (untaxed)
+    taxAmount: afterTax - subtotalForTax,
+    tip: tipAmount,
+    isCustomPrice: false,
+    adjustedServicePrice: service,
+    adjustedJewelryPrice: jewelry
   };
 };
 
 // Calculate employee income based on role
 export const calculateEmployeeIncome = (report, userRole = 'staff') => {
-  const serviceAmount = parseFloat(report.servicePrice) || 0;
-  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  // Use adjusted amounts for income calculations
+  const serviceAmount = parseFloat(report.adjustedServicePrice || report.servicePrice) || 0;
+  const jewelryAmount = parseFloat(report.adjustedJewelryPrice || report.jewelryPrice) || 0;
   const afterCareAmount = parseFloat(report.afterCarePrice) || 0;
   const tip = parseFloat(report.tip) || 0;
+  const customPrice = parseFloat(report.customPrice) || 0;
   
   if (userRole === 'manager') {
     // Manager gets Vansun income (same as Vansun)
@@ -201,8 +228,9 @@ export const calculateEmployeeIncome = (report, userRole = 'staff') => {
 
 // Calculate Oscar's income
 export const calculateOscarIncome = (report) => {
-  const serviceAmount = parseFloat(report.servicePrice) || 0;
-  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  // Use adjusted amounts for income calculations
+  const serviceAmount = parseFloat(report.adjustedServicePrice || report.servicePrice) || 0;
+  const jewelryAmount = parseFloat(report.adjustedJewelryPrice || report.jewelryPrice) || 0;
   const afterCareAmount = parseFloat(report.afterCarePrice) || 0;
   
   // Oscar gets:
@@ -236,10 +264,12 @@ export const calculateOscarIncome = (report) => {
 
 // Calculate Vansun income (Manager gets this)
 export const calculateVansunIncome = (report) => {
-  const serviceAmount = parseFloat(report.servicePrice) || 0;
-  const jewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  // Use adjusted amounts for income calculations
+  const serviceAmount = parseFloat(report.adjustedServicePrice || report.servicePrice) || 0;
+  const jewelryAmount = parseFloat(report.adjustedJewelryPrice || report.jewelryPrice) || 0;
   const afterCareAmount = parseFloat(report.afterCarePrice) || 0;
   const tip = parseFloat(report.tip) || 0;
+  const customPrice = parseFloat(report.customPrice) || 0;
   
   // Vansun income includes:
   // - Tips
