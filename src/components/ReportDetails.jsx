@@ -118,7 +118,7 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
                 {selectedReport.afterCarePrice > 0 && (
                   <div className="price-item">
                     <span>After Care Amount:</span>
-                    <span>${(selectedReport.afterCarePrice || 0).toFixed(2)}</span>
+                    <span>${(selectedReport.adjustedAfterCarePrice || selectedReport.afterCarePrice || 0).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="price-item custom-price">
@@ -127,17 +127,16 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
                 </div>
                 <div className="price-item">
                   <span>Adjusted Service Amount:</span>
-                  <span>${(selectedReport.servicePrice || 0).toFixed(2)}</span>
+                  <span>${(selectedReport.adjustedServicePrice || selectedReport.servicePrice || 0).toFixed(2)}</span>
                 </div>
-                {selectedReport.customPrice > selectedReport.servicePrice ? (
+                <div className="price-item">
+                  <span>Adjusted Jewelry Amount:</span>
+                  <span>${(selectedReport.adjustedJewelryPrice || 0).toFixed(2)}</span>
+                </div>
+                {selectedReport.adjustedAfterCarePrice > 0 && (
                   <div className="price-item">
-                    <span>Adjusted Jewelry Amount:</span>
-                    <span>${((selectedReport.customPrice - selectedReport.servicePrice) || 0).toFixed(2)}</span>
-                  </div>
-                ) : (
-                  <div className="price-item">
-                    <span>Adjusted Jewelry Amount:</span>
-                    <span>$0.00</span>
+                    <span>Adjusted After Care Amount:</span>
+                    <span>${(selectedReport.adjustedAfterCarePrice || 0).toFixed(2)}</span>
                   </div>
                 )}
                 {selectedReport.tip > 0 && (
@@ -164,7 +163,7 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
                 {selectedReport.afterCarePrice > 0 && (
                   <div className="price-item">
                     <span>After Care Amount:</span>
-                    <span>${(selectedReport.afterCarePrice || 0).toFixed(2)}</span>
+                    <span>${(selectedReport.adjustedAfterCarePrice || selectedReport.afterCarePrice || 0).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="price-item">

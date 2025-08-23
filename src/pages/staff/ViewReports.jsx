@@ -87,16 +87,30 @@ const ViewReports = () => {
           
           let adjustedServicePrice = servicePrice;
           let adjustedJewelryPrice = jewelryPrice;
+          let adjustedAfterCarePrice = afterCarePrice;
           
           if (customPrice > 0) {
-            adjustedServicePrice = servicePrice; // Keep original service price
-            adjustedJewelryPrice = Math.max(0, customPrice - servicePrice); // Calculate jewelry from custom price
+            const originalTotal = servicePrice + jewelryPrice + afterCarePrice;
+            
+            if (originalTotal > 0) {
+              // Calculate proportional distribution based on original prices
+              const serviceRatio = servicePrice / originalTotal;
+              const jewelryRatio = jewelryPrice / originalTotal;
+              const afterCareRatio = afterCarePrice / originalTotal;
+              
+              adjustedServicePrice = customPrice * serviceRatio;
+              adjustedJewelryPrice = customPrice * jewelryRatio;
+              adjustedAfterCarePrice = customPrice * afterCareRatio;
+            }
+            
             console.log('Custom Price Report:', {
               servicePrice,
               jewelryPrice,
+              afterCarePrice,
               customPrice,
               adjustedServicePrice,
-              adjustedJewelryPrice
+              adjustedJewelryPrice,
+              adjustedAfterCarePrice
             });
           }
           
@@ -105,7 +119,8 @@ const ViewReports = () => {
             afterCare: afterCareArr, 
             afterCarePrice,
             adjustedServicePrice,
-            adjustedJewelryPrice
+            adjustedJewelryPrice,
+            adjustedAfterCarePrice
           };
         });
       }
