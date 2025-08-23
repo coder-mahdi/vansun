@@ -74,7 +74,7 @@ const ReportCard = ({
         </div>
         <div className="summary-item">
           <span>After Care:</span>
-          <span>${(parseFloat(report.afterCarePrice) || 0).toFixed(2)}</span>
+                          <span>${(parseFloat(report.adjustedAfterCarePrice || report.afterCarePrice) || 0).toFixed(2)}</span>
         </div>
         {report.customPrice > 0 && (
           <div className="summary-item custom-price">

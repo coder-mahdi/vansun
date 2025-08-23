@@ -219,6 +219,7 @@ const SalesReport = () => {
       afterCarePrice: afterCarePrice || 0,
       adjustedServicePrice: total.adjustedServicePrice || servicePrice || 0,
       adjustedJewelryPrice: total.adjustedJewelryPrice || jewelryPrice || 0,
+      adjustedAfterCarePrice: total.adjustedAfterCarePrice || afterCarePrice || 0,
       ...total
     };
     
@@ -545,8 +546,9 @@ const SalesReport = () => {
                     servicePrice: servicePrice || 0,
                     jewelryPrice: jewelryPrice || 0,
                     afterCarePrice: afterCarePrice || 0,
-                    adjustedServicePrice: servicePrice || 0, // Always use original service price
-                    adjustedJewelryPrice: formData.customPrice > 0 ? Math.max(0, formData.customPrice - servicePrice) : jewelryPrice || 0,
+                    adjustedServicePrice: formData.customPrice > 0 ? (formData.customPrice * (servicePrice / (servicePrice + jewelryPrice + afterCarePrice))) : servicePrice || 0,
+                    adjustedJewelryPrice: formData.customPrice > 0 ? (formData.customPrice * (jewelryPrice / (servicePrice + jewelryPrice + afterCarePrice))) : jewelryPrice || 0,
+                    adjustedAfterCarePrice: formData.customPrice > 0 ? (formData.customPrice * (afterCarePrice / (servicePrice + jewelryPrice + afterCarePrice))) : afterCarePrice || 0,
                     tip: tip,
                     jewelry: formData.jewelry,
                     afterCare: formData.afterCare
