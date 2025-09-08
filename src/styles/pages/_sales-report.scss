@@ -780,6 +780,15 @@
     transform: translateY(-1px) !important;
     box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2) !important;
   }
+
+  &:disabled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.6 !important;
+  }
 }
 
 // Form field styles

@@ -38,6 +38,7 @@ const SalesReport = () => {
     afterTax: 0,
     taxAmount: 0
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const serviceNames = getServiceNames();
   const jewelryNames = getJewelryNames();
@@ -134,10 +135,10 @@ const SalesReport = () => {
       }
       setStep(2);
     } else if (step === 2) {
-      // Validate jewelry
+      // Validate jewelry - "No Jewelry" is also a valid selection
       const hasValidJewelry = formData.jewelry.some(jewelry => jewelry.name);
       if (!hasValidJewelry) {
-        alert('Please select at least one jewelry type');
+        alert('Please select at least one jewelry type (including "No Jewelry" if applicable)');
         return;
       }
       setStep(3);
@@ -181,7 +182,12 @@ const SalesReport = () => {
   };
 
   const handleSubmit = async () => {
-    // Calculate final pricing
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      return;
+    }
+    
+    // Calculate final pricing for confirmation
     const servicePrice = calculateServicePrice(formData.services);
     const jewelryPrice = calculateJewelryPrice(formData.jewelry);
     const afterCarePrice = calculateAfterCarePrice(formData.afterCare);
@@ -196,8 +202,25 @@ const SalesReport = () => {
     
     const total = calculateTotalPrice(servicePrice, jewelryPrice, afterCarePrice, customPrice, tip);
     
-
+    // Show confirmation dialog
+    const confirmMessage = `Are you sure you want to submit this sales report?\n\n` +
+      `Customer: ${formData.customerName || 'Anonymous'}\n` +
+      `Services: $${servicePrice.toFixed(2)}\n` +
+      `Jewelry: $${jewelryPrice.toFixed(2)}\n` +
+      `After Care: $${afterCarePrice.toFixed(2)}\n` +
+      `${customPrice > 0 ? `Custom Price: $${customPrice.toFixed(2)}\n` : ''}` +
+      `${tip > 0 ? `Tip: $${tip.toFixed(2)}\n` : ''}` +
+      `Total: $${total.afterTax.toFixed(2)}\n\n` +
+      `This action cannot be undone.`;
     
+    const confirmed = window.confirm(confirmMessage);
+    if (!confirmed) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
     // Create report object
     const report = {
       id: Date.now(),
@@ -227,7 +250,6 @@ const SalesReport = () => {
     
     
 
-    try {
       // Save to WordPress API
       await saveSalesReport(report);
       
@@ -241,6 +263,8 @@ const SalesReport = () => {
     } catch (error) {
       console.error('Error saving report:', error);
       alert('Error saving report. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -717,8 +741,13 @@ const SalesReport = () => {
                 <button type="button" className="back-btn" onClick={handleBack}>
                   Back
                 </button>
-                <button type="button" className="submit-btn" onClick={handleSubmit}>
-                  Submit Report
+                <button 
+                  type="button" 
+                  className="submit-btn" 
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Report'}
                 </button>
               </div>
             </div>

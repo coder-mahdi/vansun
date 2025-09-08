@@ -509,13 +509,15 @@ const SalesAnalysis = ({
               <span>Quantity</span>
               <span>Amount</span>
             </div>
-            {Object.entries(serviceAnalysis).map(([service, data]) => (
-              <div key={service} className="table-row">
-                <span>{service}</span>
-                <span>{data.quantity}</span>
-                <span>${(data.amount || 0).toFixed(2)}</span>
-              </div>
-            ))}
+            {Object.entries(serviceAnalysis)
+              .filter(([service]) => service !== 'No Service')
+              .map(([service, data]) => (
+                <div key={service} className="table-row">
+                  <span>{service}</span>
+                  <span>{data.quantity}</span>
+                  <span>${(data.amount || 0).toFixed(2)}</span>
+                </div>
+              ))}
             <div className="table-footer">
               <span>Total:</span>
               <span></span>
@@ -533,13 +535,15 @@ const SalesAnalysis = ({
               <span>Quantity</span>
               <span>Amount</span>
             </div>
-            {Object.entries(jewelryAnalysis).map(([jewelry, data]) => (
-              <div key={jewelry} className="table-row">
-                <span>{jewelry}</span>
-                <span>{data.quantity}</span>
-                <span>${(data.amount || 0).toFixed(2)}</span>
-              </div>
-            ))}
+            {Object.entries(jewelryAnalysis)
+              .filter(([jewelry]) => jewelry !== 'No Jewelry')
+              .map(([jewelry, data]) => (
+                <div key={jewelry} className="table-row">
+                  <span>{jewelry}</span>
+                  <span>{data.quantity}</span>
+                  <span>${(data.amount || 0).toFixed(2)}</span>
+                </div>
+              ))}
             <div className="table-footer">
               <span>Total:</span>
               <span></span>

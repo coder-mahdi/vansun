@@ -46,11 +46,13 @@ const ReportCard = ({
           <span>Services:</span>
           <div className="services-details">
             <div className="services-list">
-              {report.services.map((service, index) => (
-                <div key={index} className="service-detail">
-                  <span>{service.name} (Qty: {service.quantity})</span>
-                </div>
-              ))}
+              {report.services
+                .filter(service => service.name !== 'No Service')
+                .map((service, index) => (
+                  <div key={index} className="service-detail">
+                    <span>{service.name} (Qty: {service.quantity})</span>
+                  </div>
+                ))}
             </div>
             <div className="services-total">
               <span>${(parseFloat(report.servicePrice) || 0).toFixed(2)}</span>
@@ -61,11 +63,13 @@ const ReportCard = ({
           <span>Jewelry:</span>
           <div className="jewelry-details">
             <div className="jewelry-list">
-              {report.jewelry.map((jewelry, index) => (
-                <div key={index} className="jewelry-detail">
-                  <span>{jewelry.name} (Qty: {jewelry.quantity})</span>
-                </div>
-              ))}
+              {report.jewelry
+                .filter(jewelry => jewelry.name !== 'No Jewelry')
+                .map((jewelry, index) => (
+                  <div key={index} className="jewelry-detail">
+                    <span>{jewelry.name} (Qty: {jewelry.quantity})</span>
+                  </div>
+                ))}
             </div>
             <div className="jewelry-total">
               <span>${(parseFloat(report.jewelryPrice) || 0).toFixed(2)}</span>

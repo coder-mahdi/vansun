@@ -47,6 +47,7 @@ export const SERVICES = {
 
 // Jewelry types and their prices
 export const JEWELRY = {
+  'No Jewelry': 0,
   'Basic': 20,
   'Standard': 40,
   'Premium': 60,
@@ -62,6 +63,7 @@ export const AFTER_CARE_PRICE = 15;
 
 // Jewelry cost reductions
 export const JEWELRY_COST_REDUCTIONS = {
+  'No Jewelry': 0,
   'Basic': 0.5,
   'Standard': 2,
   'Premium': 8,
@@ -74,6 +76,7 @@ export const JEWELRY_COST_REDUCTIONS = {
 
 // Oscar's fixed income based on jewelry type
 export const OSCAR_JEWELRY_INCOME = {
+  'No Jewelry': 0,
   'Basic': 5,
   'Standard': 8,
   'Premium': 12,
@@ -278,11 +281,25 @@ export const calculateOscarIncome = (report) => {
   // Calculate jewelry income based on fixed amounts per jewelry type
   let jewelryIncome = 0;
   if (report.jewelry && Array.isArray(report.jewelry)) {
+    // Calculate original jewelry price for ratio calculation
+    let originalJewelryPrice = 0;
+    report.jewelry.forEach(jewelry => {
+      if (jewelry.name && jewelry.quantity) {
+        const basePrice = JEWELRY[jewelry.name] || 0;
+        const quantity = parseInt(jewelry.quantity) || 1;
+        originalJewelryPrice += basePrice * quantity;
+      }
+    });
+    
+    // Calculate ratio for custom price adjustment
+    const customPriceRatio = originalJewelryPrice > 0 ? jewelryAmount / originalJewelryPrice : 1;
+    
     report.jewelry.forEach(jewelry => {
       if (jewelry.name && jewelry.quantity) {
         const fixedIncome = OSCAR_JEWELRY_INCOME[jewelry.name] || 0;
         const quantity = parseInt(jewelry.quantity) || 1;
-        jewelryIncome += fixedIncome * quantity;
+        // Apply custom price ratio to fixed income
+        jewelryIncome += (fixedIncome * quantity) * customPriceRatio;
       }
     });
   }
