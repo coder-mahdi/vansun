@@ -6,6 +6,9 @@
   color: rgb(250, 255, 238);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
 
   h1, h2 {
     text-align: center;
@@ -21,6 +24,14 @@
       margin-bottom: 0.5rem;
       color: rgb(250, 255, 238);
       font-weight: 500;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: rgb(250, 255, 238);
+      font-weight: 500;
+      font-size: 1rem;
     }
 
     input[type="text"],
@@ -44,12 +55,18 @@
 
       &::placeholder {
         color: rgba(61, 44, 0, 0.7);
+        opacity: 1; /* Ensure placeholder is visible */
       }
     }
 
     input[type="date"] {
       cursor: pointer;
       font-family: inherit;
+      
+      &::placeholder {
+        color: rgba(61, 44, 0, 0.7);
+        opacity: 1;
+      }
       
       &::-webkit-calendar-picker-indicator {
         background-color: rgb(61, 44, 0);
@@ -333,10 +350,22 @@ body {
     .form-group {
       margin-bottom: 1rem;
 
+      .field-label {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+      }
+
       input[type="text"],
       input[type="email"],
-      input[type="tel"] {
+      input[type="tel"],
+      input[type="date"] {
         padding: 0.7rem;
+        
+        &::placeholder {
+          color: rgba(61, 44, 0, 0.7);
+          opacity: 1;
+          font-size: 0.9rem;
+        }
       }
     }
 

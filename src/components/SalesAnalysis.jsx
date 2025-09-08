@@ -130,12 +130,13 @@ const SalesAnalysis = ({
         console.log('Selected Date:', selectedDate);
         console.log('Selected Date Object (Local):', selectedDateObj);
         console.log('Selected Date Month:', selectedDateObj.getMonth());
+        console.log('Selected Date Month Name:', selectedDateObj.toLocaleString('en-US', { month: 'long' }));
         console.log('Total reports to filter:', filteredReports.length);
         
         filteredData = filteredReports.filter(report => {
           let reportDate;
           
-          // Handle different date formats
+          // Handle different date formats and convert to Vancouver timezone
           if (typeof report.date === 'string') {
             if (report.date.includes(',')) {
               // Parse locale string format
@@ -149,14 +150,21 @@ const SalesAnalysis = ({
             reportDate = new Date(report.date);
           }
           
+          // Convert report date to Vancouver timezone for consistent comparison
+          const vancouverReportDate = new Date(reportDate.toLocaleString("en-US", { timeZone: "America/Vancouver" }));
+          
           // Simple comparison: check if year and month match
-          const reportYear = reportDate.getFullYear();
-          const reportMonth = reportDate.getMonth();
+          const reportYear = vancouverReportDate.getFullYear();
+          const reportMonth = vancouverReportDate.getMonth();
           const selectedYear = selectedDateObj.getFullYear();
           const selectedMonth = selectedDateObj.getMonth();
           
-          const isInMonth = reportYear === selectedYear && reportMonth === selectedMonth;
-          console.log('Report:', report.date, '-> Parsed Date:', reportDate, '-> Year:', reportYear, 'Month:', reportMonth, 'Selected Year:', selectedYear, 'Selected Month:', selectedMonth, 'Match:', isInMonth);
+          // Alternative: Compare using YYYY-MM format to avoid timezone issues
+          const reportYearMonth = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
+          const selectedYearMonth = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`;
+          
+          const isInMonth = reportYearMonth === selectedYearMonth;
+          console.log('Report:', report.date, '-> Parsed Date:', reportDate, '-> Vancouver Date:', vancouverReportDate, '-> Vancouver Month Name:', vancouverReportDate.toLocaleString('en-US', { month: 'long' }), '-> Report YYYY-MM:', reportYearMonth, '-> Selected YYYY-MM:', selectedYearMonth, '-> Match:', isInMonth);
           
           return isInMonth;
         });
@@ -280,7 +288,7 @@ const SalesAnalysis = ({
         filteredData = filteredReports.filter(report => {
           let reportDate;
           
-          // Handle different date formats
+          // Handle different date formats and convert to Vancouver timezone
           if (typeof report.date === 'string') {
             if (report.date.includes(',')) {
               // Parse locale string format
@@ -294,13 +302,20 @@ const SalesAnalysis = ({
             reportDate = new Date(report.date);
           }
           
+          // Convert report date to Vancouver timezone for consistent comparison
+          const vancouverReportDate = new Date(reportDate.toLocaleString("en-US", { timeZone: "America/Vancouver" }));
+          
           // Simple comparison: check if year and month match
-          const reportYear = reportDate.getFullYear();
-          const reportMonth = reportDate.getMonth();
+          const reportYear = vancouverReportDate.getFullYear();
+          const reportMonth = vancouverReportDate.getMonth();
           const selectedYear = selectedDateObj.getFullYear();
           const selectedMonth = selectedDateObj.getMonth();
           
-          return reportYear === selectedYear && reportMonth === selectedMonth;
+          // Alternative: Compare using YYYY-MM format to avoid timezone issues
+          const reportYearMonth = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
+          const selectedYearMonth = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`;
+          
+          return reportYearMonth === selectedYearMonth;
         });
       }
     }
@@ -442,6 +457,12 @@ const SalesAnalysis = ({
                         // Set to first day of selected month
                         const selectedMonthDate = monthValue + '-01';
                         console.log('Setting selectedDate to:', selectedMonthDate);
+                        
+                        // Debug: Check what month this represents
+                        const [year, month] = selectedMonthDate.split('-');
+                        const debugDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+                        console.log('Debug - Year:', year, 'Month:', month, 'Month Name:', debugDate.toLocaleString('en-US', { month: 'long' }));
+                        
                         setSelectedDate(selectedMonthDate);
                       } else {
                         setSelectedDate('');

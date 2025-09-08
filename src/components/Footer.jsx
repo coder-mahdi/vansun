@@ -102,6 +102,7 @@ const Footer = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  console.log('Dropdown button clicked, current state:', isDropdownOpen);
                   setIsDropdownOpen(!isDropdownOpen);
                 }}
               >
@@ -110,8 +111,28 @@ const Footer = () => {
             </div>
             {isDropdownOpen && (
               <ul className="dropdown-menu">
-                <li><Link to="/consent-form/tattoo">Tattoo Consent Form</Link></li>
-                <li><Link to="/consent-form/piercing">Piercing Consent Form</Link></li>
+                <li>
+                  <Link 
+                    to="/consent-form/tattoo" 
+                    onClick={() => {
+                      console.log('Tattoo form link clicked');
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    Tattoo Consent Form
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/consent-form/piercing" 
+                    onClick={() => {
+                      console.log('Piercing form link clicked');
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    Piercing Consent Form
+                  </Link>
+                </li>
               </ul>
             )}
           </div>

@@ -604,7 +604,7 @@ const SalesReport = () => {
                           <span>${(staffIncome.serviceIncome || 0).toFixed(2)}</span>
                         </div>
                         <div className="income-item">
-                          <span>Jewelry Income (3%):</span>
+                          <span>Jewelry Income (Fixed per type):</span>
                           <span>${(staffIncome.jewelryIncome || 0).toFixed(2)}</span>
                         </div>
                         {(staffIncome.afterCareIncome || 0) > 0 && (

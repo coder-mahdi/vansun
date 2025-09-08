@@ -2,6 +2,9 @@ footer {
   background-color: $color-footer-bg;
   color: $color-text-light;
   padding: 4rem 0;
+  position: relative;
+  z-index: 100;
+  pointer-events: auto;
 
   a {
     color: $color-text-light;
@@ -113,7 +116,7 @@ footer {
             border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             padding: 0.5rem 0;
-            z-index: 1000;
+            z-index: 9999;
             margin-top: 0.5rem;
             border: 1px solid $color-text-light;
             list-style: none;
@@ -250,12 +253,13 @@ footer {
         border-radius: 4px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         padding: 0.5rem 0;
-        z-index: 1000;
+        z-index: 9999;
         margin-top: 0.5rem;
         border: 1px solid $color-text-light;
         list-style: none;
         margin: 0;
         padding: 0;
+        pointer-events: auto;
 
         li {
           margin: 0;
@@ -273,6 +277,9 @@ footer {
             background: none;
             width: 100%;
             cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 10000;
 
             &:hover {
               background-color: $color-text-light;

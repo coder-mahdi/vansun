@@ -305,7 +305,7 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
                     <span>${(oscarIncome?.serviceIncome || 0).toFixed(2)}</span>
                   </div>
                   <div className="income-item">
-                    <span>Jewelry Amount (3%):</span>
+                    <span>Jewelry Amount (Fixed per type):</span>
                     <span>${(oscarIncome?.jewelryIncome || 0).toFixed(2)}</span>
                   </div>
                   <div className="income-item">
