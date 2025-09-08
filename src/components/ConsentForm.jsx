@@ -137,7 +137,7 @@ const ConsentForm = () => {
             {error && <div className="error-message">{error}</div>}
             
             <div className="form-group">
-              <label htmlFor="name">Full Name:</label>
+              <div className="field-label">Full Name:</div>
               <input
                 type="text"
                 id="name"
@@ -149,7 +149,7 @@ const ConsentForm = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email:</label>
+              <div className="field-label">Email:</div>
               <input
                 type="email"
                 id="email"
@@ -161,7 +161,7 @@ const ConsentForm = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">Phone Number:</label>
+              <div className="field-label">Phone Number:</div>
               <input
                 type="tel"
                 id="phone"
@@ -173,12 +173,13 @@ const ConsentForm = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="birthday">Birthday:</label>
+              <div className="field-label">Date of Birth:</div>
               <input
                 type="date"
                 id="birthday"
                 value={birthdayDate}
                 onChange={(e) => setBirthdayDate(e.target.value)}
+                placeholder="Select your birth date"
                 required
               />
             </div>

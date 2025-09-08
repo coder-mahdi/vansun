@@ -72,6 +72,18 @@ export const JEWELRY_COST_REDUCTIONS = {
   'Pro-Premium*2': 10
 };
 
+// Oscar's fixed income based on jewelry type
+export const OSCAR_JEWELRY_INCOME = {
+  'Basic': 5,
+  'Standard': 8,
+  'Premium': 12,
+  'Pro-Premium': 15,
+  'Basic*2': 8,
+  'Standard*2': 14,
+  'Premium*2': 20,
+  'Pro-Premium*2': 25
+};
+
 // Tax rate (Canadian tax)
 export const TAX_RATE = 1.12;
 
@@ -258,15 +270,22 @@ export const calculateOscarIncome = (report) => {
   
   // Oscar gets:
   // - Half service cost
-  // - 3% of jewelry cost (after reductions)
+  // - Fixed amount based on jewelry type
   // - 3% of after care profit (same as staff)
   
   const serviceIncome = serviceAmount / 2;
   
-  // Calculate jewelry income after reductions
-  const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
-  const jewelryAfterReductions = jewelryAmount - jewelryReductions;
-  const jewelryIncome = jewelryAfterReductions * 0.03;
+  // Calculate jewelry income based on fixed amounts per jewelry type
+  let jewelryIncome = 0;
+  if (report.jewelry && Array.isArray(report.jewelry)) {
+    report.jewelry.forEach(jewelry => {
+      if (jewelry.name && jewelry.quantity) {
+        const fixedIncome = OSCAR_JEWELRY_INCOME[jewelry.name] || 0;
+        const quantity = parseInt(jewelry.quantity) || 1;
+        jewelryIncome += fixedIncome * quantity;
+      }
+    });
+  }
   
   // Calculate after care income: (price - $7) * 3% for Oscar
   const afterCareCost = 7; // $7 cost
@@ -278,8 +297,8 @@ export const calculateOscarIncome = (report) => {
   return {
     serviceIncome,
     jewelryIncome,
-    jewelryReductions,
-    jewelryAfterReductions,
+    jewelryReductions: 0, // No longer used for Oscar's calculation
+    jewelryAfterReductions: jewelryAmount, // Keep for compatibility
     afterCareIncome,
     totalIncome
   };
@@ -307,10 +326,22 @@ export const calculateVansunIncome = (report) => {
   const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
   const jewelryAfterReductions = jewelryAmount - jewelryReductions;
   
-  // Calculate cuts: 3% staff + 3% Oscar = 6% total
+  // Calculate cuts: 3% staff + fixed Oscar amount
   const staffCut = jewelryAfterReductions * 0.03;
-  const oscarCut = jewelryAfterReductions * 0.03;
-  const totalCuts = staffCut + oscarCut;
+  
+  // Calculate Oscar's fixed jewelry income
+  let oscarJewelryIncome = 0;
+  if (report.jewelry && Array.isArray(report.jewelry)) {
+    report.jewelry.forEach(jewelry => {
+      if (jewelry.name && jewelry.quantity) {
+        const fixedIncome = OSCAR_JEWELRY_INCOME[jewelry.name] || 0;
+        const quantity = parseInt(jewelry.quantity) || 1;
+        oscarJewelryIncome += fixedIncome * quantity;
+      }
+    });
+  }
+  
+  const totalCuts = staffCut + oscarJewelryIncome;
   
   const jewelryIncome = jewelryAfterReductions - totalCuts;
   
@@ -327,7 +358,7 @@ export const calculateVansunIncome = (report) => {
     jewelryIncome,
     jewelryReductions,
     staffCut,
-    oscarCut,
+    oscarCut: oscarJewelryIncome,
     totalCuts,
     afterCareIncome,
     totalIncome
@@ -354,10 +385,22 @@ export const calculateVansunIncomeFromStaff = (report) => {
   const jewelryReductions = calculateJewelryReductions(report.jewelry || []);
   const jewelryAfterReductions = jewelryAmount - jewelryReductions;
   
-  // Calculate cuts: 3% staff + 3% Oscar = 6% total
+  // Calculate cuts: 3% staff + fixed Oscar amount
   const staffCut = jewelryAfterReductions * 0.03;
-  const oscarCut = jewelryAfterReductions * 0.03;
-  const totalCuts = staffCut + oscarCut;
+  
+  // Calculate Oscar's fixed jewelry income
+  let oscarJewelryIncome = 0;
+  if (report.jewelry && Array.isArray(report.jewelry)) {
+    report.jewelry.forEach(jewelry => {
+      if (jewelry.name && jewelry.quantity) {
+        const fixedIncome = OSCAR_JEWELRY_INCOME[jewelry.name] || 0;
+        const quantity = parseInt(jewelry.quantity) || 1;
+        oscarJewelryIncome += fixedIncome * quantity;
+      }
+    });
+  }
+  
+  const totalCuts = staffCut + oscarJewelryIncome;
   
   // Vansun gets the remaining amount
   const vansunIncome = jewelryAfterReductions - totalCuts;
@@ -367,7 +410,7 @@ export const calculateVansunIncomeFromStaff = (report) => {
     jewelryReductions,
     jewelryAfterReductions,
     staffCut,
-    oscarCut,
+    oscarCut: oscarJewelryIncome,
     totalCuts,
     vansunIncome
   };
