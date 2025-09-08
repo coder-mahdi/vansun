@@ -49,12 +49,14 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
         <div className="detail-section">
           <h3>Services</h3>
           <div className="services-list">
-            {selectedReport.services.map((service, index) => (
-              <div key={index} className="service-item">
-                <div className="service-info">
-                  <span className="service-name">{service.name}</span>
-                  <span className="service-quantity">Qty: {service.quantity}</span>
-                </div>
+            {selectedReport.services
+              .filter(service => service.name !== 'No Service')
+              .map((service, index) => (
+                <div key={index} className="service-item">
+                  <div className="service-info">
+                    <span className="service-name">{service.name}</span>
+                    <span className="service-quantity">Qty: {service.quantity}</span>
+                  </div>
                 <div className="service-price">
                   <span>${((selectedReport.servicePrice / selectedReport.services.length) * service.quantity || 0).toFixed(2)}</span>
                 </div>
@@ -70,12 +72,14 @@ const ReportDetails = ({ selectedReport, currentUser }) => {
         <div className="detail-section">
           <h3>Jewelry</h3>
           <div className="jewelry-list">
-            {selectedReport.jewelry.map((jewelry, index) => (
-              <div key={index} className="jewelry-item">
-                <div className="jewelry-info">
-                  <span className="jewelry-name">{jewelry.name}</span>
-                  <span className="jewelry-quantity">Qty: {jewelry.quantity}</span>
-                </div>
+            {selectedReport.jewelry
+              .filter(jewelry => jewelry.name !== 'No Jewelry')
+              .map((jewelry, index) => (
+                <div key={index} className="jewelry-item">
+                  <div className="jewelry-info">
+                    <span className="jewelry-name">{jewelry.name}</span>
+                    <span className="jewelry-quantity">Qty: {jewelry.quantity}</span>
+                  </div>
                 <div className="jewelry-price">
                   <span>${((selectedReport.jewelryPrice / selectedReport.jewelry.length) * jewelry.quantity || 0).toFixed(2)}</span>
                 </div>
