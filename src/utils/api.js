@@ -31,7 +31,7 @@ export const fetchMedia = async (mediaId) => {
 
 export const fetchPosts = async () => {
   try {
-    const res = await fetch(`${API_BASE}/posts?_embed&per_page=200`);
+    const res = await fetch(`${API_BASE}/posts?_embed&per_page=100`);
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }

@@ -28,8 +28,8 @@ const Blog = () => {
             return false;
           }
           
-          // Skip posts without ACF data
-          if (!post.acf?.blog_post?.title || !post.acf?.blog_post?.text) {
+          // Skip posts without any content (either ACF or regular title)
+          if (!post.acf?.blog_post?.title && !post.title?.rendered) {
             return false;
           }
           
@@ -141,7 +141,7 @@ const Blog = () => {
                     <div className="post-image">
                       <img 
                         src={featuredImage} 
-                        alt={post.acf.blog_post.title}
+                        alt={post.acf?.blog_post?.title || post.title?.rendered}
                         onError={(e) => {
                           console.error('Image failed to load:', featuredImage);
                           e.target.style.display = 'none';
@@ -149,12 +149,19 @@ const Blog = () => {
                       />
                     </div>
                   )}
-                  <h2>{post.acf.blog_post.title}</h2>
+                  <h2>{post.acf?.blog_post?.title || post.title?.rendered}</h2>
                   <p>
                     {(() => {
-                      const cleanText = post.acf.blog_post.text.replace(/<[^>]*>/g, '').trim();
-                      const firstLine = cleanText.split('\n')[0];
-                      return firstLine && firstLine.length > 0 ? firstLine : 'No preview available';
+                      if (post.acf?.blog_post?.text) {
+                        const cleanText = post.acf.blog_post.text.replace(/<[^>]*>/g, '').trim();
+                        const firstLine = cleanText.split('\n')[0];
+                        return firstLine && firstLine.length > 0 ? firstLine : 'No preview available';
+                      } else if (post.excerpt?.rendered) {
+                        const cleanText = post.excerpt.rendered.replace(/<[^>]*>/g, '').trim();
+                        return cleanText || 'No preview available';
+                      } else {
+                        return 'No preview available';
+                      }
                     })()}
                   </p>
                   <Link to={`/blog/post/${post.slug}`}>Read More</Link>
