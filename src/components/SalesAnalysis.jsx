@@ -125,14 +125,6 @@ const SalesAnalysis = ({
           weekDates.push(`${year}-${month}-${day}`);
         }
         
-        console.log('=== WEEKLY ANALYSIS DEBUG ===');
-        console.log('Selected date:', selectedDate);
-        console.log('Week dates:', weekDates);
-        console.log('Total reports to filter:', filteredReports.length);
-        
-        // Also show in alert for debugging
-        alert(`Weekly Debug:\nSelected: ${selectedDate}\nWeek dates: ${weekDates.join(', ')}\nTotal reports: ${filteredReports.length}`);
-        
         filteredData = filteredReports.filter(report => {
           // Use the EXACT same date parsing logic as daily filtering
           let reportDateStr;
@@ -153,19 +145,8 @@ const SalesAnalysis = ({
             reportDateStr = formatDateAsString(report.date);
           }
           
-          const isIncluded = weekDates.includes(reportDateStr);
-          if (isIncluded) {
-            console.log('Report included:', report.date, '->', reportDateStr, 'Oscar Income:', calculateOscarIncome(report).totalIncome);
-          }
-          
-          return isIncluded;
+          return weekDates.includes(reportDateStr);
         });
-        
-        console.log('Filtered reports count:', filteredData.length);
-        console.log('=== END WEEKLY DEBUG ===');
-        
-        // Show filtered count in alert
-        alert(`Weekly Filtered:\nReports found: ${filteredData.length}\nTotal Oscar Income: ${filteredData.reduce((sum, report) => sum + (calculateOscarIncome(report).totalIncome || 0), 0).toFixed(2)}`);
       } else {
         // Default to current week
         const now = new Date();
@@ -369,11 +350,6 @@ const SalesAnalysis = ({
           weekDates.push(`${year}-${month}-${day}`);
         }
         
-        console.log('=== WEEKLY INCOME DEBUG ===');
-        console.log('Selected date:', selectedDate);
-        console.log('Week dates:', weekDates);
-        console.log('Total reports to filter:', filteredReports.length);
-        
         filteredData = filteredReports.filter(report => {
           // Use the EXACT same date parsing logic as daily filtering
           let reportDateStr;
@@ -394,16 +370,8 @@ const SalesAnalysis = ({
             reportDateStr = formatDateAsString(report.date);
           }
           
-          const isIncluded = weekDates.includes(reportDateStr);
-          if (isIncluded) {
-            console.log('Income Report included:', report.date, '->', reportDateStr, 'Oscar Income:', calculateOscarIncome(report).totalIncome);
-          }
-          
-          return isIncluded;
+          return weekDates.includes(reportDateStr);
         });
-        
-        console.log('Income Filtered reports count:', filteredData.length);
-        console.log('=== END WEEKLY INCOME DEBUG ===');
       }
     } else if (analysisType === 'monthly') {
       if (dateRange && dateRange.start && dateRange.end) {
@@ -620,7 +588,11 @@ const SalesAnalysis = ({
                 console.log('Displaying date:', selectedDate);
                 return `Showing reports for ${selectedDate}`;
               })()}
-              {analysisType === 'weekly' && selectedDate && `Showing reports for week of ${selectedDate}`}
+              {analysisType === 'weekly' && selectedDate && (() => {
+                const selectedDateObj = new Date(selectedDate);
+                const endDate = new Date(selectedDateObj.getTime() + 6 * 24 * 60 * 60 * 1000);
+                return `Showing reports for 7 days: ${selectedDate} to ${endDate.toISOString().split('T')[0]}`;
+              })()}
               {analysisType === 'monthly' && selectedDate && (() => {
                 // Create date in local timezone to avoid timezone issues
                 const [year, month] = selectedDate.split('-');
