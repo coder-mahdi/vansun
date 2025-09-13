@@ -92,23 +92,84 @@ const SalesAnalysis = ({
         endDate.setHours(23, 59, 59, 999); // Include the entire end date
         
         filteredData = filteredReports.filter(report => {
-          const reportDate = new Date(report.date);
+          // Use the same date parsing logic as daily filtering
+          let reportDate;
+          
+          if (typeof report.date === 'string') {
+            if (report.date.includes(',')) {
+              // Parse locale string format
+              const [datePart] = report.date.split(',');
+              reportDate = new Date(datePart);
+            } else {
+              // Parse ISO string or other format
+              reportDate = new Date(report.date);
+            }
+          } else {
+            reportDate = new Date(report.date);
+          }
+          
           return reportDate >= startDate && reportDate <= endDate;
         });
       } else if (selectedDate) {
+        // For weekly analysis, get reports for exactly 7 days starting from selected date
         const selectedDateObj = new Date(selectedDate);
-        const startOfWeek = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate() - selectedDateObj.getDay());
-        const endOfWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const startDate = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate());
+        
+        // Create array of 7 dates
+        const weekDates = [];
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          weekDates.push(`${year}-${month}-${day}`);
+        }
         
         filteredData = filteredReports.filter(report => {
-          const reportDate = new Date(report.date);
-          return reportDate >= startOfWeek && reportDate < endOfWeek;
+          // Use the EXACT same date parsing logic as daily filtering
+          let reportDateStr;
+          
+          if (typeof report.date === 'string') {
+            if (report.date.includes(',')) {
+              // Parse locale string format
+              const [datePart] = report.date.split(',');
+              const dateObj = new Date(datePart);
+              reportDateStr = formatDateAsString(dateObj);
+            } else {
+              // Parse ISO string or other format
+              const dateObj = new Date(report.date);
+              reportDateStr = formatDateAsString(dateObj);
+            }
+          } else {
+            // If date is already a Date object
+            reportDateStr = formatDateAsString(report.date);
+          }
+          
+          return weekDates.includes(reportDateStr);
         });
       } else {
         // Default to current week
         const now = new Date();
         const currentWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-        filteredData = filteredReports.filter(report => new Date(report.date) >= currentWeek);
+        filteredData = filteredReports.filter(report => {
+          // Use the same date parsing logic as daily filtering
+          let reportDate;
+          
+          if (typeof report.date === 'string') {
+            if (report.date.includes(',')) {
+              // Parse locale string format
+              const [datePart] = report.date.split(',');
+              reportDate = new Date(datePart);
+            } else {
+              // Parse ISO string or other format
+              reportDate = new Date(report.date);
+            }
+          } else {
+            reportDate = new Date(report.date);
+          }
+          
+          return reportDate >= currentWeek;
+        });
       }
     } else if (analysisType === 'monthly') {
       if (dateRange && dateRange.start && dateRange.end) {
@@ -256,17 +317,60 @@ const SalesAnalysis = ({
         endDate.setHours(23, 59, 59, 999);
         
         filteredData = filteredReports.filter(report => {
-          const reportDate = new Date(report.date);
+          // Use the same date parsing logic as daily filtering
+          let reportDate;
+          
+          if (typeof report.date === 'string') {
+            if (report.date.includes(',')) {
+              // Parse locale string format
+              const [datePart] = report.date.split(',');
+              reportDate = new Date(datePart);
+            } else {
+              // Parse ISO string or other format
+              reportDate = new Date(report.date);
+            }
+          } else {
+            reportDate = new Date(report.date);
+          }
+          
           return reportDate >= startDate && reportDate <= endDate;
         });
       } else if (selectedDate) {
+        // For weekly analysis, get reports for exactly 7 days starting from selected date
         const selectedDateObj = new Date(selectedDate);
-        const startOfWeek = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate() - selectedDateObj.getDay());
-        const endOfWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const startDate = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate());
+        
+        // Create array of 7 dates
+        const weekDates = [];
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          weekDates.push(`${year}-${month}-${day}`);
+        }
         
         filteredData = filteredReports.filter(report => {
-          const reportDate = new Date(report.date);
-          return reportDate >= startOfWeek && reportDate < endOfWeek;
+          // Use the EXACT same date parsing logic as daily filtering
+          let reportDateStr;
+          
+          if (typeof report.date === 'string') {
+            if (report.date.includes(',')) {
+              // Parse locale string format
+              const [datePart] = report.date.split(',');
+              const dateObj = new Date(datePart);
+              reportDateStr = formatDateAsString(dateObj);
+            } else {
+              // Parse ISO string or other format
+              const dateObj = new Date(report.date);
+              reportDateStr = formatDateAsString(dateObj);
+            }
+          } else {
+            // If date is already a Date object
+            reportDateStr = formatDateAsString(report.date);
+          }
+          
+          return weekDates.includes(reportDateStr);
         });
       }
     } else if (analysisType === 'monthly') {
@@ -484,7 +588,11 @@ const SalesAnalysis = ({
                 console.log('Displaying date:', selectedDate);
                 return `Showing reports for ${selectedDate}`;
               })()}
-              {analysisType === 'weekly' && selectedDate && `Showing reports for week of ${selectedDate}`}
+              {analysisType === 'weekly' && selectedDate && (() => {
+                const selectedDateObj = new Date(selectedDate);
+                const endDate = new Date(selectedDateObj.getTime() + 6 * 24 * 60 * 60 * 1000);
+                return `Showing reports for 7 days: ${selectedDate} to ${endDate.toISOString().split('T')[0]}`;
+              })()}
               {analysisType === 'monthly' && selectedDate && (() => {
                 // Create date in local timezone to avoid timezone issues
                 const [year, month] = selectedDate.split('-');
