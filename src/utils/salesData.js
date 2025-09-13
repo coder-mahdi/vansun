@@ -271,35 +271,37 @@ export const calculateOscarIncome = (report) => {
   const jewelryAmount = parseFloat(report.adjustedJewelryPrice || report.jewelryPrice) || 0;
   const afterCareAmount = parseFloat(report.adjustedAfterCarePrice || report.afterCarePrice) || 0;
   
-  // Oscar gets:
-  // - Half service cost
-  // - Fixed amount based on jewelry type
-  // - 3% of after care profit (same as staff)
+  // Calculate original total amount (before custom price)
+  const originalServiceAmount = parseFloat(report.servicePrice) || 0;
+  const originalJewelryAmount = parseFloat(report.jewelryPrice) || 0;
+  const originalAfterCareAmount = parseFloat(report.afterCarePrice) || 0;
+  const originalTotal = originalServiceAmount + originalJewelryAmount + originalAfterCareAmount;
   
+  // Calculate current total amount
+  const currentTotal = serviceAmount + jewelryAmount + afterCareAmount;
+  
+  // Calculate ratio for total amount adjustment
+  const totalRatio = originalTotal > 0 ? currentTotal / originalTotal : 1;
+  
+  // Oscar gets half service cost
   const serviceIncome = serviceAmount / 2;
   
   // Calculate jewelry income based on fixed amounts per jewelry type
   let jewelryIncome = 0;
   if (report.jewelry && Array.isArray(report.jewelry)) {
-    // Calculate original jewelry price for ratio calculation
-    let originalJewelryPrice = 0;
-    report.jewelry.forEach(jewelry => {
-      if (jewelry.name && jewelry.quantity) {
-        const basePrice = JEWELRY[jewelry.name] || 0;
-        const quantity = parseInt(jewelry.quantity) || 1;
-        originalJewelryPrice += basePrice * quantity;
-      }
-    });
-    
-    // Calculate ratio for custom price adjustment
-    const customPriceRatio = originalJewelryPrice > 0 ? jewelryAmount / originalJewelryPrice : 1;
-    
     report.jewelry.forEach(jewelry => {
       if (jewelry.name && jewelry.quantity) {
         const fixedIncome = OSCAR_JEWELRY_INCOME[jewelry.name] || 0;
         const quantity = parseInt(jewelry.quantity) || 1;
-        // Apply custom price ratio to fixed income
-        jewelryIncome += (fixedIncome * quantity) * customPriceRatio;
+        
+        // Apply total ratio ONLY if total custom price is lower than original
+        if (totalRatio < 1) {
+          // Total custom price is lower - reduce Oscar's income proportionally
+          jewelryIncome += (fixedIncome * quantity) * totalRatio;
+        } else {
+          // Total custom price is higher or equal - Oscar gets full fixed income
+          jewelryIncome += fixedIncome * quantity;
+        }
       }
     });
   }
