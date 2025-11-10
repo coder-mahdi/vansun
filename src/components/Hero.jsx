@@ -62,11 +62,14 @@ const Hero = () => {
       <div className="hero-content">
         <div className="slider-container">
           <div className="slider-track">
-            {[...heroImages, ...heroImages].map((image, index) => (
+            {[...heroImages, ...heroImages].map((image, index) => {
+              const altText = image?.alt_text?.trim() || `${title} hero image ${index + 1}`;
+              return (
               <div key={index} className="slider-item">
-                <img src={image.source_url} alt={image.alt_text} />
+                <img src={image.source_url} alt={altText} loading="lazy" />
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         <h1>{title}</h1>

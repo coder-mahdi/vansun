@@ -55,7 +55,12 @@ const MyWork = () => {
           <div key={index} className="my-work-item">
             <h3>{item.title}</h3>
             {item.imageUrl && (
-              <img src={item.imageUrl} alt={`Work ${index + 1}`} className="my-work-image" />
+              <img
+                src={item.imageUrl}
+                alt={`${item.title} showcase at Vansun Studio`}
+                className="my-work-image"
+                loading="lazy"
+              />
             )}
             <p>{item.description}</p>
             <div className="button-group">

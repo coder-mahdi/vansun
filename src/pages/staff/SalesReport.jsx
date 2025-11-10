@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/auth';
 import { 
@@ -14,6 +15,8 @@ import {
 } from '../../utils/salesData';
 import { saveSalesReport } from '../../utils/wordpressApi';
 import Layout from '../../layout/Layout';
+
+const SITE_URL = 'https://vansunstudio.com';
 
 const SalesReport = () => {
   const navigate = useNavigate();
@@ -276,6 +279,11 @@ const SalesReport = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Staff Sales Report | Vansun Studio</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`${SITE_URL}/staff/sales-report`} />
+      </Helmet>
       <div className="sales-report-container">
         <div className="report-header">
           <div className="header-content">

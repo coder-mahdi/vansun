@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../layout/Layout';
+
+const SITE_URL = 'https://vansunstudio.com';
 
 const TermsAndConditions = () => {
   const [content, setContent] = useState({
@@ -44,25 +47,55 @@ const TermsAndConditions = () => {
     fetchContent();
   }, []);
 
-  if (loading) return (
-    <Layout>
-      <div className="terms-and-conditions__container">
-        <p>Loading...</p>
-      </div>
-    </Layout>
-  );
+  if (loading) {
+    return (
+      <Layout>
+        <Helmet>
+          <title>Terms &amp; Conditions | Vansun Studio</title>
+          <link rel="canonical" href={`${SITE_URL}/terms-and-conditions`} />
+        </Helmet>
+        <div className="terms-and-conditions__container">
+          <h1 className="terms-and-conditions__heading">Terms &amp; Conditions</h1>
+          <p>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
 
-  if (error) return (
-    <Layout>
-      <div className="terms-and-conditions__container">
-        <p className="error">{error}</p>
-      </div>
-    </Layout>
-  );
+  if (error) {
+    return (
+      <Layout>
+        <Helmet>
+          <title>Terms &amp; Conditions | Vansun Studio</title>
+          <meta name="robots" content="noindex, follow" />
+          <link rel="canonical" href={`${SITE_URL}/terms-and-conditions`} />
+        </Helmet>
+        <div className="terms-and-conditions__container">
+          <h1 className="terms-and-conditions__heading">Terms &amp; Conditions</h1>
+          <p className="error">{error}</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  const pageTitle = 'Terms & Conditions | Vansun Studio';
+  const description = 'Read Vansun Studio’s Terms & Conditions and Privacy Policy covering bookings, hygiene practices, cancellations, and client responsibilities.';
+  const canonicalUrl = `${SITE_URL}/terms-and-conditions`;
 
   return (
     <Layout>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+      </Helmet>
       <div className="terms-and-conditions__container">
+        <h1 className="terms-and-conditions__heading">Terms &amp; Conditions</h1>
         {/* Privacy Policy Section */}
         <section className="terms-and-conditions__section">
           <h2 className="terms-and-conditions__title">Privacy Policy</h2>
