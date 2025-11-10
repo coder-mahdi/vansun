@@ -15,223 +15,111 @@ const SalesAnalysis = ({
   dateRange,
   setDateRange
 }) => {
+  // Timezone-safe date helpers
+  const toYMDInVancouver = (dateLike) => {
+    if (!dateLike) return '';
+
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Vancouver',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    const dateObj = dateLike instanceof Date ? dateLike : new Date(dateLike);
+    if (Number.isNaN(dateObj.getTime())) {
+      return '';
+    }
+
+    const parts = formatter.formatToParts(dateObj);
+    const getPart = (type) => parts.find((part) => part.type === type)?.value ?? '';
+
+    const year = getPart('year');
+    const month = getPart('month');
+    const day = getPart('day');
+
+    if (!year || !month || !day) {
+      return '';
+    }
+
+    return `${year}-${month}-${day}`;
+  };
+
+  // Never use new Date(isoDate) directly for YYYY-MM-DD inputs
+  const fromYMDLocal = (ymd) => {
+    const [y, m, d] = ymd.split('-').map(Number);
+    return new Date(y, m - 1, d); // local time
+  };
+
+  // Parse report date (both ISO and locale-string with comma)
+  const normalizeReportYMD = (report) => {
+    let raw = report.date;
+    if (typeof raw === 'string' && raw.includes(',')) {
+      // "8/19/2024, 3:30:00 PM" -> only date part
+      raw = raw.split(',')[0];
+    }
+    return toYMDInVancouver(raw);
+  };
+
+  // Build 7-day array from a YMD (without 24h to avoid DST)
+  const buildWeekYMDs = (startYMD) => {
+    const start = fromYMDLocal(startYMD);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      days.push(toYMDInVancouver(d));
+    }
+    return days;
+  };
+
+  // Range comparison based on YMD string (safe and consistent)
+  const inYmdRange = (ymd, startYMD, endYMD) => {
+    return ymd >= startYMD && ymd <= endYMD;
+  };
+
   const getAnalysisData = () => {
     let filteredData = filteredReports;
-    
-    // Helper function to get date in Vancouver timezone
-    const getVancouverDate = (dateString) => {
-      const date = new Date(dateString);
-      return new Date(date.toLocaleString("en-US", { timeZone: "America/Vancouver" }));
-    };
-    
-    // Helper function to compare dates by date only (ignoring time)
-    const isSameDate = (date1, date2) => {
-      const d1 = new Date(date1);
-      const d2 = new Date(date2);
-      return d1.getFullYear() === d2.getFullYear() && 
-             d1.getMonth() === d2.getMonth() && 
-             d1.getDate() === d2.getDate();
-    };
-    
-    // Helper function to format date as YYYY-MM-DD for comparison
-    const formatDateAsString = (date) => {
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
     
     if (analysisType === 'daily') {
       // Filter by specific date
       if (selectedDate) {
-        console.log('Daily analysis - Selected date:', selectedDate);
-        console.log('Total reports to filter:', filteredReports.length);
-        
-        filteredData = filteredReports.filter(report => {
-          // For reports stored with toLocaleString, we need to parse them differently
-          let reportDateStr;
-          
-          if (typeof report.date === 'string') {
-            // If date is stored as locale string (e.g., "8/19/2024, 3:30:00 PM")
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              const dateObj = new Date(datePart);
-              reportDateStr = formatDateAsString(dateObj);
-            } else {
-              // Parse ISO string or other format
-              const dateObj = new Date(report.date);
-              reportDateStr = formatDateAsString(dateObj);
-            }
-          } else {
-            // If date is already a Date object
-            reportDateStr = formatDateAsString(report.date);
-          }
-          
-          const isMatch = reportDateStr === selectedDate;
-          
-          console.log('=== Date Comparison Debug ===');
-          console.log('Original report date:', report.date);
-          console.log('Report date type:', typeof report.date);
-          console.log('Formatted report date:', reportDateStr);
-          console.log('Selected date:', selectedDate);
-          console.log('Is match:', isMatch);
-          console.log('============================');
-          
-          return isMatch;
-        });
-        
-        console.log('Filtered reports count:', filteredData.length);
+        filteredData = filteredReports.filter(report => 
+          normalizeReportYMD(report) === selectedDate
+        );
       }
+      // If no date selected, show all data (for daily analysis)
     } else if (analysisType === 'weekly') {
       // Filter by specific week or date range
       if (dateRange && dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
-        endDate.setHours(23, 59, 59, 999); // Include the entire end date
-        
+        const startYMD = dateRange.start;      // "YYYY-MM-DD"
+        const endYMD = dateRange.end;          // "YYYY-MM-DD"
         filteredData = filteredReports.filter(report => {
-          // Use the same date parsing logic as daily filtering
-          let reportDate;
-          
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              reportDate = new Date(datePart);
-            } else {
-              // Parse ISO string or other format
-              reportDate = new Date(report.date);
-            }
-          } else {
-            reportDate = new Date(report.date);
-          }
-          
-          return reportDate >= startDate && reportDate <= endDate;
+          const ymd = normalizeReportYMD(report);
+          return inYmdRange(ymd, startYMD, endYMD);
         });
       } else if (selectedDate) {
         // For weekly analysis, get reports for exactly 7 days starting from selected date
-        const selectedDateObj = new Date(selectedDate);
-        const startDate = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate());
-        
-        // Create array of 7 dates
-        const weekDates = [];
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
-          weekDates.push(`${year}-${month}-${day}`);
-        }
-        
-        filteredData = filteredReports.filter(report => {
-          // Use the EXACT same date parsing logic as daily filtering
-          let reportDateStr;
-          
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              const dateObj = new Date(datePart);
-              reportDateStr = formatDateAsString(dateObj);
-            } else {
-              // Parse ISO string or other format
-              const dateObj = new Date(report.date);
-              reportDateStr = formatDateAsString(dateObj);
-            }
-          } else {
-            // If date is already a Date object
-            reportDateStr = formatDateAsString(report.date);
-          }
-          
-          return weekDates.includes(reportDateStr);
-        });
-      } else {
-        // Default to current week
-        const now = new Date();
-        const currentWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-        filteredData = filteredReports.filter(report => {
-          // Use the same date parsing logic as daily filtering
-          let reportDate;
-          
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              reportDate = new Date(datePart);
-            } else {
-              // Parse ISO string or other format
-              reportDate = new Date(report.date);
-            }
-          } else {
-            reportDate = new Date(report.date);
-          }
-          
-          return reportDate >= currentWeek;
-        });
+        const week = buildWeekYMDs(selectedDate); // 7 Vancouver dates
+        filteredData = filteredReports.filter(report => 
+          week.includes(normalizeReportYMD(report))
+        );
       }
+      // If no date selected, show all data (for weekly analysis)
     } else if (analysisType === 'monthly') {
       if (dateRange && dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
-        endDate.setHours(23, 59, 59, 999);
-        
+        const startYMD = dateRange.start;
+        const endYMD = dateRange.end;
         filteredData = filteredReports.filter(report => {
-          const reportDate = new Date(report.date);
-          return reportDate >= startDate && reportDate <= endDate;
+          const ymd = normalizeReportYMD(report);
+          return inYmdRange(ymd, startYMD, endYMD);
         });
       } else if (selectedDate) {
         // For monthly analysis, selectedDate is in format "YYYY-MM-01"
-        // Create selectedDateObj in local timezone to avoid timezone issues
-        const [year, month] = selectedDate.split('-');
-        const selectedDateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
-        
-        console.log('=== MONTHLY ANALYSIS DEBUG ===');
-        console.log('Selected Date:', selectedDate);
-        console.log('Selected Date Object (Local):', selectedDateObj);
-        console.log('Selected Date Month:', selectedDateObj.getMonth());
-        console.log('Selected Date Month Name:', selectedDateObj.toLocaleString('en-US', { month: 'long' }));
-        console.log('Total reports to filter:', filteredReports.length);
-        
+        const [sy, sm] = selectedDate.split('-').map(Number); // selectedDate: "YYYY-MM-01"
         filteredData = filteredReports.filter(report => {
-          let reportDate;
-          
-          // Handle different date formats and convert to Vancouver timezone
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              reportDate = new Date(datePart);
-            } else {
-              // Parse ISO string or other format
-              reportDate = new Date(report.date);
-            }
-          } else {
-            reportDate = new Date(report.date);
-          }
-          
-          // Convert report date to Vancouver timezone for consistent comparison
-          const vancouverReportDate = new Date(reportDate.toLocaleString("en-US", { timeZone: "America/Vancouver" }));
-          
-          // Simple comparison: check if year and month match
-          const reportYear = vancouverReportDate.getFullYear();
-          const reportMonth = vancouverReportDate.getMonth();
-          const selectedYear = selectedDateObj.getFullYear();
-          const selectedMonth = selectedDateObj.getMonth();
-          
-          // Alternative: Compare using YYYY-MM format to avoid timezone issues
-          const reportYearMonth = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
-          const selectedYearMonth = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`;
-          
-          const isInMonth = reportYearMonth === selectedYearMonth;
-          console.log('Report:', report.date, '-> Parsed Date:', reportDate, '-> Vancouver Date:', vancouverReportDate, '-> Vancouver Month Name:', vancouverReportDate.toLocaleString('en-US', { month: 'long' }), '-> Report YYYY-MM:', reportYearMonth, '-> Selected YYYY-MM:', selectedYearMonth, '-> Match:', isInMonth);
-          
-          return isInMonth;
+          const [ry, rm] = normalizeReportYMD(report).split('-').map(Number);
+          return ry === sy && rm === sm;
         });
-        
-        console.log('Filtered reports count:', filteredData.length);
-        console.log('=== END MONTHLY DEBUG ===');
       }
     }
 
@@ -246,24 +134,32 @@ const SalesAnalysis = ({
 
     filteredData.forEach(report => {
       // Service analysis
+      const svcCount = report.services.length || 0;
       report.services.forEach(service => {
         if (service.name) {
           if (!serviceAnalysis[service.name]) {
             serviceAnalysis[service.name] = { quantity: 0, amount: 0 };
           }
-          serviceAnalysis[service.name].quantity += service.quantity || 1;
-          serviceAnalysis[service.name].amount += (service.quantity || 1) * (report.servicePrice / report.services.length);
+          const qty = service.quantity || 1;
+          serviceAnalysis[service.name].quantity += qty;
+          if (svcCount > 0) {
+            serviceAnalysis[service.name].amount += qty * (report.servicePrice / svcCount);
+          }
         }
       });
 
       // Jewelry analysis
+      const jewCount = report.jewelry.length || 0;
       report.jewelry.forEach(jewelry => {
         if (jewelry.name) {
           if (!jewelryAnalysis[jewelry.name]) {
             jewelryAnalysis[jewelry.name] = { quantity: 0, amount: 0 };
           }
-          jewelryAnalysis[jewelry.name].quantity += jewelry.quantity || 1;
-          jewelryAnalysis[jewelry.name].amount += (jewelry.quantity || 1) * (report.jewelryPrice / report.jewelry.length);
+          const qty = jewelry.quantity || 1;
+          jewelryAnalysis[jewelry.name].quantity += qty;
+          if (jewCount > 0) {
+            jewelryAnalysis[jewelry.name].amount += qty * (report.jewelryPrice / jewCount);
+          }
         }
       });
     });
@@ -280,146 +176,42 @@ const SalesAnalysis = ({
   const getFilteredDataForIncome = () => {
     let filteredData = filteredReports;
     
-    // Helper function to format date as YYYY-MM-DD for comparison
-    const formatDateAsString = (date) => {
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-    
     if (analysisType === 'daily') {
       if (selectedDate) {
-        filteredData = filteredReports.filter(report => {
-          let reportDateStr;
-          
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              const [datePart] = report.date.split(',');
-              const dateObj = new Date(datePart);
-              reportDateStr = formatDateAsString(dateObj);
-            } else {
-              const dateObj = new Date(report.date);
-              reportDateStr = formatDateAsString(dateObj);
-            }
-          } else {
-            reportDateStr = formatDateAsString(report.date);
-          }
-          
-          return reportDateStr === selectedDate;
-        });
+        filteredData = filteredReports.filter(report => 
+          normalizeReportYMD(report) === selectedDate
+        );
       }
     } else if (analysisType === 'weekly') {
       if (dateRange && dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
-        endDate.setHours(23, 59, 59, 999);
-        
+        const startYMD = dateRange.start;      // "YYYY-MM-DD"
+        const endYMD = dateRange.end;          // "YYYY-MM-DD"
         filteredData = filteredReports.filter(report => {
-          // Use the same date parsing logic as daily filtering
-          let reportDate;
-          
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              reportDate = new Date(datePart);
-            } else {
-              // Parse ISO string or other format
-              reportDate = new Date(report.date);
-            }
-          } else {
-            reportDate = new Date(report.date);
-          }
-          
-          return reportDate >= startDate && reportDate <= endDate;
+          const ymd = normalizeReportYMD(report);
+          return inYmdRange(ymd, startYMD, endYMD);
         });
       } else if (selectedDate) {
         // For weekly analysis, get reports for exactly 7 days starting from selected date
-        const selectedDateObj = new Date(selectedDate);
-        const startDate = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate());
-        
-        // Create array of 7 dates
-        const weekDates = [];
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
-          weekDates.push(`${year}-${month}-${day}`);
-        }
-        
-        filteredData = filteredReports.filter(report => {
-          // Use the EXACT same date parsing logic as daily filtering
-          let reportDateStr;
-          
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              const dateObj = new Date(datePart);
-              reportDateStr = formatDateAsString(dateObj);
-            } else {
-              // Parse ISO string or other format
-              const dateObj = new Date(report.date);
-              reportDateStr = formatDateAsString(dateObj);
-            }
-          } else {
-            // If date is already a Date object
-            reportDateStr = formatDateAsString(report.date);
-          }
-          
-          return weekDates.includes(reportDateStr);
-        });
+        const week = buildWeekYMDs(selectedDate); // 7 Vancouver dates
+        filteredData = filteredReports.filter(report => 
+          week.includes(normalizeReportYMD(report))
+        );
       }
+      // If no date selected, show all data (for weekly analysis)
     } else if (analysisType === 'monthly') {
       if (dateRange && dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
-        endDate.setHours(23, 59, 59, 999);
-        
+        const startYMD = dateRange.start;
+        const endYMD = dateRange.end;
         filteredData = filteredReports.filter(report => {
-          const reportDate = new Date(report.date);
-          return reportDate >= startDate && reportDate <= endDate;
+          const ymd = normalizeReportYMD(report);
+          return inYmdRange(ymd, startYMD, endYMD);
         });
       } else if (selectedDate) {
         // For monthly analysis, selectedDate is in format "YYYY-MM-01"
-        // Create selectedDateObj in local timezone to avoid timezone issues
-        const [year, month] = selectedDate.split('-');
-        const selectedDateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
-        
+        const [sy, sm] = selectedDate.split('-').map(Number); // selectedDate: "YYYY-MM-01"
         filteredData = filteredReports.filter(report => {
-          let reportDate;
-          
-          // Handle different date formats and convert to Vancouver timezone
-          if (typeof report.date === 'string') {
-            if (report.date.includes(',')) {
-              // Parse locale string format
-              const [datePart] = report.date.split(',');
-              reportDate = new Date(datePart);
-            } else {
-              // Parse ISO string or other format
-              reportDate = new Date(report.date);
-            }
-          } else {
-            reportDate = new Date(report.date);
-          }
-          
-          // Convert report date to Vancouver timezone for consistent comparison
-          const vancouverReportDate = new Date(reportDate.toLocaleString("en-US", { timeZone: "America/Vancouver" }));
-          
-          // Simple comparison: check if year and month match
-          const reportYear = vancouverReportDate.getFullYear();
-          const reportMonth = vancouverReportDate.getMonth();
-          const selectedYear = selectedDateObj.getFullYear();
-          const selectedMonth = selectedDateObj.getMonth();
-          
-          // Alternative: Compare using YYYY-MM format to avoid timezone issues
-          const reportYearMonth = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
-          const selectedYearMonth = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`;
-          
-          return reportYearMonth === selectedYearMonth;
+          const [ry, rm] = normalizeReportYMD(report).split('-').map(Number);
+          return ry === sy && rm === sm;
         });
       }
     }
@@ -519,12 +311,11 @@ const SalesAnalysis = ({
                       type="date"
                       value={dateRange?.start || ''}
                       onChange={(e) => {
-                        const startDate = e.target.value;
+                        const startDate = e.target.value; // "YYYY-MM-DD"
                         if (startDate) {
-                          // Calculate end date (7 days later)
-                          const endDate = new Date(startDate);
-                          endDate.setDate(endDate.getDate() + 6);
-                          const endDateStr = endDate.toISOString().split('T')[0];
+                          const endLocal = fromYMDLocal(startDate);
+                          endLocal.setDate(endLocal.getDate() + 6);
+                          const endDateStr = toYMDInVancouver(endLocal); // 🔒 without UTC
                           setDateRange({ start: startDate, end: endDateStr });
                         } else {
                           setDateRange({ start: '', end: '' });
@@ -589,9 +380,11 @@ const SalesAnalysis = ({
                 return `Showing reports for ${selectedDate}`;
               })()}
               {analysisType === 'weekly' && selectedDate && (() => {
-                const selectedDateObj = new Date(selectedDate);
-                const endDate = new Date(selectedDateObj.getTime() + 6 * 24 * 60 * 60 * 1000);
-                return `Showing reports for 7 days: ${selectedDate} to ${endDate.toISOString().split('T')[0]}`;
+                const startYMD = selectedDate; // "YYYY-MM-DD"
+                const endLocal = fromYMDLocal(startYMD);
+                endLocal.setDate(endLocal.getDate() + 6);
+                const endYMD = toYMDInVancouver(endLocal);
+                return `Showing reports for 7 days: ${startYMD} to ${endYMD}`;
               })()}
               {analysisType === 'monthly' && selectedDate && (() => {
                 // Create date in local timezone to avoid timezone issues

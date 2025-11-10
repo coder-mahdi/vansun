@@ -1,13 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useParams, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { fetchPosts, fetchMedia } from '../../utils/api';
 import Layout from '../../layout/Layout';
 
+const SITE_URL = 'https://vansunstudio.com';
+
+const CATEGORIES = [
+  { id: 'all', name: 'All' },
+  { id: 'tattoo', name: 'Tattoo' },
+  { id: 'piercing', name: 'Piercing' }
+];
+
+const getPlainText = (html = '') => html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+
+const buildExcerpt = (post) => {
+  if (post?.acf?.blog_post?.text) {
+    const clean = getPlainText(post.acf.blog_post.text);
+    return clean.length > 155 ? `${clean.slice(0, 152)}...` : clean;
+  }
+  if (post?.excerpt?.rendered) {
+    const clean = getPlainText(post.excerpt.rendered);
+    return clean.length > 155 ? `${clean.slice(0, 152)}...` : clean;
+  }
+  return 'Latest updates and stories from Vansun Studio.';
+};
+
 const Blog = () => {
+  const { category } = useParams();
+  const location = useLocation();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(
+    category && CATEGORIES.some(cat => cat.id === category) ? category : 'all'
+  );
   const [imageUrls, setImageUrls] = useState({});
 
   useEffect(() => {
@@ -70,33 +97,81 @@ const Blog = () => {
     loadPosts();
   }, []);
 
-  const categories = [
-    { id: 'all', name: 'All' },
-    { id: 'tattoo', name: 'Tattoo' },
-    { id: 'piercing', name: 'Piercing' }
-  ];
+  useEffect(() => {
+    if (category && CATEGORIES.some(cat => cat.id === category)) {
+      setSelectedCategory(category);
+    } else if (!category && selectedCategory !== 'all') {
+      setSelectedCategory('all');
+    }
+  }, [category, selectedCategory]);
 
-  const filteredPosts = selectedCategory === 'all' 
-    ? posts 
-    : posts.filter(post => {
-        const category = post._embedded?.['wp:term']?.[0]?.[0];
-        return category?.slug === selectedCategory;
-      });
+  const filteredPosts = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return posts;
+    }
+    return posts.filter(post => {
+      const postCategory = post._embedded?.['wp:term']?.[0]?.[0];
+      return postCategory?.slug === selectedCategory;
+    });
+  }, [posts, selectedCategory]);
+
+  const pageTitle = selectedCategory === 'all'
+    ? 'Blog | Vansun Studio'
+    : `${CATEGORIES.find(cat => cat.id === selectedCategory)?.name || 'Blog'} Articles | Vansun Studio`;
+
+  const metaDescription = filteredPosts.length > 0
+    ? buildExcerpt(filteredPosts[0])
+    : 'Explore insights, stories, and updates from Vansun Studio.';
+
+  const canonicalPath = selectedCategory === 'all' ? '/blog' : `/blog/${selectedCategory}`;
+  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+  const ogUrl = `${SITE_URL}${location.pathname}${location.search || ''}`;
+
+  const blogStructuredData = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Vansun Studio Blog',
+    description: metaDescription,
+    url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
+    blogPost: filteredPosts.slice(0, 10).map(post => {
+      const title = post.acf?.blog_post?.title || post.title?.rendered || 'Vansun Studio Blog Post';
+      const excerpt = buildExcerpt(post);
+      const image = imageUrls[post.id];
+      const postUrl = `${SITE_URL}/blog/post/${post.slug}`;
+
+      const structuredPost = {
+        '@type': 'BlogPosting',
+        headline: title,
+        description: excerpt,
+        url: postUrl,
+        mainEntityOfPage: postUrl,
+        datePublished: post.date,
+        dateModified: post.modified || post.date
+      };
+
+      if (image) {
+        structuredPost.image = image;
+      }
+
+      const categoryName = post._embedded?.['wp:term']?.[0]?.[0]?.name;
+      if (categoryName) {
+        structuredPost.articleSection = categoryName;
+      }
+
+      return structuredPost;
+    })
+  }), [filteredPosts, imageUrls, canonicalUrl, metaDescription]);
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="blog-container">
-          <div className="loading">Loading posts...</div>
-        </div>
-      </Layout>
-    );
+    return null;
   }
 
   if (error) {
     return (
       <Layout>
         <div className="blog-container">
+          <h1 className="sr-only">Blog</h1>
           <div className="error">
             <h2>Error Loading Posts</h2>
             <p>{error}</p>
@@ -109,18 +184,34 @@ const Blog = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={ogUrl} />
+        <meta property="og:site_name" content="Vansun Studio" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(blogStructuredData)}
+        </script>
+      </Helmet>
       <div className="blog-container">
         <div className="blog-header">
           <h1>Blog</h1>
           <div className="category-filter">
-            {categories.map(category => (
+            {CATEGORIES.map(categoryItem => (
               <Link
-                key={category.id}
-                to={category.id === 'all' ? '/blog' : `/blog/${category.id}`}
-                className={selectedCategory === category.id ? 'active' : ''}
-                onClick={() => setSelectedCategory(category.id)}
+                key={categoryItem.id}
+                to={categoryItem.id === 'all' ? '/blog' : `/blog/${categoryItem.id}`}
+                className={selectedCategory === categoryItem.id ? 'active' : ''}
+                onClick={() => setSelectedCategory(categoryItem.id)}
               >
-                {category.name}
+                {categoryItem.name}
               </Link>
             ))}
           </div>
@@ -142,6 +233,8 @@ const Blog = () => {
                       <img 
                         src={featuredImage} 
                         alt={post.acf?.blog_post?.title || post.title?.rendered}
+                            loading="lazy"
+                            decoding="async"
                         onError={(e) => {
                           console.error('Image failed to load:', featuredImage);
                           e.target.style.display = 'none';

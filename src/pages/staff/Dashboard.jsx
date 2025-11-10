@@ -1,8 +1,11 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { getCurrentUser, logout } from '../../utils/auth';
 import { canViewAllReports, canManageUsers } from '../../utils/userManagement';
 import Layout from '../../layout/Layout';
+
+const SITE_URL = 'https://vansunstudio.com';
 
 const Dashboard = () => {
   const currentUser = getCurrentUser();
@@ -17,6 +20,11 @@ const Dashboard = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Staff Dashboard | Vansun Studio</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`${SITE_URL}/staff/dashboard`} />
+      </Helmet>
       <div className="staff-dashboard-container">
         <div className="dashboard-header">
           <div className="user-info">

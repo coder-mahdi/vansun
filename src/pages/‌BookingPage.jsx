@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../layout/Layout";
 import { fetchPageBySlug } from "../utils/api";
@@ -8,6 +9,7 @@ import '../styles/pages/_bookingpage.scss';
 
 const API_URL = "https://vansunstudio.com/cms/wp-json/vansunstudio/v1";
 const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
+const SITE_URL = "https://vansunstudio.com";
 
 // Helper function to generate time slots
 const generateTimeSlots = (from, to) => {
@@ -372,19 +374,62 @@ const BookingPage = () => {
     return null;
   };
 
+  const pageTitle = productTitle
+    ? `Book ${productTitle} | Vansun Studio`
+    : 'Book Appointment | Vansun Studio';
+  const description = productTitle
+    ? `Secure your spot for ${productTitle} at Vansun Studio. Select a date and time that works for you.`
+    : 'Schedule your Vansun Studio appointment. Choose a service, date, and time to confirm your booking.';
+  const canonicalUrl = `${SITE_URL}/booking/${productId}`;
+  const bookingSchema = useMemo(() => {
+    if (!productTitle) {
+      return null;
+    }
+
+    const offer = {
+      '@type': 'Offer',
+      url: canonicalUrl
+    };
+
+    if (product?.price) {
+      offer.price = String(product.price).replace(/[^0-9.]/g, '');
+      offer.priceCurrency = 'CAD';
+    }
+
+    if (availableDates.length > 0) {
+      offer.availabilityStarts = `${availableDates[0].date}T00:00`;
+      offer.availabilityEnds = `${availableDates[availableDates.length - 1].date}T23:59`;
+    }
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      serviceType: productTitle,
+      provider: {
+        '@type': 'TattooParlor',
+        name: 'Vansun Studio',
+        url: SITE_URL
+      },
+      areaServed: {
+        '@type': 'City',
+        name: 'Vancouver'
+      },
+      offers: offer
+    };
+  }, [productTitle, canonicalUrl, product, availableDates]);
+
   if (loading) {
-    return (
-      <Layout>
-        <div className="p-6">
-          <p>Loading...</p>
-        </div>
-      </Layout>
-    );
+    return null;
   }
 
   if (error) {
     return (
       <Layout>
+        <Helmet>
+          <title>Booking Error | Vansun Studio</title>
+          <meta name="robots" content="noindex, follow" />
+          <link rel="canonical" href={`${SITE_URL}/booking/${productId || ''}`} />
+        </Helmet>
         <div className="p-6">
           <p className="text-red-600">{error}</p>
         </div>
@@ -394,6 +439,21 @@ const BookingPage = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+        {bookingSchema && (
+          <script type="application/ld+json">
+            {JSON.stringify(bookingSchema)}
+          </script>
+        )}
+      </Helmet>
       <div className="booking-container">
         {!isBooked && (
           <h1 className="text-2xl font-bold mb-4">Book Your {productTitle || 'Appointment'}</h1>

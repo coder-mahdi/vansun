@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import SignatureCanvas from 'react-signature-canvas';
 import Layout from '../layout/Layout';
 
 const RECAPTCHA_SITE_KEY = "6Lez4zErAAAAAPakygMDjCAZ2yRZt-hVSKbGQNJ0";
+const SITE_URL = 'https://vansunstudio.com';
 
 const ConsentForm = () => {
   const navigate = useNavigate();
@@ -123,17 +125,60 @@ const ConsentForm = () => {
     setSignature(null);
   };
 
-  if (loading) return <Layout><div className="consent-form-container">Loading...</div></Layout>;
-  if (!formData) return <Layout><div className="consent-form-container">No form data found.</div></Layout>;
+  if (loading) {
+    return (
+      <Layout>
+        <Helmet>
+          <title>Consent Form | Vansun Studio</title>
+          <link rel="canonical" href={`${SITE_URL}/consent-form/${type || ''}`} />
+        </Helmet>
+        <div className="consent-form-container">
+          <h1>Consent Form</h1>
+          <p>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!formData) {
+    return (
+      <Layout>
+        <Helmet>
+          <title>Consent Form Unavailable | Vansun Studio</title>
+          <meta name="robots" content="noindex, follow" />
+          <link rel="canonical" href={`${SITE_URL}/consent-form/${type || ''}`} />
+        </Helmet>
+        <div className="consent-form-container">
+          <h1>Consent Form</h1>
+          <p>No form data found.</p>
+        </div>
+      </Layout>
+    );
+  }
 
   const formTitle = type === 'piercing' ? 'Piercing Consent Agreement' : 'Tattoo Consent Agreement';
+  const description = type === 'piercing'
+    ? 'Complete the Vansun Studio piercing consent form online. Review safety information and submit before your appointment.'
+    : 'Complete the Vansun Studio tattoo consent form online. Review aftercare and submit your agreement before your session.';
+  const canonicalUrl = `${SITE_URL}/consent-form/${type}`;
 
   return (
     <Layout>
+      <Helmet>
+        <title>{`${formTitle} | Vansun Studio`}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={`${formTitle} | Vansun Studio`} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta name="twitter:title" content={`${formTitle} | Vansun Studio`} />
+        <meta name="twitter:description" content={description} />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="consent-form-container">
         {!isSubmitted ? (
           <form onSubmit={handleSubmit} className="consent-form">
-            <h2>{formTitle}</h2>
+            <h1>{formTitle}</h1>
             {error && <div className="error-message">{error}</div>}
             
             <div className="form-group">

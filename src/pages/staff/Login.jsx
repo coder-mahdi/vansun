@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { login, isAuthenticated } from '../../utils/auth';
 import Layout from '../../layout/Layout';
+
+const SITE_URL = 'https://vansunstudio.com';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -48,6 +51,11 @@ const Login = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Staff Login | Vansun Studio</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`${SITE_URL}/staff/login`} />
+      </Helmet>
       <div className="staff-login-container">
         <div className="login-card">
           <div className="login-header">

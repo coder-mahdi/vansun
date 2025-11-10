@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/auth';
 import { canViewAllReports } from '../../utils/userManagement';
@@ -8,6 +9,8 @@ import ReportCard from '../../components/ReportCard';
 import ReportDetails from '../../components/ReportDetails';
 import SalesAnalysis from '../../components/SalesAnalysis';
 import ReportFilters from '../../components/ReportFilters';
+
+const SITE_URL = 'https://vansunstudio.com';
 
 const ViewReports = () => {
   const [reports, setReports] = useState([]);
@@ -175,6 +178,11 @@ const ViewReports = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>View Sales Reports | Vansun Studio Staff</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`${SITE_URL}/staff/view-reports`} />
+      </Helmet>
       <div className="view-reports-container">
         <div className="reports-header">
           <div className="header-content">
