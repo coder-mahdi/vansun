@@ -60,6 +60,8 @@ const MyWork = () => {
                 alt={`${item.title} showcase at Vansun Studio`}
                 className="my-work-image"
                 loading="lazy"
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
               />
             )}
             <p>{item.description}</p>

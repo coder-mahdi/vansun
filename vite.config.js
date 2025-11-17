@@ -6,10 +6,15 @@ export default defineConfig({
   plugins: [react()],
   server: {
     historyApiFallback: true,
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    }
+    // Removed COEP and COOP headers to allow cross-origin images from WordPress
+    proxy: {
+      '/wp-content': {
+        target: 'https://vansunstudio.com/cms',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+      },
+    },
   },
   build: {
     rollupOptions: {

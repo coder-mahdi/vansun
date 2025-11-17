@@ -66,7 +66,7 @@ const Hero = () => {
               const altText = image?.alt_text?.trim() || `${title} hero image ${index + 1}`;
               return (
               <div key={index} className="slider-item">
-                <img src={image.source_url} alt={altText} loading="lazy" />
+                <img src={image.source_url} alt={altText} loading="lazy" crossOrigin="anonymous" referrerPolicy="no-referrer" />
               </div>
               );
             })}
